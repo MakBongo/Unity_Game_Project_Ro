@@ -25,39 +25,61 @@ public class PlayerController : MonoBehaviour
     public float bulletSpeed = 20f;
     public float fireRate = 0.2f;
     public float bulletLifetime = 2f;
-    public int magazineSize = 30;          // Maximum rounds in magazine
-    public float reloadTime = 2f;          // Time to reload in seconds
-    private int poolSize;                  // Now calculated dynamically
+    public int magazineSize = 30;
+    public float reloadTime = 2f;
+    private int poolSize; // Now dynamically managed
     private float nextFireTime = 0f;
     private Queue<GameObject> bulletPool;
-    private int currentAmmo;              // Current rounds in magazine
-    private bool isReloading = false;     // Reload state
+    private int currentAmmo;
+    private bool isReloading = false;
 
     void Start()
     {
         PlayerRB = GetComponent<Rigidbody2D>();
-        CalculatePoolSize();              // Calculate pool size before initializing
+        bulletPool = new Queue<GameObject>(); // Initialize the queue here
+        CalculatePoolSize();
         InitializeBulletPool();
-        currentAmmo = magazineSize;       // Start with full magazine
+        currentAmmo = magazineSize;
     }
 
     void CalculatePoolSize()
     {
-        // Calculate max bullets in flight: shots per second * lifetime, plus a buffer
         float shotsPerSecond = 1f / fireRate;
         int calculatedPoolSize = Mathf.CeilToInt(shotsPerSecond * bulletLifetime) + 5; // Buffer of 5
-        poolSize = Mathf.Max(calculatedPoolSize, magazineSize); // Ensure it¡¦s at least magazineSize
+        poolSize = Mathf.Max(calculatedPoolSize, magazineSize);
     }
 
     void InitializeBulletPool()
     {
-        bulletPool = new Queue<GameObject>();
-        for (int i = 0; i < poolSize; i++)
+        // Only add new bullets if needed
+        while (bulletPool.Count < poolSize)
         {
             GameObject bullet = Instantiate(bulletPrefab);
             bullet.SetActive(false);
             bulletPool.Enqueue(bullet);
         }
+    }
+
+    void AdjustPoolSize()
+    {
+        // Remove excess bullets if pool is larger than needed
+        while (bulletPool.Count > poolSize)
+        {
+            GameObject bullet = bulletPool.Dequeue();
+            if (!bullet.activeSelf) // Only destroy if inactive
+            {
+                Destroy(bullet);
+            }
+            else
+            {
+                // If active, put it back and try again later
+                bulletPool.Enqueue(bullet);
+                break; // Exit loop to avoid infinite dequeueing of active bullets
+            }
+        }
+
+        // Add bullets if pool is too small
+        InitializeBulletPool();
     }
 
     void Update()
@@ -134,6 +156,8 @@ public class PlayerController : MonoBehaviour
     {
         isReloading = true;
         yield return new WaitForSeconds(reloadTime);
+        CalculatePoolSize(); // Recalculate pool size during reload
+        AdjustPoolSize();    // Adjust the pool based on new size
         currentAmmo = magazineSize;
         isReloading = false;
     }
