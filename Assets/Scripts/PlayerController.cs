@@ -19,9 +19,57 @@ public class PlayerController : MonoBehaviour
     public LayerMask WhatIsGround;
     private bool isGrounded;
 
+    [Header("Set Shooting")]
+    public GameObject bulletPrefab;
+    public Transform firePoint;
+    public float bulletSpeed = 20f;
+    public float fireRate = 0.2f;
+    public int poolSize = 20;
+    public float bulletLifetime = 2f;
+    public int magazineSize = 30;          // Maximum rounds in magazine
+    public float reloadTime = 2f;          // Time to reload in seconds
+    private float nextFireTime = 0f;
+    private Queue<GameObject> bulletPool;
+    private int currentAmmo;              // Current rounds in magazine
+    private bool isReloading = false;     // Reload state
+
     void Start()
     {
         PlayerRB = GetComponent<Rigidbody2D>();
+        InitializeBulletPool();
+        currentAmmo = magazineSize;       // Start with full magazine
+    }
+
+    void InitializeBulletPool()
+    {
+        bulletPool = new Queue<GameObject>();
+
+        for (int i = 0; i < poolSize; i++)
+        {
+            GameObject bullet = Instantiate(bulletPrefab);
+            bullet.SetActive(false);
+            bulletPool.Enqueue(bullet);
+        }
+    }
+
+    void Update()
+    {
+        // Shooting or reloading logic
+        if (!isReloading)
+        {
+            if (Input.GetKey(KeyCode.Mouse0) && Time.time >= nextFireTime && currentAmmo > 0)
+            {
+                Shoot();
+                nextFireTime = Time.time + fireRate;
+            }
+            else if (currentAmmo <= 0)
+            {
+                StartCoroutine(Reload());
+            }
+        }
+
+        // Set firePoint direction based on facing
+        firePoint.rotation = Quaternion.Euler(0f, 0f, faceRight ? 0f : 180f);
     }
 
     void FixedUpdate()
@@ -51,5 +99,53 @@ public class PlayerController : MonoBehaviour
         Vector3 Scaler = transform.localScale;
         Scaler.x *= -1;
         transform.localScale = Scaler;
+    }
+
+    void Shoot()
+    {
+        if (bulletPool.Count > 0)
+        {
+            GameObject bullet = bulletPool.Dequeue();
+            bullet.transform.position = firePoint.position;
+            bullet.transform.rotation = firePoint.rotation;
+            bullet.SetActive(true);
+
+            Rigidbody2D bulletRB = bullet.GetComponent<Rigidbody2D>();
+            float direction = faceRight ? 1f : -1f;
+            bulletRB.velocity = new Vector2(direction * bulletSpeed, 0f);
+
+            currentAmmo--;  // Decrease ammo count
+            StartCoroutine(ReturnBulletToPool(bullet));
+        }
+    }
+
+    IEnumerator ReturnBulletToPool(GameObject bullet)
+    {
+        yield return new WaitForSeconds(bulletLifetime);
+
+        if (bullet != null)
+        {
+            bullet.SetActive(false);
+            bulletPool.Enqueue(bullet);
+        }
+    }
+
+    IEnumerator Reload()
+    {
+        isReloading = true;
+        yield return new WaitForSeconds(reloadTime);
+        currentAmmo = magazineSize;
+        isReloading = false;
+    }
+
+    // Optional: Get current ammo count for UI or debugging
+    public int GetCurrentAmmo()
+    {
+        return currentAmmo;
+    }
+
+    public bool IsReloading()
+    {
+        return isReloading;
     }
 }
