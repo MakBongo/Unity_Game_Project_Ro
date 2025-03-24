@@ -19,6 +19,15 @@ public class PlayerController : MonoBehaviour
     public LayerMask WhatIsGround;
     private bool isGrounded;
 
+    [Header("Set Health")]
+    public int maxHealth = 100;
+    private int currentHealth;
+
+    [Header("Set Experience")]
+    public int currentExp = 0;            // Current experience points
+    public int maxExp = 100;              // EXP needed to level up
+    public int level = 1;                 // Current player level
+
     [Header("Set Shooting")]
     public GameObject bulletPrefab;
     public Transform firePoint;
@@ -27,7 +36,8 @@ public class PlayerController : MonoBehaviour
     public float bulletLifetime = 2f;
     public int magazineSize = 30;
     public float reloadTime = 2f;
-    private int poolSize; // Now dynamically managed
+    public int bulletDamage = 10;
+    private int poolSize;
     private float nextFireTime = 0f;
     private Queue<GameObject> bulletPool;
     private int currentAmmo;
@@ -36,22 +46,22 @@ public class PlayerController : MonoBehaviour
     void Start()
     {
         PlayerRB = GetComponent<Rigidbody2D>();
-        bulletPool = new Queue<GameObject>(); // Initialize the queue here
+        bulletPool = new Queue<GameObject>();
         CalculatePoolSize();
         InitializeBulletPool();
         currentAmmo = magazineSize;
+        currentHealth = maxHealth;
     }
 
     void CalculatePoolSize()
     {
         float shotsPerSecond = 1f / fireRate;
-        int calculatedPoolSize = Mathf.CeilToInt(shotsPerSecond * bulletLifetime) + 5; // Buffer of 5
+        int calculatedPoolSize = Mathf.CeilToInt(shotsPerSecond * bulletLifetime) + 5;
         poolSize = Mathf.Max(calculatedPoolSize, magazineSize);
     }
 
     void InitializeBulletPool()
     {
-        // Only add new bullets if needed
         while (bulletPool.Count < poolSize)
         {
             GameObject bullet = Instantiate(bulletPrefab);
@@ -62,23 +72,19 @@ public class PlayerController : MonoBehaviour
 
     void AdjustPoolSize()
     {
-        // Remove excess bullets if pool is larger than needed
         while (bulletPool.Count > poolSize)
         {
             GameObject bullet = bulletPool.Dequeue();
-            if (!bullet.activeSelf) // Only destroy if inactive
+            if (!bullet.activeSelf)
             {
                 Destroy(bullet);
             }
             else
             {
-                // If active, put it back and try again later
                 bulletPool.Enqueue(bullet);
-                break; // Exit loop to avoid infinite dequeueing of active bullets
+                break;
             }
         }
-
-        // Add bullets if pool is too small
         InitializeBulletPool();
     }
 
@@ -97,6 +103,11 @@ public class PlayerController : MonoBehaviour
             }
         }
         firePoint.rotation = Quaternion.Euler(0f, 0f, faceRight ? 0f : 180f);
+
+        if (currentHealth <= 0)
+        {
+            Die();
+        }
     }
 
     void FixedUpdate()
@@ -134,6 +145,14 @@ public class PlayerController : MonoBehaviour
             bullet.transform.position = firePoint.position;
             bullet.transform.rotation = firePoint.rotation;
             bullet.SetActive(true);
+
+            Bullet bulletScript = bullet.GetComponent<Bullet>();
+            if (bulletScript != null)
+            {
+                bulletScript.damage = bulletDamage;
+                bulletScript.player = this; // Pass reference to gain EXP
+            }
+
             Rigidbody2D bulletRB = bullet.GetComponent<Rigidbody2D>();
             float direction = faceRight ? 1f : -1f;
             bulletRB.velocity = new Vector2(direction * bulletSpeed, 0f);
@@ -156,19 +175,54 @@ public class PlayerController : MonoBehaviour
     {
         isReloading = true;
         yield return new WaitForSeconds(reloadTime);
-        CalculatePoolSize(); // Recalculate pool size during reload
-        AdjustPoolSize();    // Adjust the pool based on new size
+        CalculatePoolSize();
+        AdjustPoolSize();
         currentAmmo = magazineSize;
         isReloading = false;
     }
 
-    public int GetCurrentAmmo()
+    // Health-related methods
+    public void TakeDamage(int damage)
     {
-        return currentAmmo;
+        currentHealth -= damage;
+        currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
+        Debug.Log($"Player took {damage} damage. Current health: {currentHealth}");
     }
 
-    public bool IsReloading()
+    void Die()
     {
-        return isReloading;
+        Debug.Log("Player died!");
+        gameObject.SetActive(false);
     }
+
+    // EXP-related methods
+    public void AddExp(int exp)
+    {
+        currentExp += exp;
+        Debug.Log($"Gained {exp} EXP. Current EXP: {currentExp}/{maxExp}");
+        while (currentExp >= maxExp)
+        {
+            LevelUp();
+        }
+    }
+
+    void LevelUp()
+    {
+        level++;
+        currentExp -= maxExp;
+        maxExp = Mathf.RoundToInt(maxExp * 1.5f); // Increase max EXP by 50% each level
+        maxHealth += 10;                          // Boost max health
+        currentHealth = maxHealth;                // Heal to full on level up
+        bulletDamage += 2;                        // Increase damage
+        Debug.Log($"Leveled up to {level}! New max EXP: {maxExp}, Health: {maxHealth}, Damage: {bulletDamage}");
+    }
+
+    // Public getters
+    public int GetCurrentHealth() { return currentHealth; }
+    public int GetMaxHealth() { return maxHealth; }
+    public int GetCurrentAmmo() { return currentAmmo; }
+    public bool IsReloading() { return isReloading; }
+    public int GetCurrentExp() { return currentExp; }
+    public int GetMaxExp() { return maxExp; }
+    public int GetLevel() { return level; }
 }

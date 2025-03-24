@@ -2,12 +2,20 @@ using UnityEngine;
 
 public class Bullet : MonoBehaviour
 {
+    public int damage;
+    public PlayerController player; // Reference to player to award EXP
+
     void OnTriggerEnter2D(Collider2D collision)
     {
-        // Add your collision logic here if needed
-        // For example: if (collision.CompareTag("Enemy")) { Destroy(collision.gameObject); }
-
-        // Note: We don't destroy the bullet here anymore since it's pooled
-        gameObject.SetActive(false);  // Deactivate instead of destroying
+        Enemy enemy = collision.GetComponent<Enemy>();
+        if (enemy != null)
+        {
+            enemy.TakeDamage(damage);
+            if (enemy.IsDead() && player != null) // Check if enemy died
+            {
+                player.AddExp(enemy.expValue); // Award EXP
+            }
+        }
+        gameObject.SetActive(false);
     }
 }
