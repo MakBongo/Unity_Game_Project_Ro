@@ -24,9 +24,9 @@ public class PlayerController : MonoBehaviour
     private int currentHealth;
 
     [Header("Set Experience")]
-    public int currentExp = 0;            // Current experience points
-    public int maxExp = 100;              // EXP needed to level up
-    public int level = 1;                 // Current player level
+    public int currentExp = 0;
+    public int maxExp = 100;
+    public int level = 1;
 
     [Header("Set Shooting")]
     public GameObject bulletPrefab;
@@ -150,7 +150,7 @@ public class PlayerController : MonoBehaviour
             if (bulletScript != null)
             {
                 bulletScript.damage = bulletDamage;
-                bulletScript.player = this; // Pass reference to gain EXP
+                bulletScript.player = this;
             }
 
             Rigidbody2D bulletRB = bullet.GetComponent<Rigidbody2D>();
@@ -181,7 +181,6 @@ public class PlayerController : MonoBehaviour
         isReloading = false;
     }
 
-    // Health-related methods
     public void TakeDamage(int damage)
     {
         currentHealth -= damage;
@@ -195,7 +194,6 @@ public class PlayerController : MonoBehaviour
         gameObject.SetActive(false);
     }
 
-    // EXP-related methods
     public void AddExp(int exp)
     {
         currentExp += exp;
@@ -210,11 +208,33 @@ public class PlayerController : MonoBehaviour
     {
         level++;
         currentExp -= maxExp;
-        maxExp = Mathf.RoundToInt(maxExp * 1.5f); // Increase max EXP by 50% each level
-        maxHealth += 10;                          // Boost max health
-        currentHealth = maxHealth;                // Heal to full on level up
-        bulletDamage += 2;                        // Increase damage
-        Debug.Log($"Leveled up to {level}! New max EXP: {maxExp}, Health: {maxHealth}, Damage: {bulletDamage}");
+        maxExp = Mathf.RoundToInt(maxExp * 1.5f);
+        CanvasController canvas = FindObjectOfType<CanvasController>();
+        if (canvas != null)
+        {
+            canvas.ShowUpgradePanel(); // Delegate to CanvasController
+        }
+        Debug.Log($"Leveled up to {level}! New max EXP: {maxExp}");
+    }
+
+    // Upgrade methods for CanvasController to call
+    public void UpgradeMaxHealth()
+    {
+        maxHealth += 10;
+        currentHealth = maxHealth;
+        Debug.Log($"Upgraded Max Health to {maxHealth}");
+    }
+
+    public void UpgradeBulletDamage()
+    {
+        bulletDamage += 2;
+        Debug.Log($"Upgraded Bullet Damage to {bulletDamage}");
+    }
+
+    public void UpgradeMoveSpeed()
+    {
+        moveSpeed += 1f;
+        Debug.Log($"Upgraded Move Speed to {moveSpeed}");
     }
 
     // Public getters

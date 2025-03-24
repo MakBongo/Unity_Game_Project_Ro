@@ -4,10 +4,11 @@ using UnityEngine.UI;
 public class CanvasController : MonoBehaviour
 {
     [Header("References")]
-    public PlayerController playerController; // Reference to PlayerController
-    public Text displayText;                  // UI Text for ammo and reload status
-    public Slider healthSlider;               // UI Slider for health
-    public Slider expSlider;                  // UI Slider for experience
+    public PlayerController playerController;
+    public Text displayText;
+    public Slider healthSlider;
+    public Slider expSlider;
+    public GameObject upgradePanel; // UI panel for upgrades
 
     void Start()
     {
@@ -24,6 +25,12 @@ public class CanvasController : MonoBehaviour
             expSlider.maxValue = playerController.GetMaxExp();
             expSlider.value = playerController.GetCurrentExp();
         }
+
+        // Ensure upgrade panel is hidden at start
+        if (upgradePanel != null)
+        {
+            upgradePanel.SetActive(false);
+        }
     }
 
     void Update()
@@ -39,14 +46,61 @@ public class CanvasController : MonoBehaviour
         // Update health slider
         if (playerController != null && healthSlider != null)
         {
+            healthSlider.maxValue = playerController.GetMaxHealth(); // Update in case maxHealth changes
             healthSlider.value = playerController.GetCurrentHealth();
         }
 
         // Update EXP slider
         if (playerController != null && expSlider != null)
         {
-            expSlider.maxValue = playerController.GetMaxExp(); // Update max EXP in case it changes
+            expSlider.maxValue = playerController.GetMaxExp();
             expSlider.value = playerController.GetCurrentExp();
+        }
+    }
+
+    public void ShowUpgradePanel()
+    {
+        if (upgradePanel != null)
+        {
+            upgradePanel.SetActive(true);
+            Time.timeScale = 0f; // Pause game
+        }
+    }
+
+    // Button methods
+    public void OnHealthButtonClicked()
+    {
+        if (playerController != null)
+        {
+            playerController.UpgradeMaxHealth();
+            CloseUpgradePanel();
+        }
+    }
+
+    public void OnDamageButtonClicked()
+    {
+        if (playerController != null)
+        {
+            playerController.UpgradeBulletDamage();
+            CloseUpgradePanel();
+        }
+    }
+
+    public void OnSpeedButtonClicked()
+    {
+        if (playerController != null)
+        {
+            playerController.UpgradeMoveSpeed();
+            CloseUpgradePanel();
+        }
+    }
+
+    void CloseUpgradePanel()
+    {
+        if (upgradePanel != null)
+        {
+            upgradePanel.SetActive(false);
+            Time.timeScale = 1f; // Resume game
         }
     }
 }
