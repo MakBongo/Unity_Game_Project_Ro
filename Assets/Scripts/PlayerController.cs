@@ -218,7 +218,7 @@ public class PlayerController : MonoBehaviour
         CanvasController canvas = FindObjectOfType<CanvasController>();
         if (canvas != null)
         {
-            canvas.ShowUpgradePanel();
+            canvas.QueuePanel("PlayerLevelUp"); // Queue player level up panel
         }
         Debug.Log($"Leveled up to {level}! New max EXP: {maxExp}");
     }

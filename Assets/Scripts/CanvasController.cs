@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using System.Collections.Generic;
 
 public class CanvasController : MonoBehaviour
 {
@@ -11,9 +12,9 @@ public class CanvasController : MonoBehaviour
     public GameObject upgradePanel; // Player upgrade panel
 
     [Header("Level Complete UI")]
-    public GameObject levelFinishedPanel;  // New intermediate panel
-    public Button nextButton;              // Button to proceed to upgrade options
-    public GameObject levelCompletePanel;  // Panel for upgrade options
+    public GameObject levelFinishedPanel;
+    public Button nextButton;
+    public GameObject levelCompletePanel;
     public Text option1Text;
     public Text option2Text;
     public Button option1Button;
@@ -22,42 +23,31 @@ public class CanvasController : MonoBehaviour
     private enum UpgradeOption { Speed, Health, Damage }
     private UpgradeOption[] upgradeOptions = { UpgradeOption.Speed, UpgradeOption.Health, UpgradeOption.Damage };
     private UpgradeOption[] currentOptions = new UpgradeOption[2];
-    private SceneManager sceneManager; // Store reference for upgrades
+    private SceneManager sceneManager;
+    private Queue<string> panelQueue = new Queue<string>(); // Queue for panel order
+    private bool isShowingPanel = false;
 
     void Start()
     {
-        // Initialize health slider
         if (playerController != null && healthSlider != null)
         {
             healthSlider.maxValue = playerController.GetMaxHealth();
             healthSlider.value = playerController.GetCurrentHealth();
         }
 
-        // Initialize EXP slider
         if (playerController != null && expSlider != null)
         {
             expSlider.maxValue = playerController.GetMaxExp();
             expSlider.value = playerController.GetCurrentExp();
         }
 
-        // Ensure panels are hidden at start
-        if (upgradePanel != null)
-        {
-            upgradePanel.SetActive(false);
-        }
-        if (levelFinishedPanel != null)
-        {
-            levelFinishedPanel.SetActive(false);
-        }
-        if (levelCompletePanel != null)
-        {
-            levelCompletePanel.SetActive(false);
-        }
+        if (upgradePanel != null) upgradePanel.SetActive(false);
+        if (levelFinishedPanel != null) levelFinishedPanel.SetActive(false);
+        if (levelCompletePanel != null) levelCompletePanel.SetActive(false);
     }
 
     void Update()
     {
-        // Update ammo and reload display
         if (playerController != null && displayText != null)
         {
             int currentAmmo = playerController.GetCurrentAmmo();
@@ -65,22 +55,53 @@ public class CanvasController : MonoBehaviour
             displayText.text = playerController.IsReloading() ? $"{ammoString} - Reloading..." : ammoString;
         }
 
-        // Update health slider
         if (playerController != null && healthSlider != null)
         {
             healthSlider.maxValue = playerController.GetMaxHealth();
             healthSlider.value = playerController.GetCurrentHealth();
         }
 
-        // Update EXP slider
         if (playerController != null && expSlider != null)
         {
             expSlider.maxValue = playerController.GetMaxExp();
             expSlider.value = playerController.GetCurrentExp();
         }
+
+        // Show next panel in queue if not currently showing one
+        if (!isShowingPanel && panelQueue.Count > 0)
+        {
+            ShowNextPanel();
+        }
     }
 
-    // Player upgrade panel (existing)
+    public void QueuePanel(string panelName)
+    {
+        panelQueue.Enqueue(panelName);
+    }
+
+    void ShowNextPanel()
+    {
+        if (panelQueue.Count == 0) return;
+
+        string panelName = panelQueue.Dequeue();
+        isShowingPanel = true;
+
+        switch (panelName)
+        {
+            case "PlayerLevelUp":
+                ShowUpgradePanel();
+                break;
+            case "LevelFinished":
+                sceneManager = FindObjectOfType<SceneManager>();
+                if (sceneManager != null)
+                {
+                    ShowLevelFinishedPanel();
+                }
+                break;
+        }
+    }
+
+    // Player upgrade panel
     public void ShowUpgradePanel()
     {
         if (upgradePanel != null)
@@ -123,33 +144,30 @@ public class CanvasController : MonoBehaviour
         {
             upgradePanel.SetActive(false);
             Time.timeScale = 1f;
+            isShowingPanel = false; // Allow next panel
         }
     }
 
-    // Level finished panel (new)
-    public void ShowLevelFinishedPanel(SceneManager sceneManagerRef)
+    // Level finished panel
+    public void ShowLevelFinishedPanel()
     {
         if (levelFinishedPanel != null)
         {
-            sceneManager = sceneManagerRef; // Store reference
             levelFinishedPanel.SetActive(true);
             Time.timeScale = 0f;
-
-            // Assign Next button action
             nextButton.onClick.RemoveAllListeners();
             nextButton.onClick.AddListener(ShowLevelCompletePanel);
         }
     }
 
-    // Level complete panel (existing, now called from Next button)
+    // Level complete panel
     public void ShowLevelCompletePanel()
     {
         if (levelCompletePanel != null && sceneManager != null)
         {
-            levelFinishedPanel.SetActive(false); // Hide the finished panel
+            levelFinishedPanel.SetActive(false);
             levelCompletePanel.SetActive(true);
 
-            // Select two random upgrade options
             currentOptions[0] = upgradeOptions[Random.Range(0, upgradeOptions.Length)];
             do
             {
@@ -184,6 +202,7 @@ public class CanvasController : MonoBehaviour
             sceneManager.ApplyUpgrade(option.ToString());
             levelCompletePanel.SetActive(false);
             Time.timeScale = 1f;
+            isShowingPanel = false; // Allow next panel
         }
     }
 }

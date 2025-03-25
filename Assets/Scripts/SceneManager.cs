@@ -90,7 +90,7 @@ public class SceneManager : MonoBehaviour
         CanvasController canvas = FindObjectOfType<CanvasController>();
         if (canvas != null)
         {
-            canvas.ShowLevelFinishedPanel(this); // Show the intermediate panel first
+            canvas.QueuePanel("LevelFinished"); // Queue level finished panel
         }
     }
 
