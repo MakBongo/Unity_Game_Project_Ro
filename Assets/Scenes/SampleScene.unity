@@ -268,7 +268,7 @@ GameObject:
   - component: {fileID: 195737232}
   - component: {fileID: 195737231}
   m_Layer: 5
-  m_Name: Button (Legacy) (2)
+  m_Name: Button2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1038,7 +1038,7 @@ GameObject:
   - component: {fileID: 582227564}
   - component: {fileID: 582227563}
   m_Layer: 5
-  m_Name: Button (Legacy)
+  m_Name: Button1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1485,7 +1485,7 @@ GameObject:
   - component: {fileID: 1007451112}
   - component: {fileID: 1007451111}
   m_Layer: 5
-  m_Name: Panel (1)
+  m_Name: comPanel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2369,7 +2369,7 @@ MonoBehaviour:
   baseEnemyHealth: 50
   baseEnemyDamage: 10
   baseExpValue: 20
-  enemyPrefab: {fileID: 8110902789359450429, guid: 848e920e369b9c44c8225711e3ffab4d, type: 3}
+  enemyPrefab: {fileID: 6956680453867338152, guid: 848e920e369b9c44c8225711e3ffab4d, type: 3}
   enemiesPerLevel: 5
   levelCompletePanel: {fileID: 1007451109}
   option1Text: {fileID: 211140703}
@@ -2638,8 +2638,8 @@ CanvasRenderer:
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
-  - {fileID: 1808312576}
   - {fileID: 492089531}
   - {fileID: 235022474}
+  - {fileID: 1808312576}
   - {fileID: 636802633}
   - {fileID: 665933740}
