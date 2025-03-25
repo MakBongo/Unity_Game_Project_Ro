@@ -90,11 +90,10 @@ public class SceneManager : MonoBehaviour
         CanvasController canvas = FindObjectOfType<CanvasController>();
         if (canvas != null)
         {
-            canvas.ShowLevelCompletePanel(this); // Pass SceneManager reference
+            canvas.ShowLevelFinishedPanel(this); // Show the intermediate panel first
         }
     }
 
-    // Called by CanvasController to apply the selected upgrade
     public void ApplyUpgrade(string option)
     {
         switch (option)

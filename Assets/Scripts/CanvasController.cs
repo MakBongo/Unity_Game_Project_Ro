@@ -11,15 +11,18 @@ public class CanvasController : MonoBehaviour
     public GameObject upgradePanel; // Player upgrade panel
 
     [Header("Level Complete UI")]
-    public GameObject levelCompletePanel; // Panel for level completion
-    public Text option1Text;              // Text for first upgrade option
-    public Text option2Text;              // Text for second upgrade option
-    public Button option1Button;          // Button for first option
-    public Button option2Button;          // Button for second option
+    public GameObject levelFinishedPanel;  // New intermediate panel
+    public Button nextButton;              // Button to proceed to upgrade options
+    public GameObject levelCompletePanel;  // Panel for upgrade options
+    public Text option1Text;
+    public Text option2Text;
+    public Button option1Button;
+    public Button option2Button;
 
     private enum UpgradeOption { Speed, Health, Damage }
     private UpgradeOption[] upgradeOptions = { UpgradeOption.Speed, UpgradeOption.Health, UpgradeOption.Damage };
     private UpgradeOption[] currentOptions = new UpgradeOption[2];
+    private SceneManager sceneManager; // Store reference for upgrades
 
     void Start()
     {
@@ -41,6 +44,10 @@ public class CanvasController : MonoBehaviour
         if (upgradePanel != null)
         {
             upgradePanel.SetActive(false);
+        }
+        if (levelFinishedPanel != null)
+        {
+            levelFinishedPanel.SetActive(false);
         }
         if (levelCompletePanel != null)
         {
@@ -119,13 +126,28 @@ public class CanvasController : MonoBehaviour
         }
     }
 
-    // Level complete panel (new)
-    public void ShowLevelCompletePanel(SceneManager sceneManager)
+    // Level finished panel (new)
+    public void ShowLevelFinishedPanel(SceneManager sceneManagerRef)
     {
-        if (levelCompletePanel != null)
+        if (levelFinishedPanel != null)
         {
-            levelCompletePanel.SetActive(true);
+            sceneManager = sceneManagerRef; // Store reference
+            levelFinishedPanel.SetActive(true);
             Time.timeScale = 0f;
+
+            // Assign Next button action
+            nextButton.onClick.RemoveAllListeners();
+            nextButton.onClick.AddListener(ShowLevelCompletePanel);
+        }
+    }
+
+    // Level complete panel (existing, now called from Next button)
+    public void ShowLevelCompletePanel()
+    {
+        if (levelCompletePanel != null && sceneManager != null)
+        {
+            levelFinishedPanel.SetActive(false); // Hide the finished panel
+            levelCompletePanel.SetActive(true);
 
             // Select two random upgrade options
             currentOptions[0] = upgradeOptions[Random.Range(0, upgradeOptions.Length)];
@@ -134,15 +156,13 @@ public class CanvasController : MonoBehaviour
                 currentOptions[1] = upgradeOptions[Random.Range(0, upgradeOptions.Length)];
             } while (currentOptions[1] == currentOptions[0]);
 
-            // Update button text with current SceneManager values
             option1Text.text = GetUpgradeText(currentOptions[0], sceneManager);
             option2Text.text = GetUpgradeText(currentOptions[1], sceneManager);
 
-            // Assign button actions
             option1Button.onClick.RemoveAllListeners();
             option2Button.onClick.RemoveAllListeners();
-            option1Button.onClick.AddListener(() => ApplyLevelUpgrade(currentOptions[0], sceneManager));
-            option2Button.onClick.AddListener(() => ApplyLevelUpgrade(currentOptions[1], sceneManager));
+            option1Button.onClick.AddListener(() => ApplyLevelUpgrade(currentOptions[0]));
+            option2Button.onClick.AddListener(() => ApplyLevelUpgrade(currentOptions[1]));
         }
     }
 
@@ -157,10 +177,13 @@ public class CanvasController : MonoBehaviour
         }
     }
 
-    void ApplyLevelUpgrade(UpgradeOption option, SceneManager sceneManager)
+    void ApplyLevelUpgrade(UpgradeOption option)
     {
-        sceneManager.ApplyUpgrade(option.ToString());
-        levelCompletePanel.SetActive(false);
-        Time.timeScale = 1f;
+        if (sceneManager != null)
+        {
+            sceneManager.ApplyUpgrade(option.ToString());
+            levelCompletePanel.SetActive(false);
+            Time.timeScale = 1f;
+        }
     }
 }
