@@ -1183,6 +1183,11 @@ MonoBehaviour:
   healthSlider: {fileID: 248389191}
   expSlider: {fileID: 1849336010}
   upgradePanel: {fileID: 969192772}
+  levelCompletePanel: {fileID: 1007451109}
+  option1Text: {fileID: 211140703}
+  option2Text: {fileID: 1301968775}
+  option1Button: {fileID: 582227563}
+  option2Button: {fileID: 195737231}
 --- !u!114 &636802630
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2371,11 +2376,6 @@ MonoBehaviour:
   baseExpValue: 20
   enemyPrefab: {fileID: 6956680453867338152, guid: 848e920e369b9c44c8225711e3ffab4d, type: 3}
   enemiesPerLevel: 5
-  levelCompletePanel: {fileID: 1007451109}
-  option1Text: {fileID: 211140703}
-  option2Text: {fileID: 1301968775}
-  option1Button: {fileID: 582227563}
-  option2Button: {fileID: 195737231}
 --- !u!4 &1808312576
 Transform:
   m_ObjectHideFlags: 0
