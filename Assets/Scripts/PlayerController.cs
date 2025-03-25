@@ -31,22 +31,26 @@ public class PlayerController : MonoBehaviour
     [Header("Set Shooting")]
     public GameObject bulletPrefab;
     public Transform firePoint;
+
+    [Header("Gun Data")]
+    public int bulletDamage = 10;
     public float bulletSpeed = 20f;
-    public float fireRate = 0.2f;
+    public float firesPerMinute = 300f; // Now using FPM as input (300 FPM = 0.2s per shot)
     public float bulletLifetime = 2f;
     public int magazineSize = 30;
     public float reloadTime = 2f;
-    public int bulletDamage = 10;
     private int poolSize;
     private float nextFireTime = 0f;
     private Queue<GameObject> bulletPool;
     private int currentAmmo;
     private bool isReloading = false;
+    private float fireRate; // Internal variable calculated from FPM
 
     void Start()
     {
         PlayerRB = GetComponent<Rigidbody2D>();
         bulletPool = new Queue<GameObject>();
+        fireRate = 60f / firesPerMinute; // Calculate fireRate from FPM
         CalculatePoolSize();
         InitializeBulletPool();
         currentAmmo = magazineSize;
@@ -55,6 +59,7 @@ public class PlayerController : MonoBehaviour
 
     void CalculatePoolSize()
     {
+        fireRate = 60f / firesPerMinute; // Recalculate in case FPM changes
         float shotsPerSecond = 1f / fireRate;
         int calculatedPoolSize = Mathf.CeilToInt(shotsPerSecond * bulletLifetime) + 5;
         poolSize = Mathf.Max(calculatedPoolSize, magazineSize);
@@ -95,6 +100,7 @@ public class PlayerController : MonoBehaviour
             if (Input.GetKey(KeyCode.Mouse0) && Time.time >= nextFireTime && currentAmmo > 0)
             {
                 Shoot();
+                fireRate = 60f / firesPerMinute; // Ensure fireRate is current
                 nextFireTime = Time.time + fireRate;
             }
             else if (currentAmmo <= 0)
@@ -212,12 +218,11 @@ public class PlayerController : MonoBehaviour
         CanvasController canvas = FindObjectOfType<CanvasController>();
         if (canvas != null)
         {
-            canvas.ShowUpgradePanel(); // Delegate to CanvasController
+            canvas.ShowUpgradePanel();
         }
         Debug.Log($"Leveled up to {level}! New max EXP: {maxExp}");
     }
 
-    // Upgrade methods for CanvasController to call
     public void UpgradeMaxHealth()
     {
         maxHealth += 10;
@@ -237,7 +242,6 @@ public class PlayerController : MonoBehaviour
         Debug.Log($"Upgraded Move Speed to {moveSpeed}");
     }
 
-    // Public getters
     public int GetCurrentHealth() { return currentHealth; }
     public int GetMaxHealth() { return maxHealth; }
     public int GetCurrentAmmo() { return currentAmmo; }

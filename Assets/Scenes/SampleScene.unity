@@ -300,12 +300,12 @@ MonoBehaviour:
   level: 1
   bulletPrefab: {fileID: 71979686626409600, guid: 243e9c805720058429f44e784a5539e2, type: 3}
   firePoint: {fileID: 1013674465}
+  bulletDamage: 10
   bulletSpeed: 20
-  fireRate: 0.2
+  firesPerMinute: 300
   bulletLifetime: 2
   magazineSize: 30
   reloadTime: 2
-  bulletDamage: 10
 --- !u!212 &235022473
 SpriteRenderer:
   m_ObjectHideFlags: 0
