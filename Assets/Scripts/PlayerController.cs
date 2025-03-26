@@ -21,7 +21,12 @@ public class PlayerController : MonoBehaviour
 
     [Header("Set Health")]
     public int maxHealth = 100;
-    private int currentHealth;
+    private float currentHealth;
+
+    [Header("Healing")]
+    public float healRate = 0.001f; // 0.1% of maxHealth per second
+    private float healTimer = 0f;
+    private float healInterval = 1f;
 
     [Header("Set Experience")]
     public int currentExp = 0;
@@ -35,7 +40,7 @@ public class PlayerController : MonoBehaviour
     [Header("Gun Data")]
     public int bulletDamage = 10;
     public float bulletSpeed = 20f;
-    public float firesPerMinute = 300f; // Now using FPM as input (300 FPM = 0.2s per shot)
+    public float firesPerMinute = 300f;
     public float bulletLifetime = 2f;
     public int magazineSize = 30;
     public float reloadTime = 2f;
@@ -44,13 +49,21 @@ public class PlayerController : MonoBehaviour
     private Queue<GameObject> bulletPool;
     private int currentAmmo;
     private bool isReloading = false;
-    private float fireRate; // Internal variable calculated from FPM
+    private float fireRate;
+
+    [Header("Upgrade Multipliers")]
+    private float bulletSpeedUpgrade = 1.1f;    // 10% increase
+    private float firesPerMinuteUpgrade = 1.1f; // 10% increase
+    private float bulletLifetimeUpgrade = 1.1f; // 10% increase
+    private float magazineSizeUpgrade = 1.1f;   // 10% increase
+    private float reloadTimeUpgrade = 0.9f;     // 10% decrease (faster reload)
+    private float healRateUpgrade = 1.1f;       // 10% increase
 
     void Start()
     {
         PlayerRB = GetComponent<Rigidbody2D>();
         bulletPool = new Queue<GameObject>();
-        fireRate = 60f / firesPerMinute; // Calculate fireRate from FPM
+        fireRate = 60f / firesPerMinute;
         CalculatePoolSize();
         InitializeBulletPool();
         currentAmmo = magazineSize;
@@ -59,7 +72,7 @@ public class PlayerController : MonoBehaviour
 
     void CalculatePoolSize()
     {
-        fireRate = 60f / firesPerMinute; // Recalculate in case FPM changes
+        fireRate = 60f / firesPerMinute;
         float shotsPerSecond = 1f / fireRate;
         int calculatedPoolSize = Mathf.CeilToInt(shotsPerSecond * bulletLifetime) + 5;
         poolSize = Mathf.Max(calculatedPoolSize, magazineSize);
@@ -100,7 +113,7 @@ public class PlayerController : MonoBehaviour
             if (Input.GetKey(KeyCode.Mouse0) && Time.time >= nextFireTime && currentAmmo > 0)
             {
                 Shoot();
-                fireRate = 60f / firesPerMinute; // Ensure fireRate is current
+                fireRate = 60f / firesPerMinute;
                 nextFireTime = Time.time + fireRate;
             }
             else if (currentAmmo <= 0)
@@ -114,6 +127,8 @@ public class PlayerController : MonoBehaviour
         {
             Die();
         }
+
+        HealOverTime();
     }
 
     void FixedUpdate()
@@ -218,15 +233,31 @@ public class PlayerController : MonoBehaviour
         CanvasController canvas = FindObjectOfType<CanvasController>();
         if (canvas != null)
         {
-            canvas.QueuePanel("PlayerLevelUp"); // Queue player level up panel
+            canvas.QueuePanel("PlayerLevelUp");
         }
         Debug.Log($"Leveled up to {level}! New max EXP: {maxExp}");
     }
 
+    void HealOverTime()
+    {
+        if (currentHealth < maxHealth)
+        {
+            healTimer += Time.deltaTime;
+            if (healTimer >= healInterval)
+            {
+                float healAmount = maxHealth * healRate;
+                currentHealth += healAmount;
+                currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
+                healTimer = 0f;
+                Debug.Log($"Player healed by {healAmount:F2}. Current health: {currentHealth}");
+            }
+        }
+    }
+
+    // Existing upgrades
     public void UpgradeMaxHealth()
     {
         maxHealth += 10;
-        currentHealth = maxHealth;
         Debug.Log($"Upgraded Max Health to {maxHealth}");
     }
 
@@ -242,7 +273,51 @@ public class PlayerController : MonoBehaviour
         Debug.Log($"Upgraded Move Speed to {moveSpeed}");
     }
 
-    public int GetCurrentHealth() { return currentHealth; }
+    // New upgrade methods
+    public void UpgradeBulletSpeed()
+    {
+        bulletSpeed *= bulletSpeedUpgrade;
+        Debug.Log($"Upgraded Bullet Speed to {bulletSpeed:F2}");
+    }
+
+    public void UpgradeFiresPerMinute()
+    {
+        firesPerMinute *= firesPerMinuteUpgrade;
+        fireRate = 60f / firesPerMinute; // Recalculate fireRate
+        CalculatePoolSize();
+        AdjustPoolSize();
+        Debug.Log($"Upgraded Fires Per Minute to {firesPerMinute:F2}");
+    }
+
+    public void UpgradeBulletLifetime()
+    {
+        bulletLifetime *= bulletLifetimeUpgrade;
+        CalculatePoolSize();
+        AdjustPoolSize();
+        Debug.Log($"Upgraded Bullet Lifetime to {bulletLifetime:F2}");
+    }
+
+    public void UpgradeMagazineSize()
+    {
+        magazineSize = Mathf.RoundToInt(magazineSize * magazineSizeUpgrade);
+        CalculatePoolSize();
+        AdjustPoolSize();
+        Debug.Log($"Upgraded Magazine Size to {magazineSize}");
+    }
+
+    public void UpgradeReloadTime()
+    {
+        reloadTime *= reloadTimeUpgrade; // Decrease time (faster reload)
+        Debug.Log($"Upgraded Reload Time to {reloadTime:F2}");
+    }
+
+    public void UpgradeHealRate()
+    {
+        healRate *= healRateUpgrade;
+        Debug.Log($"Upgraded Heal Rate to {healRate:F4}");
+    }
+
+    public int GetCurrentHealth() { return Mathf.RoundToInt(currentHealth); }
     public int GetMaxHealth() { return maxHealth; }
     public int GetCurrentAmmo() { return currentAmmo; }
     public bool IsReloading() { return isReloading; }

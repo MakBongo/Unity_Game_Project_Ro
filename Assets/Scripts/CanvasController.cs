@@ -9,22 +9,35 @@ public class CanvasController : MonoBehaviour
     public Text displayText;
     public Slider healthSlider;
     public Slider expSlider;
-    public GameObject upgradePanel; // Player upgrade panel
+    public GameObject upgradePanel; // Player level-up panel
 
     [Header("Level Complete UI")]
-    public GameObject levelFinishedPanel;
-    public Button nextButton;
+    public GameObject upgradeDataPanel; // Replaces levelFinishedPanel
+    public Text upgradeOption1Text;
+    public Text upgradeOption2Text;
+    public Text upgradeOption3Text;
+    public Button upgradeOption1Button;
+    public Button upgradeOption2Button;
+    public Button upgradeOption3Button;
     public GameObject levelCompletePanel;
     public Text option1Text;
     public Text option2Text;
     public Button option1Button;
     public Button option2Button;
 
-    private enum UpgradeOption { Speed, Health, Damage }
-    private UpgradeOption[] upgradeOptions = { UpgradeOption.Speed, UpgradeOption.Health, UpgradeOption.Damage };
-    private UpgradeOption[] currentOptions = new UpgradeOption[2];
+    private enum PlayerUpgradeOption { BulletSpeed, FiresPerMinute, BulletLifetime, MagazineSize, ReloadTime, HealRate }
+    private PlayerUpgradeOption[] playerUpgradeOptions = {
+        PlayerUpgradeOption.BulletSpeed, PlayerUpgradeOption.FiresPerMinute, PlayerUpgradeOption.BulletLifetime,
+        PlayerUpgradeOption.MagazineSize, PlayerUpgradeOption.ReloadTime, PlayerUpgradeOption.HealRate
+    };
+    private PlayerUpgradeOption[] currentPlayerOptions = new PlayerUpgradeOption[3];
+
+    private enum LevelUpgradeOption { Speed, Health, Damage }
+    private LevelUpgradeOption[] levelUpgradeOptions = { LevelUpgradeOption.Speed, LevelUpgradeOption.Health, LevelUpgradeOption.Damage };
+    private LevelUpgradeOption[] currentLevelOptions = new LevelUpgradeOption[2];
+
     private SceneManager sceneManager;
-    private Queue<string> panelQueue = new Queue<string>(); // Queue for panel order
+    private Queue<string> panelQueue = new Queue<string>();
     private bool isShowingPanel = false;
 
     void Start()
@@ -42,7 +55,7 @@ public class CanvasController : MonoBehaviour
         }
 
         if (upgradePanel != null) upgradePanel.SetActive(false);
-        if (levelFinishedPanel != null) levelFinishedPanel.SetActive(false);
+        if (upgradeDataPanel != null) upgradeDataPanel.SetActive(false);
         if (levelCompletePanel != null) levelCompletePanel.SetActive(false);
     }
 
@@ -67,7 +80,6 @@ public class CanvasController : MonoBehaviour
             expSlider.value = playerController.GetCurrentExp();
         }
 
-        // Show next panel in queue if not currently showing one
         if (!isShowingPanel && panelQueue.Count > 0)
         {
             ShowNextPanel();
@@ -95,13 +107,13 @@ public class CanvasController : MonoBehaviour
                 sceneManager = FindObjectOfType<SceneManager>();
                 if (sceneManager != null)
                 {
-                    ShowLevelFinishedPanel();
+                    ShowUpgradeDataPanel();
                 }
                 break;
         }
     }
 
-    // Player upgrade panel
+    // Player level-up panel (existing)
     public void ShowUpgradePanel()
     {
         if (upgradePanel != null)
@@ -144,65 +156,111 @@ public class CanvasController : MonoBehaviour
         {
             upgradePanel.SetActive(false);
             Time.timeScale = 1f;
-            isShowingPanel = false; // Allow next panel
+            isShowingPanel = false;
         }
     }
 
-    // Level finished panel
-    public void ShowLevelFinishedPanel()
+    // Upgrade data panel (replaces levelFinishedPanel)
+    public void ShowUpgradeDataPanel()
     {
-        if (levelFinishedPanel != null)
+        if (upgradeDataPanel != null)
         {
-            levelFinishedPanel.SetActive(true);
+            upgradeDataPanel.SetActive(true);
             Time.timeScale = 0f;
-            nextButton.onClick.RemoveAllListeners();
-            nextButton.onClick.AddListener(ShowLevelCompletePanel);
-        }
-    }
 
-    // Level complete panel
-    public void ShowLevelCompletePanel()
-    {
-        if (levelCompletePanel != null && sceneManager != null)
-        {
-            levelFinishedPanel.SetActive(false);
-            levelCompletePanel.SetActive(true);
-
-            currentOptions[0] = upgradeOptions[Random.Range(0, upgradeOptions.Length)];
-            do
+            // Select 3 random player upgrade options
+            List<PlayerUpgradeOption> availableOptions = new List<PlayerUpgradeOption>(playerUpgradeOptions);
+            for (int i = 0; i < 3; i++)
             {
-                currentOptions[1] = upgradeOptions[Random.Range(0, upgradeOptions.Length)];
-            } while (currentOptions[1] == currentOptions[0]);
+                int randomIndex = Random.Range(0, availableOptions.Count);
+                currentPlayerOptions[i] = availableOptions[randomIndex];
+                availableOptions.RemoveAt(randomIndex);
+            }
 
-            option1Text.text = GetUpgradeText(currentOptions[0], sceneManager);
-            option2Text.text = GetUpgradeText(currentOptions[1], sceneManager);
+            upgradeOption1Text.text = GetPlayerUpgradeText(currentPlayerOptions[0]);
+            upgradeOption2Text.text = GetPlayerUpgradeText(currentPlayerOptions[1]);
+            upgradeOption3Text.text = GetPlayerUpgradeText(currentPlayerOptions[2]);
 
-            option1Button.onClick.RemoveAllListeners();
-            option2Button.onClick.RemoveAllListeners();
-            option1Button.onClick.AddListener(() => ApplyLevelUpgrade(currentOptions[0]));
-            option2Button.onClick.AddListener(() => ApplyLevelUpgrade(currentOptions[1]));
+            upgradeOption1Button.onClick.RemoveAllListeners();
+            upgradeOption2Button.onClick.RemoveAllListeners();
+            upgradeOption3Button.onClick.RemoveAllListeners();
+            upgradeOption1Button.onClick.AddListener(() => ApplyPlayerUpgrade(currentPlayerOptions[0]));
+            upgradeOption2Button.onClick.AddListener(() => ApplyPlayerUpgrade(currentPlayerOptions[1]));
+            upgradeOption3Button.onClick.AddListener(() => ApplyPlayerUpgrade(currentPlayerOptions[2]));
         }
     }
 
-    string GetUpgradeText(UpgradeOption option, SceneManager sceneManager)
+    string GetPlayerUpgradeText(PlayerUpgradeOption option)
     {
         switch (option)
         {
-            case UpgradeOption.Speed: return $"Enemy Speed +20% (Current: {sceneManager.baseEnemyMoveSpeed:F1})";
-            case UpgradeOption.Health: return $"Enemy Health +20% (Current: {sceneManager.baseEnemyHealth})";
-            case UpgradeOption.Damage: return $"Enemy Damage +20% (Current: {sceneManager.baseEnemyDamage})";
+            case PlayerUpgradeOption.BulletSpeed: return $"Bullet Speed +10% (Current: {playerController.bulletSpeed:F1})";
+            case PlayerUpgradeOption.FiresPerMinute: return $"Fire Rate +10% (Current: {playerController.firesPerMinute:F1})";
+            case PlayerUpgradeOption.BulletLifetime: return $"Bullet Lifetime +10% (Current: {playerController.bulletLifetime:F1})";
+            case PlayerUpgradeOption.MagazineSize: return $"Magazine Size +10% (Current: {playerController.magazineSize})";
+            case PlayerUpgradeOption.ReloadTime: return $"Reload Time -10% (Current: {playerController.reloadTime:F1})";
+            case PlayerUpgradeOption.HealRate: return $"Heal Rate +10% (Current: {playerController.healRate * 100:F2}%)";
             default: return "";
         }
     }
 
-    void ApplyLevelUpgrade(UpgradeOption option)
+    void ApplyPlayerUpgrade(PlayerUpgradeOption option)
+    {
+        switch (option)
+        {
+            case PlayerUpgradeOption.BulletSpeed: playerController.UpgradeBulletSpeed(); break;
+            case PlayerUpgradeOption.FiresPerMinute: playerController.UpgradeFiresPerMinute(); break;
+            case PlayerUpgradeOption.BulletLifetime: playerController.UpgradeBulletLifetime(); break;
+            case PlayerUpgradeOption.MagazineSize: playerController.UpgradeMagazineSize(); break;
+            case PlayerUpgradeOption.ReloadTime: playerController.UpgradeReloadTime(); break;
+            case PlayerUpgradeOption.HealRate: playerController.UpgradeHealRate(); break;
+        }
+        upgradeDataPanel.SetActive(false);
+        ShowLevelCompletePanel(); // Proceed to enemy upgrades
+    }
+
+    // Level complete panel (enemy upgrades)
+    public void ShowLevelCompletePanel()
+    {
+        if (levelCompletePanel != null && sceneManager != null)
+        {
+            levelCompletePanel.SetActive(true);
+
+            currentLevelOptions[0] = levelUpgradeOptions[Random.Range(0, levelUpgradeOptions.Length)];
+            do
+            {
+                currentLevelOptions[1] = levelUpgradeOptions[Random.Range(0, levelUpgradeOptions.Length)];
+            } while (currentLevelOptions[1] == currentLevelOptions[0]);
+
+            option1Text.text = GetLevelUpgradeText(currentLevelOptions[0]);
+            option2Text.text = GetLevelUpgradeText(currentLevelOptions[1]);
+
+            option1Button.onClick.RemoveAllListeners();
+            option2Button.onClick.RemoveAllListeners();
+            option1Button.onClick.AddListener(() => ApplyLevelUpgrade(currentLevelOptions[0]));
+            option2Button.onClick.AddListener(() => ApplyLevelUpgrade(currentLevelOptions[1]));
+        }
+    }
+
+    string GetLevelUpgradeText(LevelUpgradeOption option)
+    {
+        switch (option)
+        {
+            case LevelUpgradeOption.Speed: return $"Enemy Speed +20% (Current: {sceneManager.baseEnemyMoveSpeed:F1})";
+            case LevelUpgradeOption.Health: return $"Enemy Health +20% (Current: {sceneManager.baseEnemyHealth})";
+            case LevelUpgradeOption.Damage: return $"Enemy Damage +20% (Current: {sceneManager.baseEnemyDamage})";
+            default: return "";
+        }
+    }
+
+    void ApplyLevelUpgrade(LevelUpgradeOption option)
     {
         if (sceneManager != null)
         {
             sceneManager.ApplyUpgrade(option.ToString());
             levelCompletePanel.SetActive(false);
             Time.timeScale = 1f;
-            isShowingPanel = false; // Allow next panel
+            isShowingPanel = false;
         }
     }
 }
