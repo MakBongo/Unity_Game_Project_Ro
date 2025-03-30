@@ -649,7 +649,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   target: {fileID: 1152628166}
-  smoothing: 1
+  smoothing: 0.005
 --- !u!4 &492089531
 Transform:
   m_ObjectHideFlags: 0
