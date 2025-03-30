@@ -7,6 +7,12 @@ public class Bullet : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D collision)
     {
+        // Ignore collision with the player who fired this bullet
+        if (collision.gameObject.GetComponent<PlayerController>() == player)
+        {
+            return; // Do nothing if it's the player
+        }
+
         Enemy enemy = collision.GetComponent<Enemy>();
         if (enemy != null)
         {

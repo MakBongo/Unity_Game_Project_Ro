@@ -12,7 +12,7 @@ public class PlayerController : MonoBehaviour
 
     [Header("Set Jump")]
     public float JumpForce = 10;
-    private bool canJump = true; // Added to control single jump
+    private bool canJump = true;
 
     [Header("Set GroundCheck")]
     public Transform GroundCheck;
@@ -37,6 +37,8 @@ public class PlayerController : MonoBehaviour
     [Header("Set Shooting")]
     public GameObject bulletPrefab;
     public Transform firePoint;
+    public float firePointRadius = 0.5f;
+    public Transform gunObject;
 
     [Header("Gun Data")]
     public int bulletDamage = 10;
@@ -69,6 +71,11 @@ public class PlayerController : MonoBehaviour
         InitializeBulletPool();
         currentAmmo = magazineSize;
         currentHealth = maxHealth;
+
+        if (gunObject == null)
+        {
+            Debug.LogWarning("Gun Object not assigned in Inspector!");
+        }
     }
 
     void CalculatePoolSize()
@@ -122,7 +129,9 @@ public class PlayerController : MonoBehaviour
                 StartCoroutine(Reload());
             }
         }
-        firePoint.rotation = Quaternion.Euler(0f, 0f, faceRight ? 0f : 180f);
+
+        UpdateGunRotation();
+        UpdateFirePoint(); // Updated to follow gunObject
 
         if (currentHealth <= 0)
         {
@@ -131,11 +140,10 @@ public class PlayerController : MonoBehaviour
 
         HealOverTime();
 
-        // Move jump input to Update for responsiveness
         if (Input.GetKeyDown(KeyCode.Space) && isGrounded && canJump)
         {
-            PlayerRB.velocity = new Vector2(PlayerRB.velocity.x, JumpForce); // Set vertical velocity directly
-            canJump = false; // Prevent additional jumps until grounded
+            PlayerRB.velocity = new Vector2(PlayerRB.velocity.x, JumpForce);
+            canJump = false;
         }
     }
 
@@ -152,12 +160,11 @@ public class PlayerController : MonoBehaviour
             Flip();
         }
 
-        // Check grounding and reset jump ability
-        bool wasGrounded = isGrounded; // Store previous state
+        bool wasGrounded = isGrounded;
         isGrounded = Physics2D.OverlapCircle(GroundCheck.position, CheckRadius, WhatIsGround);
-        if (!wasGrounded && isGrounded) // Just landed
+        if (!wasGrounded && isGrounded)
         {
-            canJump = true; // Allow jumping again
+            canJump = true;
         }
     }
 
@@ -167,6 +174,30 @@ public class PlayerController : MonoBehaviour
         Vector3 Scaler = transform.localScale;
         Scaler.x *= -1;
         transform.localScale = Scaler;
+    }
+
+    void UpdateGunRotation()
+    {
+        if (gunObject != null)
+        {
+            Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            mousePos.z = 0f;
+
+            Vector2 direction = (mousePos - transform.position).normalized;
+            float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+            gunObject.rotation = Quaternion.Euler(0f, 0f, angle);
+        }
+    }
+
+    void UpdateFirePoint()
+    {
+        if (gunObject != null && firePoint != null)
+        {
+            // Position firePoint along gunObject's right direction at firePointRadius
+            Vector2 direction = gunObject.right; // gunObject's forward direction in 2D
+            firePoint.position = gunObject.position + (Vector3)(direction * firePointRadius);
+            firePoint.rotation = gunObject.rotation; // Match gunObject's rotation
+        }
     }
 
     void Shoot()
@@ -186,8 +217,9 @@ public class PlayerController : MonoBehaviour
             }
 
             Rigidbody2D bulletRB = bullet.GetComponent<Rigidbody2D>();
-            float direction = faceRight ? 1f : -1f;
-            bulletRB.velocity = new Vector2(direction * bulletSpeed, 0f);
+            Vector2 bulletDirection = firePoint.right;
+            bulletRB.velocity = bulletDirection * bulletSpeed;
+
             currentAmmo--;
             StartCoroutine(ReturnBulletToPool(bullet));
         }
