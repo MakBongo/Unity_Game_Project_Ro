@@ -130,8 +130,8 @@ public class PlayerController : MonoBehaviour
             }
         }
 
-        UpdateGunRotation();
-        UpdateFirePoint(); // Updated to follow gunObject
+        UpdateGunRotation(); // This now handles flipping
+        UpdateFirePoint();
 
         if (currentHealth <= 0)
         {
@@ -151,14 +151,8 @@ public class PlayerController : MonoBehaviour
     {
         inputX = Input.GetAxis("Horizontal");
         PlayerRB.velocity = new Vector2(inputX * moveSpeed, PlayerRB.velocity.y);
-        if (faceRight == false && inputX > 0)
-        {
-            Flip();
-        }
-        else if (faceRight == true && inputX < 0)
-        {
-            Flip();
-        }
+
+        // Removed movement-based flipping logic from here
 
         bool wasGrounded = isGrounded;
         isGrounded = Physics2D.OverlapCircle(GroundCheck.position, CheckRadius, WhatIsGround);
@@ -186,6 +180,16 @@ public class PlayerController : MonoBehaviour
             Vector2 direction = (mousePos - transform.position).normalized;
             float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
             gunObject.rotation = Quaternion.Euler(0f, 0f, angle);
+
+            // Flip character based on shooting direction
+            if (direction.x > 0 && !faceRight)
+            {
+                Flip();
+            }
+            else if (direction.x < 0 && faceRight)
+            {
+                Flip();
+            }
         }
     }
 
@@ -193,10 +197,9 @@ public class PlayerController : MonoBehaviour
     {
         if (gunObject != null && firePoint != null)
         {
-            // Position firePoint along gunObject's right direction at firePointRadius
-            Vector2 direction = gunObject.right; // gunObject's forward direction in 2D
+            Vector2 direction = gunObject.right;
             firePoint.position = gunObject.position + (Vector3)(direction * firePointRadius);
-            firePoint.rotation = gunObject.rotation; // Match gunObject's rotation
+            firePoint.rotation = gunObject.rotation;
         }
     }
 
