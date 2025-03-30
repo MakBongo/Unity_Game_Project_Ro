@@ -2037,7 +2037,7 @@ BoxCollider2D:
   m_GameObject: {fileID: 1152628161}
   m_Enabled: 1
   m_Density: 1
-  m_Material: {fileID: 6200000, guid: 3dfcc8b7b938a474d9564c90eda7d697, type: 2}
+  m_Material: {fileID: 0}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -2115,7 +2115,7 @@ MonoBehaviour:
   moveSpeed: 5
   JumpForce: 7
   GroundCheck: {fileID: 719413122}
-  CheckRadius: 0.05
+  CheckRadius: 0.075
   WhatIsGround:
     serializedVersion: 2
     m_Bits: 8
@@ -2193,7 +2193,7 @@ Transform:
   m_GameObject: {fileID: 1152628161}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 1, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -2960,7 +2960,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tileMapPrefabs:
-  - {fileID: 9087746924367562457, guid: 408a77296a7726d42aec4331f7f67a34, type: 3}
+  - {fileID: 4332902301604754245, guid: 5d01ee8e57aff81469b0d75354845f71, type: 3}
   baseEnemyMoveSpeed: 2
   baseEnemyHealth: 50
   baseEnemyDamage: 10
