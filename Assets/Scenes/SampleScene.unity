@@ -2960,7 +2960,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tileMapPrefabs:
-  - {fileID: 9087746924367562457, guid: 3897be491f4fd0b46b16b306a5e45968, type: 3}
+  - {fileID: 9087746924367562457, guid: 408a77296a7726d42aec4331f7f67a34, type: 3}
   baseEnemyMoveSpeed: 2
   baseEnemyHealth: 50
   baseEnemyDamage: 10
