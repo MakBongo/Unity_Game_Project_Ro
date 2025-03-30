@@ -6,10 +6,8 @@ public class TwoWayPlatform : MonoBehaviour
     private PlatformEffector2D effector;
     private Collider2D platformCollider; // Store reference to the collider (CompositeCollider2D)
     private float originalRotationalOffset;
+    private float dropDelay = 0.5f;
     private bool isPlayerDropping = false;
-
-    [Header("Settings")]
-    public float dropDelay = 0.2f;
 
     void Start()
     {
