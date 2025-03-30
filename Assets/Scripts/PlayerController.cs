@@ -12,6 +12,7 @@ public class PlayerController : MonoBehaviour
 
     [Header("Set Jump")]
     public float JumpForce = 10;
+    private bool canJump = true; // Added to control single jump
 
     [Header("Set GroundCheck")]
     public Transform GroundCheck;
@@ -24,7 +25,7 @@ public class PlayerController : MonoBehaviour
     private float currentHealth;
 
     [Header("Healing")]
-    public float healRate = 0.001f; // 0.1% of maxHealth per second
+    public float healRate = 0.001f;
     private float healTimer = 0f;
     private float healInterval = 1f;
 
@@ -52,12 +53,12 @@ public class PlayerController : MonoBehaviour
     private float fireRate;
 
     [Header("Upgrade Multipliers")]
-    private float bulletSpeedUpgrade = 1.1f;    // 10% increase
-    private float firesPerMinuteUpgrade = 1.1f; // 10% increase
-    private float bulletLifetimeUpgrade = 1.1f; // 10% increase
-    private float magazineSizeUpgrade = 1.1f;   // 10% increase
-    private float reloadTimeUpgrade = 0.9f;     // 10% decrease (faster reload)
-    private float healRateUpgrade = 1.1f;       // 10% increase
+    private float bulletSpeedUpgrade = 1.1f;
+    private float firesPerMinuteUpgrade = 1.1f;
+    private float bulletLifetimeUpgrade = 1.1f;
+    private float magazineSizeUpgrade = 1.1f;
+    private float reloadTimeUpgrade = 0.9f;
+    private float healRateUpgrade = 1.1f;
 
     void Start()
     {
@@ -129,6 +130,13 @@ public class PlayerController : MonoBehaviour
         }
 
         HealOverTime();
+
+        // Move jump input to Update for responsiveness
+        if (Input.GetKeyDown(KeyCode.Space) && isGrounded && canJump)
+        {
+            PlayerRB.velocity = new Vector2(PlayerRB.velocity.x, JumpForce); // Set vertical velocity directly
+            canJump = false; // Prevent additional jumps until grounded
+        }
     }
 
     void FixedUpdate()
@@ -143,10 +151,13 @@ public class PlayerController : MonoBehaviour
         {
             Flip();
         }
+
+        // Check grounding and reset jump ability
+        bool wasGrounded = isGrounded; // Store previous state
         isGrounded = Physics2D.OverlapCircle(GroundCheck.position, CheckRadius, WhatIsGround);
-        if (Input.GetKey(KeyCode.Space) && isGrounded)
+        if (!wasGrounded && isGrounded) // Just landed
         {
-            PlayerRB.velocity = Vector2.up * JumpForce;
+            canJump = true; // Allow jumping again
         }
     }
 
@@ -254,7 +265,6 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    // Existing upgrades
     public void UpgradeMaxHealth()
     {
         maxHealth += 10;
@@ -273,7 +283,6 @@ public class PlayerController : MonoBehaviour
         Debug.Log($"Upgraded Move Speed to {moveSpeed}");
     }
 
-    // New upgrade methods
     public void UpgradeBulletSpeed()
     {
         bulletSpeed *= bulletSpeedUpgrade;
@@ -283,7 +292,7 @@ public class PlayerController : MonoBehaviour
     public void UpgradeFiresPerMinute()
     {
         firesPerMinute *= firesPerMinuteUpgrade;
-        fireRate = 60f / firesPerMinute; // Recalculate fireRate
+        fireRate = 60f / firesPerMinute;
         CalculatePoolSize();
         AdjustPoolSize();
         Debug.Log($"Upgraded Fires Per Minute to {firesPerMinute:F2}");
@@ -307,7 +316,7 @@ public class PlayerController : MonoBehaviour
 
     public void UpgradeReloadTime()
     {
-        reloadTime *= reloadTimeUpgrade; // Decrease time (faster reload)
+        reloadTime *= reloadTimeUpgrade;
         Debug.Log($"Upgraded Reload Time to {reloadTime:F2}");
     }
 
