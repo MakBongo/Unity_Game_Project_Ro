@@ -142,6 +142,8 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 8
   jumpCooldown: 2
+  knockbackForce: 5
+  knockbackDuration: 0.2
 --- !u!61 &241682896270247381
 BoxCollider2D:
   m_ObjectHideFlags: 0

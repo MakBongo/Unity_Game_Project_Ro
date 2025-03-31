@@ -15,8 +15,8 @@ public class PlayerController : MonoBehaviour
     private bool canJump = true;
 
     [Header("Set GroundCheck")]
-    public Transform GroundCheck;
-    public float CheckRadius;
+    public float rayLength = 0.2f; // How far down to cast rays
+    public float rayOffset = 0.4f; // Distance from center to edge rays
     public LayerMask WhatIsGround;
     private bool isGrounded;
 
@@ -130,7 +130,7 @@ public class PlayerController : MonoBehaviour
             }
         }
 
-        UpdateGunRotation(); // This now handles flipping
+        UpdateGunRotation();
         UpdateFirePoint();
 
         if (currentHealth <= 0)
@@ -152,10 +152,13 @@ public class PlayerController : MonoBehaviour
         inputX = Input.GetAxis("Horizontal");
         PlayerRB.velocity = new Vector2(inputX * moveSpeed, PlayerRB.velocity.y);
 
-        // Removed movement-based flipping logic from here
-
         bool wasGrounded = isGrounded;
-        isGrounded = Physics2D.OverlapCircle(GroundCheck.position, CheckRadius, WhatIsGround);
+        Vector2 originLeft = new Vector2(transform.position.x - rayOffset, transform.position.y);
+        Vector2 originRight = new Vector2(transform.position.x + rayOffset, transform.position.y);
+        RaycastHit2D hitLeft = Physics2D.Raycast(originLeft, Vector2.down, rayLength, WhatIsGround);
+        RaycastHit2D hitRight = Physics2D.Raycast(originRight, Vector2.down, rayLength, WhatIsGround);
+        isGrounded = hitLeft.collider != null || hitRight.collider != null;
+
         if (!wasGrounded && isGrounded)
         {
             canJump = true;
@@ -181,7 +184,6 @@ public class PlayerController : MonoBehaviour
             float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
             gunObject.rotation = Quaternion.Euler(0f, 0f, angle);
 
-            // Flip character based on shooting direction
             if (direction.x > 0 && !faceRight)
             {
                 Flip();
@@ -368,4 +370,13 @@ public class PlayerController : MonoBehaviour
     public int GetCurrentExp() { return currentExp; }
     public int GetMaxExp() { return maxExp; }
     public int GetLevel() { return level; }
+
+    void OnDrawGizmos()
+    {
+        Vector2 originLeft = new Vector2(transform.position.x - rayOffset, transform.position.y);
+        Vector2 originRight = new Vector2(transform.position.x + rayOffset, transform.position.y);
+        Gizmos.color = Color.red;
+        Gizmos.DrawLine(originLeft, originLeft + Vector2.down * rayLength);
+        Gizmos.DrawLine(originRight, originRight + Vector2.down * rayLength);
+    }
 }

@@ -57,19 +57,16 @@ public class Spikes : MonoBehaviour
 
     Vector2 CalculateKnockbackDirection(Collision2D collision)
     {
-        // Use the contact point from the collision
         ContactPoint2D contact = collision.GetContact(0); // Get first contact point
         Vector2 contactPoint = contact.point;
-        // Direction away from the contact point
         Vector2 direction = (collision.transform.position - (Vector3)contactPoint).normalized;
         return direction;
     }
 
     void ApplyKnockback(Rigidbody2D rb, Vector2 direction)
     {
-        // Apply an impulse force for immediate knockback
+        // Apply impulse force in full 2D direction (horizontal and vertical)
         Vector2 knockbackVelocity = direction * knockbackForce;
-        rb.velocity = new Vector2(rb.velocity.x, 0f); // Reset vertical velocity for consistency
         rb.AddForce(knockbackVelocity, ForceMode2D.Impulse);
     }
 }

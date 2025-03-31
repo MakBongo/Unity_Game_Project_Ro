@@ -8,16 +8,20 @@ public class Enemy : MonoBehaviour
     public int expValue;          // Set by SceneManager (base value from SceneManager)
     private int currentHealth;
     private Transform player;
-    private Rigidbody2D enemyRB;  // Added for physics-based movement and jumping
+    private Rigidbody2D enemyRB;
 
     [Header("Jump Settings")]
-    public float jumpForce = 8f;  // Jump height (less than player¡¦s 10 by default)
-    public Transform groundCheck; // Position to check if grounded
-    public float checkRadius = 0.1f; // Radius for ground detection
-    public LayerMask whatIsGround; // Layer for ground detection
-    private bool isGrounded;      // Track if enemy is on ground
-    public float jumpCooldown = 2f; // Time between jumps
-    private float nextJumpTime;   // Time when next jump is allowed
+    public float jumpForce = 8f;
+    public Transform groundCheck;
+    public float checkRadius = 0.1f;
+    public LayerMask whatIsGround;
+    private bool isGrounded;
+    public float jumpCooldown = 2f;
+    private float nextJumpTime;
+
+    [Header("Knockback Settings")]
+    public float knockbackForce = 5f;
+    public float knockbackDuration = 0.2f;
 
     void Start()
     {
@@ -28,9 +32,9 @@ public class Enemy : MonoBehaviour
             Debug.LogError("Enemy requires a Rigidbody2D component!");
             enemyRB = gameObject.AddComponent<Rigidbody2D>();
             enemyRB.bodyType = RigidbodyType2D.Dynamic;
-            enemyRB.freezeRotation = true; // Prevent tipping
+            enemyRB.freezeRotation = true;
         }
-        nextJumpTime = Time.time; // Allow jumping immediately
+        nextJumpTime = Time.time;
     }
 
     public void Initialize()
@@ -42,16 +46,14 @@ public class Enemy : MonoBehaviour
     {
         if (player != null)
         {
-            // Horizontal movement toward player
             Vector2 direction = (player.position - transform.position).normalized;
             enemyRB.velocity = new Vector2(direction.x * moveSpeed, enemyRB.velocity.y);
 
-            // Jump logic
             isGrounded = Physics2D.OverlapCircle(groundCheck.position, checkRadius, whatIsGround);
             if (isGrounded && Time.time >= nextJumpTime && ShouldJump())
             {
                 Jump();
-                nextJumpTime = Time.time + jumpCooldown; // Set cooldown
+                nextJumpTime = Time.time + jumpCooldown;
             }
         }
     }
@@ -64,12 +66,10 @@ public class Enemy : MonoBehaviour
 
     bool ShouldJump()
     {
-        // Jump if player is above or at a certain distance
         if (player != null)
         {
             float verticalDistance = player.position.y - transform.position.y;
             float horizontalDistance = Mathf.Abs(player.position.x - transform.position.x);
-            // Jump if player is above and within a reasonable horizontal range
             return verticalDistance > 1f && horizontalDistance < 5f;
         }
         return false;
@@ -81,7 +81,28 @@ public class Enemy : MonoBehaviour
         if (playerController != null)
         {
             playerController.TakeDamage(damage);
+
+            Rigidbody2D playerRB = collision.gameObject.GetComponent<Rigidbody2D>();
+            if (playerRB != null)
+            {
+                Vector2 knockbackDirection = CalculateKnockbackDirection(collision);
+                ApplyKnockback(playerRB, knockbackDirection);
+                Debug.Log($"Enemy dealt {damage} damage to Player with knockback.");
+            }
         }
+    }
+
+    Vector2 CalculateKnockbackDirection(Collision2D collision)
+    {
+        Vector2 direction = (collision.transform.position - transform.position).normalized;
+        return direction;
+    }
+
+    void ApplyKnockback(Rigidbody2D rb, Vector2 direction)
+    {
+        // Apply impulse force in full 2D direction (horizontal and vertical)
+        Vector2 knockbackVelocity = direction * knockbackForce;
+        rb.AddForce(knockbackVelocity, ForceMode2D.Impulse);
     }
 
     public void TakeDamage(int damage)
@@ -101,7 +122,7 @@ public class Enemy : MonoBehaviour
         PlayerController playerController = FindObjectOfType<PlayerController>();
         if (playerController != null)
         {
-            playerController.AddExp(expValue); // Award EXP to player on death
+            playerController.AddExp(expValue);
         }
         Destroy(gameObject);
     }
