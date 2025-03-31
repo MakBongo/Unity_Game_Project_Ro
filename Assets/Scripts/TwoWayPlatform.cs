@@ -4,10 +4,10 @@ using System.Collections;
 public class TwoWayPlatform : MonoBehaviour
 {
     private PlatformEffector2D effector;
-    private Collider2D platformCollider; // Store reference to the collider (CompositeCollider2D)
-    private float originalRotationalOffset;
     private float dropDelay = 0.5f;
     private bool isPlayerDropping = false;
+    private int playerLayer;
+    private int passThroughLayer;
 
     void Start()
     {
@@ -18,58 +18,45 @@ public class TwoWayPlatform : MonoBehaviour
             return;
         }
 
-        // Get the CompositeCollider2D if present, otherwise fall back to any Collider2D
-        platformCollider = GetComponent<CompositeCollider2D>();
-        if (platformCollider == null)
+        playerLayer = LayerMask.NameToLayer("Player");
+        passThroughLayer = LayerMask.NameToLayer("PassThrough"); // Create this layer in Unity
+        if (playerLayer == -1 || passThroughLayer == -1)
         {
-            platformCollider = GetComponent<Collider2D>();
-            if (platformCollider == null)
-            {
-                Debug.LogError("TwoWayPlatform requires a Collider2D (e.g., CompositeCollider2D or TilemapCollider2D)!");
-                return;
-            }
+            Debug.LogError("Ensure 'Player' and 'PassThrough' layers are defined in the Layer settings!");
+            return;
         }
 
-        originalRotationalOffset = effector.rotationalOffset;
         effector.useOneWay = true;
         effector.useSideFriction = false;
         effector.useSideBounce = false;
+
+        // Ensure platform only collides with "Player" layer by default
+        effector.colliderMask = LayerMask.GetMask("Player");
     }
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.DownArrow))
+        if ((Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.DownArrow)) && !isPlayerDropping)
         {
-            StartCoroutine(AllowDropThrough());
+            StartCoroutine(AllowPlayerDrop());
         }
     }
 
-    IEnumerator AllowDropThrough()
+    IEnumerator AllowPlayerDrop()
     {
-        effector.rotationalOffset = 180f;
         isPlayerDropping = true;
-
-        yield return new WaitForSeconds(dropDelay);
-
-        effector.rotationalOffset = originalRotationalOffset;
-        isPlayerDropping = false;
-    }
-
-    void OnCollisionStay2D(Collision2D collision)
-    {
-        if (collision.gameObject.GetComponent<PlayerController>() != null && isPlayerDropping)
-        {
-            Physics2D.IgnoreCollision(collision.collider, platformCollider, true);
-            Invoke("ResetCollision", dropDelay);
-        }
-    }
-
-    void ResetCollision()
-    {
         PlayerController player = FindObjectOfType<PlayerController>();
         if (player != null)
         {
-            Physics2D.IgnoreCollision(player.GetComponent<Collider2D>(), platformCollider, false);
+            player.gameObject.layer = passThroughLayer; // Switch to pass-through layer
         }
+
+        yield return new WaitForSeconds(dropDelay);
+
+        if (player != null)
+        {
+            player.gameObject.layer = playerLayer; // Restore original layer
+        }
+        isPlayerDropping = false;
     }
 }

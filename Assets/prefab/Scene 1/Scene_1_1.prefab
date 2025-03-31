@@ -16,7 +16,7 @@ GameObject:
   - component: {fileID: 3021460042765384022}
   - component: {fileID: 5514742858966877113}
   - component: {fileID: 3092984500954999430}
-  m_Layer: 3
+  m_Layer: 9
   m_Name: Two Way Platform
   m_TagString: Ground
   m_Icon: {fileID: 0}
@@ -32,7 +32,7 @@ Transform:
   m_GameObject: {fileID: 22656743544700686}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0.1}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -616,7 +616,7 @@ GameObject:
   - component: {fileID: 5122199410706659787}
   - component: {fileID: 7339773350625987666}
   - component: {fileID: 1523908722448452966}
-  m_Layer: 3
+  m_Layer: 6
   m_Name: Spikes
   m_TagString: Ground
   m_Icon: {fileID: 0}
@@ -1061,7 +1061,7 @@ GameObject:
   - component: {fileID: 3070185356801957175}
   - component: {fileID: 5396382865971489713}
   - component: {fileID: 7475031843408215294}
-  m_Layer: 3
+  m_Layer: 6
   m_Name: Ground
   m_TagString: Ground
   m_Icon: {fileID: 0}
