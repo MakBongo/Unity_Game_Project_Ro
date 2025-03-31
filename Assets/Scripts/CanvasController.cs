@@ -12,7 +12,7 @@ public class CanvasController : MonoBehaviour
     public GameObject upgradePanel; // Player level-up panel
 
     [Header("Level Complete UI")]
-    public GameObject upgradeDataPanel; // Replaces levelFinishedPanel
+    public GameObject upgradeDataPanel; // Player upgrades
     public Text upgradeOption1Text;
     public Text upgradeOption2Text;
     public Text upgradeOption3Text;
@@ -25,14 +25,14 @@ public class CanvasController : MonoBehaviour
     public Button option1Button;
     public Button option2Button;
 
-    private enum PlayerUpgradeOption { BulletSpeed, FiresPerMinute, BulletLifetime, MagazineSize, ReloadTime, HealRate }
+    private enum PlayerUpgradeOption { BulletSpeed, FiresPerMinute, BulletLifetime, MagazineSize, ReloadTime, HealRate, ExpAmount } // Added ExpAmount
     private PlayerUpgradeOption[] playerUpgradeOptions = {
         PlayerUpgradeOption.BulletSpeed, PlayerUpgradeOption.FiresPerMinute, PlayerUpgradeOption.BulletLifetime,
-        PlayerUpgradeOption.MagazineSize, PlayerUpgradeOption.ReloadTime, PlayerUpgradeOption.HealRate
+        PlayerUpgradeOption.MagazineSize, PlayerUpgradeOption.ReloadTime, PlayerUpgradeOption.HealRate, PlayerUpgradeOption.ExpAmount
     };
     private PlayerUpgradeOption[] currentPlayerOptions = new PlayerUpgradeOption[3];
 
-    private enum LevelUpgradeOption { Speed, Health, Damage }
+    private enum LevelUpgradeOption { Speed, Health, Damage } // Removed ExpAmount
     private LevelUpgradeOption[] levelUpgradeOptions = { LevelUpgradeOption.Speed, LevelUpgradeOption.Health, LevelUpgradeOption.Damage };
     private LevelUpgradeOption[] currentLevelOptions = new LevelUpgradeOption[2];
 
@@ -199,6 +199,7 @@ public class CanvasController : MonoBehaviour
             case PlayerUpgradeOption.MagazineSize: return $"Magazine Size +10% (Current: {playerController.magazineSize})";
             case PlayerUpgradeOption.ReloadTime: return $"Reload Time -10% (Current: {playerController.reloadTime:F1})";
             case PlayerUpgradeOption.HealRate: return $"Heal Rate +10% (Current: {playerController.healRate * 100:F2}%)";
+            case PlayerUpgradeOption.ExpAmount: return $"EXP Gain +10% (Current: {playerController.expMultiplier * 100:F0}%)"; // New option
             default: return "";
         }
     }
@@ -213,6 +214,7 @@ public class CanvasController : MonoBehaviour
             case PlayerUpgradeOption.MagazineSize: playerController.UpgradeMagazineSize(); break;
             case PlayerUpgradeOption.ReloadTime: playerController.UpgradeReloadTime(); break;
             case PlayerUpgradeOption.HealRate: playerController.UpgradeHealRate(); break;
+            case PlayerUpgradeOption.ExpAmount: playerController.UpgradeExpAmount(); break; // New case
         }
         upgradeDataPanel.SetActive(false);
         ShowLevelCompletePanel(); // Proceed to enemy upgrades

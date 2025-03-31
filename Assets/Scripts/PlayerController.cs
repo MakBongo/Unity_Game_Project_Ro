@@ -33,6 +33,7 @@ public class PlayerController : MonoBehaviour
     public int currentExp = 0;
     public int maxExp = 100;
     public int level = 1;
+    public float expMultiplier = 1f; // New field: Multiplier for EXP gain
 
     [Header("Set Shooting")]
     public GameObject bulletPrefab;
@@ -61,6 +62,7 @@ public class PlayerController : MonoBehaviour
     private float magazineSizeUpgrade = 1.1f;
     private float reloadTimeUpgrade = 0.9f;
     private float healRateUpgrade = 1.1f;
+    private float expAmountUpgrade = 1.1f; // New field: Multiplier for EXP gain upgrade
 
     void Start()
     {
@@ -265,8 +267,9 @@ public class PlayerController : MonoBehaviour
 
     public void AddExp(int exp)
     {
-        currentExp += exp;
-        Debug.Log($"Gained {exp} EXP. Current EXP: {currentExp}/{maxExp}");
+        int scaledExp = Mathf.RoundToInt(exp * expMultiplier); // Apply multiplier
+        currentExp += scaledExp;
+        Debug.Log($"Gained {scaledExp} EXP (Base: {exp}, Multiplier: {expMultiplier:F2}). Current EXP: {currentExp}/{maxExp}");
         while (currentExp >= maxExp)
         {
             LevelUp();
@@ -361,6 +364,12 @@ public class PlayerController : MonoBehaviour
     {
         healRate *= healRateUpgrade;
         Debug.Log($"Upgraded Heal Rate to {healRate:F4}");
+    }
+
+    public void UpgradeExpAmount() // New method
+    {
+        expMultiplier *= expAmountUpgrade;
+        Debug.Log($"Upgraded EXP Multiplier to {expMultiplier:F2}");
     }
 
     public int GetCurrentHealth() { return Mathf.RoundToInt(currentHealth); }

@@ -13,6 +13,11 @@ public class SceneManager : MonoBehaviour
     private PlayerController player;
     private bool levelCompleted = false;
 
+    // Upgrade multipliers tracked in memory
+    private float speedMultiplier = 1f;
+    private float healthMultiplier = 1f;
+    private float damageMultiplier = 1f;
+
     void Start()
     {
         player = FindObjectOfType<PlayerController>();
@@ -35,20 +40,21 @@ public class SceneManager : MonoBehaviour
             Destroy(currentTileMap);
         }
 
-        // Instantiate the level prefab
         int randomIndex = Random.Range(0, tileMapPrefabs.Length);
         currentTileMap = Instantiate(tileMapPrefabs[randomIndex], Vector3.zero, Quaternion.identity);
 
-        // Find and initialize all enemies within the level prefab
         activeEnemies.Clear();
         Enemy[] enemiesInLevel = currentTileMap.GetComponentsInChildren<Enemy>();
         foreach (Enemy enemy in enemiesInLevel)
         {
-            enemy.Initialize(); // Use enemy's built-in stats
+            // Apply upgrades to instantiated enemies only
+            enemy.moveSpeed *= speedMultiplier;
+            enemy.maxHealth = Mathf.RoundToInt(enemy.maxHealth * healthMultiplier);
+            enemy.damage = Mathf.RoundToInt(enemy.damage * damageMultiplier);
+            enemy.Initialize();
             activeEnemies.Add(enemy);
         }
 
-        // Position the player at the PlayerSpawn point
         Transform[] spawnPoints = currentTileMap.GetComponentsInChildren<Transform>();
         foreach (Transform t in spawnPoints)
         {
@@ -74,25 +80,21 @@ public class SceneManager : MonoBehaviour
 
     public void ApplyUpgrade(string option)
     {
-        // Apply upgrades to all enemies in the next level
-        foreach (GameObject prefab in tileMapPrefabs)
+        // Update multipliers instead of modifying prefabs
+        switch (option)
         {
-            Enemy[] enemies = prefab.GetComponentsInChildren<Enemy>();
-            foreach (Enemy enemy in enemies)
-            {
-                switch (option)
-                {
-                    case "Speed":
-                        enemy.moveSpeed *= 1.2f;
-                        break;
-                    case "Health":
-                        enemy.maxHealth = Mathf.RoundToInt(enemy.maxHealth * 1.2f);
-                        break;
-                    case "Damage":
-                        enemy.damage = Mathf.RoundToInt(enemy.damage * 1.2f);
-                        break;
-                }
-            }
+            case "Speed":
+                speedMultiplier *= 1.2f;
+                Debug.Log($"Enemy Speed Multiplier increased to {speedMultiplier:F2}");
+                break;
+            case "Health":
+                healthMultiplier *= 1.2f;
+                Debug.Log($"Enemy Health Multiplier increased to {healthMultiplier:F2}");
+                break;
+            case "Damage":
+                damageMultiplier *= 1.2f;
+                Debug.Log($"Enemy Damage Multiplier increased to {damageMultiplier:F2}");
+                break;
         }
 
         currentLevel++;
