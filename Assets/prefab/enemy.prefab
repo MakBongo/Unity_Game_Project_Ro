@@ -105,7 +105,7 @@ MonoBehaviour:
   expValue: 10
   jumpForce: 7
   rayLength: 0.6
-  rayOffset: 0.82
+  rayOffset: 0.5
   whatIsGround:
     serializedVersion: 2
     m_Bits: 8
