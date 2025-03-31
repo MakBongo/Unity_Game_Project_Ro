@@ -5,15 +5,7 @@ using UnityEngine;
 public class SceneManager : MonoBehaviour
 {
     [Header("Level Prefabs")]
-    public GameObject[] tileMapPrefabs;
-
-    [Header("Enemy Settings")]
-    public float baseEnemyMoveSpeed = 2f;
-    public int baseEnemyHealth = 50;
-    public int baseEnemyDamage = 10;
-    public int baseExpValue = 20;
-    public GameObject enemyPrefab;
-    public int enemiesPerLevel = 5;
+    public GameObject[] tileMapPrefabs; // Each prefab contains pre-placed enemies with their own stats
 
     private int currentLevel = 1;
     private List<Enemy> activeEnemies = new List<Enemy>();
@@ -43,35 +35,21 @@ public class SceneManager : MonoBehaviour
             Destroy(currentTileMap);
         }
 
+        // Instantiate the level prefab
         int randomIndex = Random.Range(0, tileMapPrefabs.Length);
         currentTileMap = Instantiate(tileMapPrefabs[randomIndex], Vector3.zero, Quaternion.identity);
 
-        Transform[] spawnPoints = currentTileMap.GetComponentsInChildren<Transform>();
-        List<Transform> validSpawnPoints = new List<Transform>();
-        foreach (Transform t in spawnPoints)
-        {
-            if (t.CompareTag("SpawnPoint"))
-            {
-                validSpawnPoints.Add(t);
-            }
-        }
-
+        // Find and initialize all enemies within the level prefab
         activeEnemies.Clear();
-        for (int i = 0; i < enemiesPerLevel && i < validSpawnPoints.Count; i++)
+        Enemy[] enemiesInLevel = currentTileMap.GetComponentsInChildren<Enemy>();
+        foreach (Enemy enemy in enemiesInLevel)
         {
-            GameObject enemyObj = Instantiate(enemyPrefab, validSpawnPoints[i].position, Quaternion.identity);
-            Enemy enemy = enemyObj.GetComponent<Enemy>();
-            if (enemy != null)
-            {
-                enemy.moveSpeed = baseEnemyMoveSpeed;
-                enemy.maxHealth = baseEnemyHealth;
-                enemy.damage = baseEnemyDamage;
-                enemy.expValue = baseExpValue;
-                enemy.Initialize();
-                activeEnemies.Add(enemy);
-            }
+            enemy.Initialize(); // Use enemy's built-in stats
+            activeEnemies.Add(enemy);
         }
 
+        // Position the player at the PlayerSpawn point
+        Transform[] spawnPoints = currentTileMap.GetComponentsInChildren<Transform>();
         foreach (Transform t in spawnPoints)
         {
             if (t.CompareTag("PlayerSpawn"))
@@ -90,23 +68,31 @@ public class SceneManager : MonoBehaviour
         CanvasController canvas = FindObjectOfType<CanvasController>();
         if (canvas != null)
         {
-            canvas.QueuePanel("LevelFinished"); // Queue level finished panel
+            canvas.QueuePanel("LevelFinished");
         }
     }
 
     public void ApplyUpgrade(string option)
     {
-        switch (option)
+        // Apply upgrades to all enemies in the next level
+        foreach (GameObject prefab in tileMapPrefabs)
         {
-            case "Speed":
-                baseEnemyMoveSpeed *= 1.2f;
-                break;
-            case "Health":
-                baseEnemyHealth = Mathf.RoundToInt(baseEnemyHealth * 1.2f);
-                break;
-            case "Damage":
-                baseEnemyDamage = Mathf.RoundToInt(baseEnemyDamage * 1.2f);
-                break;
+            Enemy[] enemies = prefab.GetComponentsInChildren<Enemy>();
+            foreach (Enemy enemy in enemies)
+            {
+                switch (option)
+                {
+                    case "Speed":
+                        enemy.moveSpeed *= 1.2f;
+                        break;
+                    case "Health":
+                        enemy.maxHealth = Mathf.RoundToInt(enemy.maxHealth * 1.2f);
+                        break;
+                    case "Damage":
+                        enemy.damage = Mathf.RoundToInt(enemy.damage * 1.2f);
+                        break;
+                }
+            }
         }
 
         currentLevel++;

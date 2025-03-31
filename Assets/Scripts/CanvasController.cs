@@ -160,7 +160,7 @@ public class CanvasController : MonoBehaviour
         }
     }
 
-    // Upgrade data panel (replaces levelFinishedPanel)
+    // Upgrade data panel (player upgrades)
     public void ShowUpgradeDataPanel()
     {
         if (upgradeDataPanel != null)
@@ -168,7 +168,6 @@ public class CanvasController : MonoBehaviour
             upgradeDataPanel.SetActive(true);
             Time.timeScale = 0f;
 
-            // Select 3 random player upgrade options
             List<PlayerUpgradeOption> availableOptions = new List<PlayerUpgradeOption>(playerUpgradeOptions);
             for (int i = 0; i < 3; i++)
             {
@@ -246,9 +245,9 @@ public class CanvasController : MonoBehaviour
     {
         switch (option)
         {
-            case LevelUpgradeOption.Speed: return $"Enemy Speed +20% (Current: {sceneManager.baseEnemyMoveSpeed:F1})";
-            case LevelUpgradeOption.Health: return $"Enemy Health +20% (Current: {sceneManager.baseEnemyHealth})";
-            case LevelUpgradeOption.Damage: return $"Enemy Damage +20% (Current: {sceneManager.baseEnemyDamage})";
+            case LevelUpgradeOption.Speed: return "Enemy Speed +20%";
+            case LevelUpgradeOption.Health: return "Enemy Health +20%";
+            case LevelUpgradeOption.Damage: return "Enemy Damage +20%";
             default: return "";
         }
     }

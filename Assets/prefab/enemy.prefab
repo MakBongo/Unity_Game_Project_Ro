@@ -131,13 +131,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dffdbdb0820bdb44788182555c81178a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 0
-  maxHealth: 0
-  damage: 0
-  expValue: 0
+  moveSpeed: 2
+  maxHealth: 50
+  damage: 5
+  expValue: 10
   jumpForce: 7
-  groundCheck: {fileID: 3862071294867087155}
-  checkRadius: 0.1
+  rayLength: 0.6
+  rayOffset: 0.82
   whatIsGround:
     serializedVersion: 2
     m_Bits: 8

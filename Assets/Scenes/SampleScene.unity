@@ -2050,7 +2050,7 @@ MonoBehaviour:
   level: 1
   bulletPrefab: {fileID: 71979686626409600, guid: 243e9c805720058429f44e784a5539e2, type: 3}
   firePoint: {fileID: 1013674465}
-  firePointRadius: 1
+  firePointRadius: 0.5
   gunObject: {fileID: 2130006956}
   bulletDamage: 10
   bulletSpeed: 20
@@ -2932,12 +2932,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   tileMapPrefabs:
   - {fileID: 4332902301604754245, guid: 5d01ee8e57aff81469b0d75354845f71, type: 3}
-  baseEnemyMoveSpeed: 2
-  baseEnemyHealth: 50
-  baseEnemyDamage: 10
-  baseExpValue: 20
-  enemyPrefab: {fileID: 6956680453867338152, guid: 848e920e369b9c44c8225711e3ffab4d, type: 3}
-  enemiesPerLevel: 5
 --- !u!4 &1808312576
 Transform:
   m_ObjectHideFlags: 0

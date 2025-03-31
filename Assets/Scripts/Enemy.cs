@@ -12,8 +12,8 @@ public class Enemy : MonoBehaviour
 
     [Header("Jump Settings")]
     public float jumpForce = 8f;
-    public Transform groundCheck;
-    public float checkRadius = 0.1f;
+    public float rayLength = 0.2f; // How far down to cast rays
+    public float rayOffset = 0.4f; // Distance from center to edge rays
     public LayerMask whatIsGround;
     private bool isGrounded;
     public float jumpCooldown = 2f;
@@ -49,7 +49,12 @@ public class Enemy : MonoBehaviour
             Vector2 direction = (player.position - transform.position).normalized;
             enemyRB.velocity = new Vector2(direction.x * moveSpeed, enemyRB.velocity.y);
 
-            isGrounded = Physics2D.OverlapCircle(groundCheck.position, checkRadius, whatIsGround);
+            Vector2 originLeft = new Vector2(transform.position.x - rayOffset, transform.position.y);
+            Vector2 originRight = new Vector2(transform.position.x + rayOffset, transform.position.y);
+            RaycastHit2D hitLeft = Physics2D.Raycast(originLeft, Vector2.down, rayLength, whatIsGround);
+            RaycastHit2D hitRight = Physics2D.Raycast(originRight, Vector2.down, rayLength, whatIsGround);
+            isGrounded = hitLeft.collider != null || hitRight.collider != null;
+
             if (isGrounded && Time.time >= nextJumpTime && ShouldJump())
             {
                 Jump();
@@ -100,7 +105,6 @@ public class Enemy : MonoBehaviour
 
     void ApplyKnockback(Rigidbody2D rb, Vector2 direction)
     {
-        // Apply impulse force in full 2D direction (horizontal and vertical)
         Vector2 knockbackVelocity = direction * knockbackForce;
         rb.AddForce(knockbackVelocity, ForceMode2D.Impulse);
     }
@@ -130,5 +134,14 @@ public class Enemy : MonoBehaviour
     public bool IsDead()
     {
         return currentHealth <= 0;
+    }
+
+    void OnDrawGizmos()
+    {
+        Vector2 originLeft = new Vector2(transform.position.x - rayOffset, transform.position.y);
+        Vector2 originRight = new Vector2(transform.position.x + rayOffset, transform.position.y);
+        Gizmos.color = Color.red;
+        Gizmos.DrawLine(originLeft, originLeft + Vector2.down * rayLength);
+        Gizmos.DrawLine(originRight, originRight + Vector2.down * rayLength);
     }
 }
