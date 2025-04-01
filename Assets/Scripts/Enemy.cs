@@ -1,23 +1,30 @@
 using UnityEngine;
+using System.Collections;
 
 public class Enemy : MonoBehaviour
 {
-    public float moveSpeed;       // Set by SceneManager
-    public int maxHealth;         // Set by SceneManager
-    public int damage;            // Set by SceneManager
-    public int expValue;          // Set by SceneManager (base value from SceneManager)
+    public float moveSpeed;
+    public int maxHealth;
+    public int damage;
+    public int expValue;
     private int currentHealth;
     private Transform player;
     private Rigidbody2D enemyRB;
 
     [Header("Jump Settings")]
     public float jumpForce = 8f;
-    public float rayLength = 0.2f; // How far down to cast rays
-    public float rayOffset = 0.4f; // Distance from center to edge rays
-    public LayerMask whatIsGround;
+    public float rayLength = 0.2f;
+    public float rayOffset = 0.4f;
+    public LayerMask whatIsGround; // Ensure this includes the platform layer (e.g., "Default")
     private bool isGrounded;
     public float jumpCooldown = 2f;
     private float nextJumpTime;
+
+    [Header("Drop Settings")]
+    public float dropDelay = 0.5f;
+    private int enemyLayer;
+    private int passThroughLayer;
+    private bool isDropping = false;
 
     [Header("Knockback Settings")]
     public float knockbackForce = 5f;
@@ -35,6 +42,15 @@ public class Enemy : MonoBehaviour
             enemyRB.freezeRotation = true;
         }
         nextJumpTime = Time.time;
+
+        enemyLayer = LayerMask.NameToLayer("Enemies");
+        passThroughLayer = LayerMask.NameToLayer("PassThrough");
+        if (enemyLayer == -1 || passThroughLayer == -1)
+        {
+            Debug.LogError("Ensure 'Enemies' and 'PassThrough' layers are defined in Layer settings!");
+            return;
+        }
+        gameObject.layer = enemyLayer;
     }
 
     public void Initialize()
@@ -44,7 +60,7 @@ public class Enemy : MonoBehaviour
 
     void Update()
     {
-        if (player != null)
+        if (player != null && !isDropping)
         {
             Vector2 direction = (player.position - transform.position).normalized;
             enemyRB.velocity = new Vector2(direction.x * moveSpeed, enemyRB.velocity.y);
@@ -55,10 +71,17 @@ public class Enemy : MonoBehaviour
             RaycastHit2D hitRight = Physics2D.Raycast(originRight, Vector2.down, rayLength, whatIsGround);
             isGrounded = hitLeft.collider != null || hitRight.collider != null;
 
-            if (isGrounded && Time.time >= nextJumpTime && ShouldJump())
+            if (isGrounded && Time.time >= nextJumpTime)
             {
-                Jump();
-                nextJumpTime = Time.time + jumpCooldown;
+                if (ShouldJump())
+                {
+                    Jump();
+                    nextJumpTime = Time.time + jumpCooldown;
+                }
+                else if (ShouldDrop())
+                {
+                    StartCoroutine(DropThroughPlatform());
+                }
             }
         }
     }
@@ -78,6 +101,29 @@ public class Enemy : MonoBehaviour
             return verticalDistance > 1f && horizontalDistance < 5f;
         }
         return false;
+    }
+
+    bool ShouldDrop()
+    {
+        if (player != null)
+        {
+            float verticalDistance = player.position.y - transform.position.y;
+            float horizontalDistance = Mathf.Abs(player.position.x - transform.position.x);
+            return verticalDistance < -1f && horizontalDistance < 5f && isGrounded;
+        }
+        return false;
+    }
+
+    IEnumerator DropThroughPlatform()
+    {
+        isDropping = true;
+        gameObject.layer = passThroughLayer;
+        Debug.Log("Enemy dropping through platform!");
+
+        yield return new WaitForSeconds(dropDelay);
+
+        gameObject.layer = enemyLayer;
+        isDropping = false;
     }
 
     void OnCollisionEnter2D(Collision2D collision)

@@ -19,7 +19,7 @@ public class TwoWayPlatform : MonoBehaviour
         }
 
         playerLayer = LayerMask.NameToLayer("Player");
-        passThroughLayer = LayerMask.NameToLayer("PassThrough"); // Create this layer in Unity
+        passThroughLayer = LayerMask.NameToLayer("PassThrough");
         if (playerLayer == -1 || passThroughLayer == -1)
         {
             Debug.LogError("Ensure 'Player' and 'PassThrough' layers are defined in the Layer settings!");
@@ -30,8 +30,8 @@ public class TwoWayPlatform : MonoBehaviour
         effector.useSideFriction = false;
         effector.useSideBounce = false;
 
-        // Ensure platform only collides with "Player" layer by default
-        effector.colliderMask = LayerMask.GetMask("Player");
+        // Allow both Player and Enemies layers to interact with the platform
+        effector.colliderMask = LayerMask.GetMask("Player", "Enemies");
     }
 
     void Update()
@@ -49,6 +49,7 @@ public class TwoWayPlatform : MonoBehaviour
         if (player != null)
         {
             player.gameObject.layer = passThroughLayer; // Switch to pass-through layer
+            Debug.Log("Player dropping through platform!");
         }
 
         yield return new WaitForSeconds(dropDelay);
