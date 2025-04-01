@@ -13,8 +13,8 @@ GameObject:
   - component: {fileID: 2443977516967908775}
   - component: {fileID: 241682896270247381}
   - component: {fileID: 4314504312705490150}
-  m_Layer: 8
-  m_Name: Enemy
+  m_Layer: 7
+  m_Name: enemy
   m_TagString: Enemies
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -108,7 +108,7 @@ MonoBehaviour:
   rayOffset: 0.5
   whatIsGround:
     serializedVersion: 2
-    m_Bits: 576
+    m_Bits: 520
   jumpCooldown: 2
   knockbackForce: 5
   knockbackDuration: 0.2

@@ -7,6 +7,7 @@ TagManager:
   - Ground
   - SpawnPoint
   - PlayerSpawn
+  - Enemies
   layers:
   - Default
   - TransparentFX
@@ -15,9 +16,9 @@ TagManager:
   - Water
   - UI
   - Player
-  - 
-  - 
-  - 
+  - Enemies
+  - PassThrough
+  - Platforms
   - 
   - 
   - 

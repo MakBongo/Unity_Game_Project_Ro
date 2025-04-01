@@ -616,7 +616,7 @@ GameObject:
   - component: {fileID: 5122199410706659787}
   - component: {fileID: 7339773350625987666}
   - component: {fileID: 1523908722448452966}
-  m_Layer: 6
+  m_Layer: 3
   m_Name: Spikes
   m_TagString: Ground
   m_Icon: {fileID: 0}
@@ -1061,7 +1061,7 @@ GameObject:
   - component: {fileID: 3070185356801957175}
   - component: {fileID: 5396382865971489713}
   - component: {fileID: 7475031843408215294}
-  m_Layer: 6
+  m_Layer: 3
   m_Name: Ground
   m_TagString: Ground
   m_Icon: {fileID: 0}
