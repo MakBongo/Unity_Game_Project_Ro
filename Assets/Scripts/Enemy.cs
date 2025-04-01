@@ -182,6 +182,12 @@ public class Enemy : MonoBehaviour
         return currentHealth <= 0;
     }
 
+    // Added getter for currentHealth
+    public int GetCurrentHealth()
+    {
+        return currentHealth;
+    }
+
     void OnDrawGizmos()
     {
         Vector2 originLeft = new Vector2(transform.position.x - rayOffset, transform.position.y);
