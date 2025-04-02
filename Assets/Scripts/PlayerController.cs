@@ -33,107 +33,32 @@ public class PlayerController : MonoBehaviour
     public int currentExp = 0;
     public int maxExp = 100;
     public int level = 1;
-    public float expMultiplier = 1f; // New field: Multiplier for EXP gain
+    public float expMultiplier = 1f; // Multiplier for EXP gain
 
-    [Header("Set Shooting")]
-    public GameObject bulletPrefab;
-    public Transform firePoint;
-    public float firePointRadius = 0.5f;
-    public Transform gunObject;
-
-    [Header("Gun Data")]
-    public int bulletDamage = 10;
-    public float bulletSpeed = 20f;
-    public float firesPerMinute = 300f;
-    public float bulletLifetime = 2f;
-    public int magazineSize = 30;
-    public float reloadTime = 2f;
-    private int poolSize;
-    private float nextFireTime = 0f;
-    private Queue<GameObject> bulletPool;
-    private int currentAmmo;
-    private bool isReloading = false;
-    private float fireRate;
-
-    [Header("Upgrade Multipliers")]
-    private float bulletSpeedUpgrade = 1.1f;
-    private float firesPerMinuteUpgrade = 1.1f;
-    private float bulletLifetimeUpgrade = 1.1f;
-    private float magazineSizeUpgrade = 1.1f;
-    private float reloadTimeUpgrade = 0.9f;
-    private float healRateUpgrade = 1.1f;
-    private float expAmountUpgrade = 1.1f; // New field: Multiplier for EXP gain upgrade
+    [Header("Set Shooting References")]
+    public Transform gunObject; // Kept for rotation and flipping
+    public Shooting shooting;   // Reference to the Shooting script
 
     void Start()
     {
         PlayerRB = GetComponent<Rigidbody2D>();
-        bulletPool = new Queue<GameObject>();
-        fireRate = 60f / firesPerMinute;
-        CalculatePoolSize();
-        InitializeBulletPool();
-        currentAmmo = magazineSize;
         currentHealth = maxHealth;
 
         if (gunObject == null)
         {
             Debug.LogWarning("Gun Object not assigned in Inspector!");
         }
-    }
 
-    void CalculatePoolSize()
-    {
-        fireRate = 60f / firesPerMinute;
-        float shotsPerSecond = 1f / fireRate;
-        int calculatedPoolSize = Mathf.CeilToInt(shotsPerSecond * bulletLifetime) + 5;
-        poolSize = Mathf.Max(calculatedPoolSize, magazineSize);
-    }
-
-    void InitializeBulletPool()
-    {
-        while (bulletPool.Count < poolSize)
+        shooting = GetComponent<Shooting>();
+        if (shooting == null)
         {
-            GameObject bullet = Instantiate(bulletPrefab);
-            bullet.SetActive(false);
-            bulletPool.Enqueue(bullet);
+            Debug.LogWarning("Shooting script not found on PlayerController!");
         }
-    }
-
-    void AdjustPoolSize()
-    {
-        while (bulletPool.Count > poolSize)
-        {
-            GameObject bullet = bulletPool.Dequeue();
-            if (!bullet.activeSelf)
-            {
-                Destroy(bullet);
-            }
-            else
-            {
-                bulletPool.Enqueue(bullet);
-                break;
-            }
-        }
-        InitializeBulletPool();
     }
 
     void Update()
     {
-        if (!isReloading)
-        {
-            if (Input.GetKey(KeyCode.Mouse0) && Time.time >= nextFireTime && currentAmmo > 0)
-            {
-                Shoot();
-                fireRate = 60f / firesPerMinute;
-                nextFireTime = Time.time + fireRate;
-            }
-            else if (currentAmmo <= 0)
-            {
-                StartCoroutine(Reload());
-            }
-        }
-
         UpdateGunRotation();
-        UpdateFirePoint();
 
         if (currentHealth <= 0)
         {
@@ -197,61 +122,6 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    void UpdateFirePoint()
-    {
-        if (gunObject != null && firePoint != null)
-        {
-            Vector2 direction = gunObject.right;
-            firePoint.position = gunObject.position + (Vector3)(direction * firePointRadius);
-            firePoint.rotation = gunObject.rotation;
-        }
-    }
-
-    void Shoot()
-    {
-        if (bulletPool.Count > 0)
-        {
-            GameObject bullet = bulletPool.Dequeue();
-            bullet.transform.position = firePoint.position;
-            bullet.transform.rotation = firePoint.rotation;
-            bullet.SetActive(true);
-
-            Bullet bulletScript = bullet.GetComponent<Bullet>();
-            if (bulletScript != null)
-            {
-                bulletScript.damage = bulletDamage;
-                bulletScript.player = this;
-            }
-
-            Rigidbody2D bulletRB = bullet.GetComponent<Rigidbody2D>();
-            Vector2 bulletDirection = firePoint.right;
-            bulletRB.velocity = bulletDirection * bulletSpeed;
-
-            currentAmmo--;
-            StartCoroutine(ReturnBulletToPool(bullet));
-        }
-    }
-
-    IEnumerator ReturnBulletToPool(GameObject bullet)
-    {
-        yield return new WaitForSeconds(bulletLifetime);
-        if (bullet != null)
-        {
-            bullet.SetActive(false);
-            bulletPool.Enqueue(bullet);
-        }
-    }
-
-    IEnumerator Reload()
-    {
-        isReloading = true;
-        yield return new WaitForSeconds(reloadTime);
-        CalculatePoolSize();
-        AdjustPoolSize();
-        currentAmmo = magazineSize;
-        isReloading = false;
-    }
-
     public void TakeDamage(int damage)
     {
         currentHealth -= damage;
@@ -267,7 +137,7 @@ public class PlayerController : MonoBehaviour
 
     public void AddExp(int exp)
     {
-        int scaledExp = Mathf.RoundToInt(exp * expMultiplier); // Apply multiplier
+        int scaledExp = Mathf.RoundToInt(exp * expMultiplier);
         currentExp += scaledExp;
         Debug.Log($"Gained {scaledExp} EXP (Base: {exp}, Multiplier: {expMultiplier:F2}). Current EXP: {currentExp}/{maxExp}");
         while (currentExp >= maxExp)
@@ -311,71 +181,26 @@ public class PlayerController : MonoBehaviour
         Debug.Log($"Upgraded Max Health to {maxHealth}");
     }
 
-    public void UpgradeBulletDamage()
-    {
-        bulletDamage += 2;
-        Debug.Log($"Upgraded Bullet Damage to {bulletDamage}");
-    }
-
     public void UpgradeMoveSpeed()
     {
         moveSpeed += 1f;
         Debug.Log($"Upgraded Move Speed to {moveSpeed}");
     }
 
-    public void UpgradeBulletSpeed()
-    {
-        bulletSpeed *= bulletSpeedUpgrade;
-        Debug.Log($"Upgraded Bullet Speed to {bulletSpeed:F2}");
-    }
-
-    public void UpgradeFiresPerMinute()
-    {
-        firesPerMinute *= firesPerMinuteUpgrade;
-        fireRate = 60f / firesPerMinute;
-        CalculatePoolSize();
-        AdjustPoolSize();
-        Debug.Log($"Upgraded Fires Per Minute to {firesPerMinute:F2}");
-    }
-
-    public void UpgradeBulletLifetime()
-    {
-        bulletLifetime *= bulletLifetimeUpgrade;
-        CalculatePoolSize();
-        AdjustPoolSize();
-        Debug.Log($"Upgraded Bullet Lifetime to {bulletLifetime:F2}");
-    }
-
-    public void UpgradeMagazineSize()
-    {
-        magazineSize = Mathf.RoundToInt(magazineSize * magazineSizeUpgrade);
-        CalculatePoolSize();
-        AdjustPoolSize();
-        Debug.Log($"Upgraded Magazine Size to {magazineSize}");
-    }
-
-    public void UpgradeReloadTime()
-    {
-        reloadTime *= reloadTimeUpgrade;
-        Debug.Log($"Upgraded Reload Time to {reloadTime:F2}");
-    }
-
     public void UpgradeHealRate()
     {
-        healRate *= healRateUpgrade;
+        healRate *= 1.1f; // Using a direct multiplier here since upgrade fields are moved
         Debug.Log($"Upgraded Heal Rate to {healRate:F4}");
     }
 
-    public void UpgradeExpAmount() // New method
+    public void UpgradeExpAmount()
     {
-        expMultiplier *= expAmountUpgrade;
+        expMultiplier *= 1.1f; // Using a direct multiplier here
         Debug.Log($"Upgraded EXP Multiplier to {expMultiplier:F2}");
     }
 
     public int GetCurrentHealth() { return Mathf.RoundToInt(currentHealth); }
     public int GetMaxHealth() { return maxHealth; }
-    public int GetCurrentAmmo() { return currentAmmo; }
-    public bool IsReloading() { return isReloading; }
     public int GetCurrentExp() { return currentExp; }
     public int GetMaxExp() { return maxExp; }
     public int GetLevel() { return level; }

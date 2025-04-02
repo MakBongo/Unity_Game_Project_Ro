@@ -6,6 +6,7 @@ public class CanvasController : MonoBehaviour
 {
     [Header("References")]
     public PlayerController playerController;
+    public Shooting shooting; // Added reference to Shooting script
     public Text displayText;
     public Slider healthSlider;
     public Slider expSlider;
@@ -25,14 +26,14 @@ public class CanvasController : MonoBehaviour
     public Button option1Button;
     public Button option2Button;
 
-    private enum PlayerUpgradeOption { BulletSpeed, FiresPerMinute, BulletLifetime, MagazineSize, ReloadTime, HealRate, ExpAmount } // Added ExpAmount
+    private enum PlayerUpgradeOption { BulletSpeed, FiresPerMinute, BulletLifetime, MagazineSize, ReloadTime, HealRate, ExpAmount }
     private PlayerUpgradeOption[] playerUpgradeOptions = {
         PlayerUpgradeOption.BulletSpeed, PlayerUpgradeOption.FiresPerMinute, PlayerUpgradeOption.BulletLifetime,
         PlayerUpgradeOption.MagazineSize, PlayerUpgradeOption.ReloadTime, PlayerUpgradeOption.HealRate, PlayerUpgradeOption.ExpAmount
     };
     private PlayerUpgradeOption[] currentPlayerOptions = new PlayerUpgradeOption[3];
 
-    private enum LevelUpgradeOption { Speed, Health, Damage } // Removed ExpAmount
+    private enum LevelUpgradeOption { Speed, Health, Damage }
     private LevelUpgradeOption[] levelUpgradeOptions = { LevelUpgradeOption.Speed, LevelUpgradeOption.Health, LevelUpgradeOption.Damage };
     private LevelUpgradeOption[] currentLevelOptions = new LevelUpgradeOption[2];
 
@@ -54,6 +55,15 @@ public class CanvasController : MonoBehaviour
             expSlider.value = playerController.GetCurrentExp();
         }
 
+        if (shooting == null)
+        {
+            shooting = playerController.GetComponent<Shooting>();
+            if (shooting == null)
+            {
+                Debug.LogError("Shooting component not found on PlayerController!");
+            }
+        }
+
         if (upgradePanel != null) upgradePanel.SetActive(false);
         if (upgradeDataPanel != null) upgradeDataPanel.SetActive(false);
         if (levelCompletePanel != null) levelCompletePanel.SetActive(false);
@@ -61,11 +71,11 @@ public class CanvasController : MonoBehaviour
 
     void Update()
     {
-        if (playerController != null && displayText != null)
+        if (shooting != null && displayText != null)
         {
-            int currentAmmo = playerController.GetCurrentAmmo();
-            string ammoString = $"Ammo: {currentAmmo}/{playerController.magazineSize}";
-            displayText.text = playerController.IsReloading() ? $"{ammoString} - Reloading..." : ammoString;
+            int currentAmmo = shooting.GetCurrentAmmo();
+            string ammoString = $"Ammo: {currentAmmo}/{shooting.magazineSize}";
+            displayText.text = shooting.IsReloading() ? $"{ammoString} - Reloading..." : ammoString;
         }
 
         if (playerController != null && healthSlider != null)
@@ -134,9 +144,9 @@ public class CanvasController : MonoBehaviour
 
     public void OnDamageButtonClicked()
     {
-        if (playerController != null)
+        if (shooting != null)
         {
-            playerController.UpgradeBulletDamage();
+            shooting.UpgradeBulletDamage();
             CloseUpgradePanel();
         }
     }
@@ -193,13 +203,13 @@ public class CanvasController : MonoBehaviour
     {
         switch (option)
         {
-            case PlayerUpgradeOption.BulletSpeed: return $"Bullet Speed +10% (Current: {playerController.bulletSpeed:F1})";
-            case PlayerUpgradeOption.FiresPerMinute: return $"Fire Rate +10% (Current: {playerController.firesPerMinute:F1})";
-            case PlayerUpgradeOption.BulletLifetime: return $"Bullet Lifetime +10% (Current: {playerController.bulletLifetime:F1})";
-            case PlayerUpgradeOption.MagazineSize: return $"Magazine Size +10% (Current: {playerController.magazineSize})";
-            case PlayerUpgradeOption.ReloadTime: return $"Reload Time -10% (Current: {playerController.reloadTime:F1})";
+            case PlayerUpgradeOption.BulletSpeed: return $"Bullet Speed +10% (Current: {shooting.bulletSpeed:F1})";
+            case PlayerUpgradeOption.FiresPerMinute: return $"Fire Rate +10% (Current: {shooting.firesPerMinute:F1})";
+            case PlayerUpgradeOption.BulletLifetime: return $"Bullet Lifetime +10% (Current: {shooting.bulletLifetime:F1})";
+            case PlayerUpgradeOption.MagazineSize: return $"Magazine Size +10% (Current: {shooting.magazineSize})";
+            case PlayerUpgradeOption.ReloadTime: return $"Reload Time -10% (Current: {shooting.reloadTime:F1})";
             case PlayerUpgradeOption.HealRate: return $"Heal Rate +10% (Current: {playerController.healRate * 100:F2}%)";
-            case PlayerUpgradeOption.ExpAmount: return $"EXP Gain +10% (Current: {playerController.expMultiplier * 100:F0}%)"; // New option
+            case PlayerUpgradeOption.ExpAmount: return $"EXP Gain +10% (Current: {playerController.expMultiplier * 100:F0}%)";
             default: return "";
         }
     }
@@ -208,13 +218,13 @@ public class CanvasController : MonoBehaviour
     {
         switch (option)
         {
-            case PlayerUpgradeOption.BulletSpeed: playerController.UpgradeBulletSpeed(); break;
-            case PlayerUpgradeOption.FiresPerMinute: playerController.UpgradeFiresPerMinute(); break;
-            case PlayerUpgradeOption.BulletLifetime: playerController.UpgradeBulletLifetime(); break;
-            case PlayerUpgradeOption.MagazineSize: playerController.UpgradeMagazineSize(); break;
-            case PlayerUpgradeOption.ReloadTime: playerController.UpgradeReloadTime(); break;
+            case PlayerUpgradeOption.BulletSpeed: shooting.UpgradeBulletSpeed(); break;
+            case PlayerUpgradeOption.FiresPerMinute: shooting.UpgradeFiresPerMinute(); break;
+            case PlayerUpgradeOption.BulletLifetime: shooting.UpgradeBulletLifetime(); break;
+            case PlayerUpgradeOption.MagazineSize: shooting.UpgradeMagazineSize(); break;
+            case PlayerUpgradeOption.ReloadTime: shooting.UpgradeReloadTime(); break;
             case PlayerUpgradeOption.HealRate: playerController.UpgradeHealRate(); break;
-            case PlayerUpgradeOption.ExpAmount: playerController.UpgradeExpAmount(); break; // New case
+            case PlayerUpgradeOption.ExpAmount: playerController.UpgradeExpAmount(); break;
         }
         upgradeDataPanel.SetActive(false);
         ShowLevelCompletePanel(); // Proceed to enemy upgrades
