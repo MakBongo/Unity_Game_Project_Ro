@@ -8,15 +8,14 @@ public class PlayerController : MonoBehaviour
     public float moveSpeed = 5;
     private float inputX;
     private Rigidbody2D PlayerRB;
-    private bool faceRight = true;
 
     [Header("Set Jump")]
     public float JumpForce = 10;
     private bool canJump = true;
 
     [Header("Set GroundCheck")]
-    public float rayLength = 0.2f; // How far down to cast rays
-    public float rayOffset = 0.4f; // Distance from center to edge rays
+    public float rayLength = 0.2f;
+    public float rayOffset = 0.4f;
     public LayerMask WhatIsGround;
     private bool isGrounded;
 
@@ -33,33 +32,29 @@ public class PlayerController : MonoBehaviour
     public int currentExp = 0;
     public int maxExp = 100;
     public int level = 1;
-    public float expMultiplier = 1f; // Multiplier for EXP gain
+    public float expMultiplier = 1f;
 
-    [Header("Set Shooting References")]
-    public Transform gunObject; // Kept for rotation and flipping
-    public Shooting shooting;   // Reference to the Shooting script
+    [Header("Set Shooting Reference")]
+    public Shooting shooting; // Reference to the Shooting script on the Gun object
 
     void Start()
     {
         PlayerRB = GetComponent<Rigidbody2D>();
         currentHealth = maxHealth;
 
-        if (gunObject == null)
-        {
-            Debug.LogWarning("Gun Object not assigned in Inspector!");
-        }
-
-        shooting = GetComponent<Shooting>();
         if (shooting == null)
         {
-            Debug.LogWarning("Shooting script not found on PlayerController!");
+            Debug.LogWarning("Shooting script not assigned in PlayerController! Attempting to find it...");
+            shooting = GetComponentInChildren<Shooting>(); // Look for it in children
+            if (shooting == null)
+            {
+                Debug.LogError("Could not find Shooting script in children!");
+            }
         }
     }
 
     void Update()
     {
-        UpdateGunRotation();
-
         if (currentHealth <= 0)
         {
             Die();
@@ -89,36 +84,6 @@ public class PlayerController : MonoBehaviour
         if (!wasGrounded && isGrounded)
         {
             canJump = true;
-        }
-    }
-
-    void Flip()
-    {
-        faceRight = !faceRight;
-        Vector3 Scaler = transform.localScale;
-        Scaler.x *= -1;
-        transform.localScale = Scaler;
-    }
-
-    void UpdateGunRotation()
-    {
-        if (gunObject != null)
-        {
-            Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            mousePos.z = 0f;
-
-            Vector2 direction = (mousePos - transform.position).normalized;
-            float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-            gunObject.rotation = Quaternion.Euler(0f, 0f, angle);
-
-            if (direction.x > 0 && !faceRight)
-            {
-                Flip();
-            }
-            else if (direction.x < 0 && faceRight)
-            {
-                Flip();
-            }
         }
     }
 
@@ -189,13 +154,13 @@ public class PlayerController : MonoBehaviour
 
     public void UpgradeHealRate()
     {
-        healRate *= 1.1f; // Using a direct multiplier here since upgrade fields are moved
+        healRate *= 1.1f;
         Debug.Log($"Upgraded Heal Rate to {healRate:F4}");
     }
 
     public void UpgradeExpAmount()
     {
-        expMultiplier *= 1.1f; // Using a direct multiplier here
+        expMultiplier *= 1.1f;
         Debug.Log($"Upgraded EXP Multiplier to {expMultiplier:F2}");
     }
 

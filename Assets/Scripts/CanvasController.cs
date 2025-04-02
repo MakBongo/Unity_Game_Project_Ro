@@ -55,12 +55,13 @@ public class CanvasController : MonoBehaviour
             expSlider.value = playerController.GetCurrentExp();
         }
 
-        if (shooting == null)
+        // Fetch Shooting from PlayerController's reference
+        if (playerController != null)
         {
-            shooting = playerController.GetComponent<Shooting>();
+            shooting = playerController.shooting;
             if (shooting == null)
             {
-                Debug.LogError("Shooting component not found on PlayerController!");
+                Debug.LogError("Shooting reference not set in PlayerController!");
             }
         }
 

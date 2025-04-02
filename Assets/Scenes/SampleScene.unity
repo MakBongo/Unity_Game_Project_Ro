@@ -1187,7 +1187,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerController: {fileID: 1152628164}
-  shooting: {fileID: 0}
+  shooting: {fileID: 2130006958}
   displayText: {fileID: 1469829164}
   healthSlider: {fileID: 248389191}
   expSlider: {fileID: 1849336010}
@@ -2050,7 +2050,6 @@ MonoBehaviour:
   maxExp: 100
   level: 1
   expMultiplier: 1
-  gunObject: {fileID: 2130006956}
   shooting: {fileID: 0}
 --- !u!212 &1152628165
 SpriteRenderer:
@@ -3065,7 +3064,6 @@ MonoBehaviour:
   bulletPrefab: {fileID: 71979686626409600, guid: 243e9c805720058429f44e784a5539e2, type: 3}
   firePoint: {fileID: 2099236355}
   firePointRadius: 0.5
-  gunObject: {fileID: 1927050811}
   bulletDamage: 10
   bulletSpeed: 20
   firesPerMinute: 300
@@ -3077,6 +3075,7 @@ MonoBehaviour:
   bulletLifetimeUpgrade: 1.1
   magazineSizeUpgrade: 1.1
   reloadTimeUpgrade: 0.9
+  player: {fileID: 0}
 --- !u!212 &1927050810
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -3429,7 +3428,6 @@ MonoBehaviour:
   bulletPrefab: {fileID: 71979686626409600, guid: 243e9c805720058429f44e784a5539e2, type: 3}
   firePoint: {fileID: 1013674465}
   firePointRadius: 0.5
-  gunObject: {fileID: 2130006956}
   bulletDamage: 10
   bulletSpeed: 20
   firesPerMinute: 300
@@ -3441,6 +3439,7 @@ MonoBehaviour:
   bulletLifetimeUpgrade: 1.1
   magazineSizeUpgrade: 1.1
   reloadTimeUpgrade: 0.9
+  player: {fileID: 0}
 --- !u!1 &2137788441
 GameObject:
   m_ObjectHideFlags: 0
