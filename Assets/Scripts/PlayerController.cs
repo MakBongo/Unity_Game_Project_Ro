@@ -37,7 +37,7 @@ public class PlayerController : MonoBehaviour
     [Header("Set Shooting Reference")]
     public Shooting shooting; // Reference to the Shooting script on the Gun object
 
-    void Start()
+    void Awake() // Changed to Awake to ensure it runs before CanvasController.Start
     {
         PlayerRB = GetComponent<Rigidbody2D>();
         currentHealth = maxHealth;
@@ -48,7 +48,11 @@ public class PlayerController : MonoBehaviour
             shooting = GetComponentInChildren<Shooting>(); // Look for it in children
             if (shooting == null)
             {
-                Debug.LogError("Could not find Shooting script in children!");
+                Debug.LogError("Could not find Shooting script in children of PlayerController!");
+            }
+            else
+            {
+                Debug.Log("Shooting script found in children!");
             }
         }
     }

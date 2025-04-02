@@ -6,7 +6,7 @@ public class CanvasController : MonoBehaviour
 {
     [Header("References")]
     public PlayerController playerController;
-    public Shooting shooting; // Added reference to Shooting script
+    public Shooting shooting; // Reference to Shooting script
     public Text displayText;
     public Slider healthSlider;
     public Slider expSlider;
@@ -55,13 +55,16 @@ public class CanvasController : MonoBehaviour
             expSlider.value = playerController.GetCurrentExp();
         }
 
-        // Fetch Shooting from PlayerController's reference
-        if (playerController != null)
+        if (playerController != null && shooting == null)
         {
             shooting = playerController.shooting;
             if (shooting == null)
             {
-                Debug.LogError("Shooting reference not set in PlayerController!");
+                Debug.LogError("Shooting reference not set in CanvasController! Ensure PlayerController has assigned Shooting.");
+            }
+            else
+            {
+                Debug.Log("Shooting reference successfully set in CanvasController!");
             }
         }
 
@@ -124,7 +127,7 @@ public class CanvasController : MonoBehaviour
         }
     }
 
-    // Player level-up panel (existing)
+    // Player level-up panel
     public void ShowUpgradePanel()
     {
         if (upgradePanel != null)
@@ -228,7 +231,7 @@ public class CanvasController : MonoBehaviour
             case PlayerUpgradeOption.ExpAmount: playerController.UpgradeExpAmount(); break;
         }
         upgradeDataPanel.SetActive(false);
-        ShowLevelCompletePanel(); // Proceed to enemy upgrades
+        ShowLevelCompletePanel();
     }
 
     // Level complete panel (enemy upgrades)
