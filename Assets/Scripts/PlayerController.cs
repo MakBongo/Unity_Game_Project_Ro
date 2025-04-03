@@ -37,7 +37,7 @@ public class PlayerController : MonoBehaviour
     [Header("Set Shooting Reference")]
     public Shooting shooting;
 
-    [Header("Set Money")] // New section
+    [Header("Set Money")]
     public int money = 0; // Starting money
 
     void Awake()
@@ -197,8 +197,13 @@ public class PlayerController : MonoBehaviour
         Debug.Log($"Upgraded EXP Multiplier to {expMultiplier:F2}");
     }
 
+    // Health access methods
     public int GetCurrentHealth() { return Mathf.RoundToInt(currentHealth); }
     public int GetMaxHealth() { return maxHealth; }
+    public void SetCurrentHealth(float health) // Added method
+    {
+        currentHealth = Mathf.Clamp(health, 0, maxHealth);
+    }
     public int GetCurrentExp() { return currentExp; }
     public int GetMaxExp() { return maxExp; }
     public int GetLevel() { return level; }
