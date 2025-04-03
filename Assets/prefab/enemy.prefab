@@ -353,6 +353,9 @@ MonoBehaviour:
   dropDelay: 0.5
   knockbackForce: 5
   knockbackDuration: 0.2
+  dropItems:
+  - prefab: {fileID: 8151545521237830002, guid: f40585842e88504438b689364ffe534a, type: 3}
+    dropRate: 1
 --- !u!61 &241682896270247381
 BoxCollider2D:
   m_ObjectHideFlags: 0

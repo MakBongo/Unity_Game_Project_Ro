@@ -30,6 +30,18 @@ public class Enemy : MonoBehaviour
     public float knockbackForce = 5f;
     public float knockbackDuration = 0.2f;
 
+    [Header("Drop Item List")]
+    [SerializeField] // Allows editing in Inspector
+    private DropItem[] dropItems; // Array of possible drops
+
+    [System.Serializable] // Makes this struct editable in Inspector
+    public struct DropItem
+    {
+        public GameObject prefab; // The object to drop
+        [Range(0f, 1f)] // Drop rate between 0 and 1 (0% to 100%)
+        public float dropRate;
+    }
+
     void Start()
     {
         player = FindObjectOfType<PlayerController>().transform;
@@ -173,8 +185,29 @@ public class Enemy : MonoBehaviour
         if (playerController != null)
         {
             playerController.AddExp(expValue);
+            TryDropItem(); // Attempt to drop an item
         }
         Destroy(gameObject);
+    }
+
+    void TryDropItem()
+    {
+        if (dropItems == null || dropItems.Length == 0)
+        {
+            Debug.Log("No drop items defined for this enemy.");
+            return;
+        }
+
+        foreach (DropItem item in dropItems)
+        {
+            if (item.prefab != null && Random.value <= item.dropRate)
+            {
+                GameObject droppedItem = Instantiate(item.prefab, transform.position, Quaternion.identity);
+                Debug.Log($"Enemy dropped {item.prefab.name} with drop rate {item.dropRate * 100}%!");
+                // Only drop one item per enemy death (remove this break if you want multiple possible drops)
+                break;
+            }
+        }
     }
 
     public bool IsDead()
@@ -182,7 +215,6 @@ public class Enemy : MonoBehaviour
         return currentHealth <= 0;
     }
 
-    // Added getter for currentHealth
     public int GetCurrentHealth()
     {
         return currentHealth;

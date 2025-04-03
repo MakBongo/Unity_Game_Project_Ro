@@ -470,8 +470,8 @@ Transform:
   - {fileID: 2456188268196883391}
   - {fileID: 5567784324313807716}
   - {fileID: 5595598191439225187}
-  - {fileID: 4953099178679408209}
   - {fileID: 1048815655435225976}
+  - {fileID: 8934662084413516444}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!156049354 &3872112722812406376
@@ -4616,6 +4616,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6794231518521993047, guid: 848e920e369b9c44c8225711e3ffab4d, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6794231518521993047, guid: 848e920e369b9c44c8225711e3ffab4d, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6956680453867338152, guid: 848e920e369b9c44c8225711e3ffab4d, type: 3}
       propertyPath: m_Name
       value: Enemy (1)
@@ -4630,7 +4638,7 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 745244743141177962, guid: 848e920e369b9c44c8225711e3ffab4d, type: 3}
   m_PrefabInstance: {fileID: 349451652152815890}
   m_PrefabAsset: {fileID: 0}
---- !u!1001 &5686732760394181691
+--- !u!1001 &8190341240549953782
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
@@ -4640,11 +4648,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 745244743141177962, guid: 848e920e369b9c44c8225711e3ffab4d, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -9.251415
+      value: -8.83
       objectReference: {fileID: 0}
     - target: {fileID: 745244743141177962, guid: 848e920e369b9c44c8225711e3ffab4d, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 1.9131452
+      value: 1.79
       objectReference: {fileID: 0}
     - target: {fileID: 745244743141177962, guid: 848e920e369b9c44c8225711e3ffab4d, type: 3}
       propertyPath: m_LocalPosition.z
@@ -4678,17 +4686,25 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6794231518521993047, guid: 848e920e369b9c44c8225711e3ffab4d, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6794231518521993047, guid: 848e920e369b9c44c8225711e3ffab4d, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6956680453867338152, guid: 848e920e369b9c44c8225711e3ffab4d, type: 3}
       propertyPath: m_Name
-      value: Enemy
+      value: Enemy (2)
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 848e920e369b9c44c8225711e3ffab4d, type: 3}
---- !u!4 &4953099178679408209 stripped
+--- !u!4 &8934662084413516444 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 745244743141177962, guid: 848e920e369b9c44c8225711e3ffab4d, type: 3}
-  m_PrefabInstance: {fileID: 5686732760394181691}
+  m_PrefabInstance: {fileID: 8190341240549953782}
   m_PrefabAsset: {fileID: 0}
