@@ -115,7 +115,7 @@ public class SceneManager : MonoBehaviour
         GenerateLevel();
     }
 
-    // Save system integrated into SceneManager
+    // Save system using independent SaveData
     void SaveGame()
     {
         if (player == null)
@@ -157,11 +157,4 @@ public class SceneManager : MonoBehaviour
     {
         SaveGame(); // Save when quitting
     }
-}
-
-// Data class for saving
-[System.Serializable]
-public class SaveData
-{
-    public int money;
 }
