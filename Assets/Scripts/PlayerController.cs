@@ -35,9 +35,12 @@ public class PlayerController : MonoBehaviour
     public float expMultiplier = 1f;
 
     [Header("Set Shooting Reference")]
-    public Shooting shooting; // Reference to the Shooting script on the Gun object
+    public Shooting shooting;
 
-    void Awake() // Changed to Awake to ensure it runs before CanvasController.Start
+    [Header("Set Money")] // New section
+    public int money = 0; // Starting money
+
+    void Awake()
     {
         PlayerRB = GetComponent<Rigidbody2D>();
         currentHealth = maxHealth;
@@ -45,7 +48,7 @@ public class PlayerController : MonoBehaviour
         if (shooting == null)
         {
             Debug.LogWarning("Shooting script not assigned in PlayerController! Attempting to find it...");
-            shooting = GetComponentInChildren<Shooting>(); // Look for it in children
+            shooting = GetComponentInChildren<Shooting>();
             if (shooting == null)
             {
                 Debug.LogError("Could not find Shooting script in children of PlayerController!");
@@ -144,6 +147,32 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    // Money methods
+    public void AddMoney(int amount)
+    {
+        money += amount;
+        Debug.Log($"Added {amount} money. Total money: {money}");
+    }
+
+    public void SpendMoney(int amount)
+    {
+        if (money >= amount)
+        {
+            money -= amount;
+            Debug.Log($"Spent {amount} money. Remaining money: {money}");
+        }
+        else
+        {
+            Debug.LogWarning("Not enough money!");
+        }
+    }
+
+    public int GetMoney()
+    {
+        return money;
+    }
+
+    // Existing upgrade methods
     public void UpgradeMaxHealth()
     {
         maxHealth += 10;

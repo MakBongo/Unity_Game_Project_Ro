@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.IO;
 
 public class SceneManager : MonoBehaviour
 {
@@ -18,9 +19,14 @@ public class SceneManager : MonoBehaviour
     private float healthMultiplier = 1f;
     private float damageMultiplier = 1f;
 
+    // Save file path
+    private string savePath;
+
     void Start()
     {
         player = FindObjectOfType<PlayerController>();
+        savePath = Path.Combine(Application.persistentDataPath, "saveData.json");
+        LoadGame(); // Load money at start
         GenerateLevel();
     }
 
@@ -71,6 +77,14 @@ public class SceneManager : MonoBehaviour
 
     void LevelCompleted()
     {
+        // Increase money by 10 and save
+        if (player != null)
+        {
+            player.AddMoney(10);
+            SaveGame();
+            Debug.Log($"Level {currentLevel} completed! Money increased by 10. Total money: {player.GetMoney()}");
+        }
+
         CanvasController canvas = FindObjectOfType<CanvasController>();
         if (canvas != null)
         {
@@ -100,4 +114,54 @@ public class SceneManager : MonoBehaviour
         currentLevel++;
         GenerateLevel();
     }
+
+    // Save system integrated into SceneManager
+    void SaveGame()
+    {
+        if (player == null)
+        {
+            Debug.LogError("PlayerController not found in SceneManager!");
+            return;
+        }
+
+        SaveData data = new SaveData
+        {
+            money = player.GetMoney()
+        };
+
+        string json = JsonUtility.ToJson(data, true);
+        File.WriteAllText(savePath, json);
+        Debug.Log("Game saved to: " + savePath);
+    }
+
+    void LoadGame()
+    {
+        if (File.Exists(savePath))
+        {
+            string json = File.ReadAllText(savePath);
+            SaveData data = JsonUtility.FromJson<SaveData>(json);
+
+            if (player != null)
+            {
+                player.AddMoney(data.money - player.GetMoney()); // Adjust to match saved value
+                Debug.Log("Game loaded. Money set to: " + player.GetMoney());
+            }
+        }
+        else
+        {
+            Debug.Log("No save file found at: " + savePath);
+        }
+    }
+
+    void OnApplicationQuit()
+    {
+        SaveGame(); // Save when quitting
+    }
+}
+
+// Data class for saving
+[System.Serializable]
+public class SaveData
+{
+    public int money;
 }
