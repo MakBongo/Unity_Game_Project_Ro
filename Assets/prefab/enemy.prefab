@@ -343,6 +343,9 @@ MonoBehaviour:
   maxHealth: 50
   damage: 5
   expValue: 10
+  detectionRange: 5
+  patrolPointA: {fileID: 0}
+  patrolPointB: {fileID: 0}
   jumpForce: 7
   rayLength: 0.6
   rayOffset: 0.5

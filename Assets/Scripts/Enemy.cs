@@ -11,11 +11,21 @@ public class Enemy : MonoBehaviour
     private Transform player;
     private Rigidbody2D enemyRB;
 
+    private enum EnemyMode { Patrol, Pursuit }
+    [Header("Behavior Settings")]
+    private EnemyMode currentMode = EnemyMode.Patrol;
+    public float detectionRange = 10f;
+
+    [Header("Patrol Settings")]
+    public Transform patrolPointA;
+    public Transform patrolPointB;
+    private Vector2 targetPatrolPoint;
+
     [Header("Jump Settings")]
     public float jumpForce = 8f;
     public float rayLength = 0.2f;
     public float rayOffset = 0.4f;
-    public LayerMask whatIsGround; // Ensure this includes the platform layer (e.g., "Default")
+    public LayerMask whatIsGround;
     private bool isGrounded;
     public float jumpCooldown = 2f;
     private float nextJumpTime;
@@ -31,14 +41,14 @@ public class Enemy : MonoBehaviour
     public float knockbackDuration = 0.2f;
 
     [Header("Drop Item List")]
-    [SerializeField] // Allows editing in Inspector
-    private DropItem[] dropItems; // Array of possible drops
+    [SerializeField]
+    private DropItem[] dropItems;
 
-    [System.Serializable] // Makes this struct editable in Inspector
+    [System.Serializable]
     public struct DropItem
     {
-        public GameObject prefab; // The object to drop
-        [Range(0f, 1f)] // Drop rate between 0 and 1 (0% to 100%)
+        public GameObject prefab;
+        [Range(0f, 1f)]
         public float dropRate;
     }
 
@@ -63,6 +73,13 @@ public class Enemy : MonoBehaviour
             return;
         }
         gameObject.layer = enemyLayer;
+
+        if (patrolPointA == null || patrolPointB == null)
+        {
+            Debug.LogError("Patrol points A and B must be assigned in the Inspector!");
+            return;
+        }
+        targetPatrolPoint = patrolPointA.position;
     }
 
     public void Initialize()
@@ -72,16 +89,60 @@ public class Enemy : MonoBehaviour
 
     void Update()
     {
-        if (player != null && !isDropping)
+        if (player == null) return;
+
+        float distanceToPlayer = Vector2.Distance(transform.position, player.position);
+        if (distanceToPlayer <= detectionRange)
+        {
+            currentMode = EnemyMode.Pursuit;
+        }
+        else
+        {
+            currentMode = EnemyMode.Patrol;
+        }
+
+        switch (currentMode)
+        {
+            case EnemyMode.Patrol:
+                Patrol();
+                break;
+            case EnemyMode.Pursuit:
+                PursuePlayer();
+                break;
+        }
+    }
+
+    void Patrol()
+    {
+        Vector2 direction = (targetPatrolPoint - (Vector2)transform.position).normalized;
+        enemyRB.velocity = new Vector2(direction.x * moveSpeed, enemyRB.velocity.y);
+
+        float distanceToTarget = Vector2.Distance(transform.position, targetPatrolPoint); // Fixed: Added semicolon
+        if (distanceToTarget < 0.5f)
+        {
+            if (Vector2.Distance(transform.position, patrolPointA.position) < 0.5f)
+            {
+                targetPatrolPoint = patrolPointB.position;
+                Debug.Log("Switching to Patrol Point B");
+            }
+            else if (Vector2.Distance(transform.position, patrolPointB.position) < 0.5f)
+            {
+                targetPatrolPoint = patrolPointA.position;
+                Debug.Log("Switching to Patrol Point A");
+            }
+        }
+
+        UpdateGroundedState();
+    }
+
+    void PursuePlayer()
+    {
+        if (!isDropping)
         {
             Vector2 direction = (player.position - transform.position).normalized;
             enemyRB.velocity = new Vector2(direction.x * moveSpeed, enemyRB.velocity.y);
 
-            Vector2 originLeft = new Vector2(transform.position.x - rayOffset, transform.position.y);
-            Vector2 originRight = new Vector2(transform.position.x + rayOffset, transform.position.y);
-            RaycastHit2D hitLeft = Physics2D.Raycast(originLeft, Vector2.down, rayLength, whatIsGround);
-            RaycastHit2D hitRight = Physics2D.Raycast(originRight, Vector2.down, rayLength, whatIsGround);
-            isGrounded = hitLeft.collider != null || hitRight.collider != null;
+            UpdateGroundedState();
 
             if (isGrounded && Time.time >= nextJumpTime)
             {
@@ -98,6 +159,15 @@ public class Enemy : MonoBehaviour
         }
     }
 
+    void UpdateGroundedState()
+    {
+        Vector2 originLeft = new Vector2(transform.position.x - rayOffset, transform.position.y);
+        Vector2 originRight = new Vector2(transform.position.x + rayOffset, transform.position.y);
+        RaycastHit2D hitLeft = Physics2D.Raycast(originLeft, Vector2.down, rayLength, whatIsGround);
+        RaycastHit2D hitRight = Physics2D.Raycast(originRight, Vector2.down, rayLength, whatIsGround);
+        isGrounded = hitLeft.collider != null || hitRight.collider != null;
+    }
+
     void Jump()
     {
         enemyRB.velocity = new Vector2(enemyRB.velocity.x, jumpForce);
@@ -106,24 +176,16 @@ public class Enemy : MonoBehaviour
 
     bool ShouldJump()
     {
-        if (player != null)
-        {
-            float verticalDistance = player.position.y - transform.position.y;
-            float horizontalDistance = Mathf.Abs(player.position.x - transform.position.x);
-            return verticalDistance > 1f && horizontalDistance < 5f;
-        }
-        return false;
+        float verticalDistance = player.position.y - transform.position.y;
+        float horizontalDistance = Mathf.Abs(player.position.x - transform.position.x); // Fixed: Added semicolon
+        return verticalDistance > 1f && horizontalDistance < 5f;
     }
 
     bool ShouldDrop()
     {
-        if (player != null)
-        {
-            float verticalDistance = player.position.y - transform.position.y;
-            float horizontalDistance = Mathf.Abs(player.position.x - transform.position.x);
-            return verticalDistance < -1f && horizontalDistance < 5f && isGrounded;
-        }
-        return false;
+        float verticalDistance = player.position.y - transform.position.y;
+        float horizontalDistance = Mathf.Abs(player.position.x - transform.position.x);
+        return verticalDistance < -1f && horizontalDistance < 5f && isGrounded;
     }
 
     IEnumerator DropThroughPlatform()
@@ -131,9 +193,7 @@ public class Enemy : MonoBehaviour
         isDropping = true;
         gameObject.layer = passThroughLayer;
         Debug.Log("Enemy dropping through platform!");
-
         yield return new WaitForSeconds(dropDelay);
-
         gameObject.layer = enemyLayer;
         isDropping = false;
     }
@@ -144,7 +204,6 @@ public class Enemy : MonoBehaviour
         if (playerController != null)
         {
             playerController.TakeDamage(damage);
-
             Rigidbody2D playerRB = collision.gameObject.GetComponent<Rigidbody2D>();
             if (playerRB != null)
             {
@@ -185,7 +244,7 @@ public class Enemy : MonoBehaviour
         if (playerController != null)
         {
             playerController.AddExp(expValue);
-            TryDropItem(); // Attempt to drop an item
+            TryDropItem();
         }
         Destroy(gameObject);
     }
@@ -204,7 +263,6 @@ public class Enemy : MonoBehaviour
             {
                 GameObject droppedItem = Instantiate(item.prefab, transform.position, Quaternion.identity);
                 Debug.Log($"Enemy dropped {item.prefab.name} with drop rate {item.dropRate * 100}%!");
-                // Only drop one item per enemy death (remove this break if you want multiple possible drops)
                 break;
             }
         }
@@ -227,5 +285,11 @@ public class Enemy : MonoBehaviour
         Gizmos.color = Color.red;
         Gizmos.DrawLine(originLeft, originLeft + Vector2.down * rayLength);
         Gizmos.DrawLine(originRight, originRight + Vector2.down * rayLength);
+
+        Gizmos.color = Color.green;
+        if (patrolPointA != null)
+            Gizmos.DrawSphere(patrolPointA.position, 0.2f);
+        if (patrolPointB != null)
+            Gizmos.DrawSphere(patrolPointB.position, 0.2f);
     }
 }

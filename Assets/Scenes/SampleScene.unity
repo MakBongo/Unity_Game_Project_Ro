@@ -2926,8 +2926,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   tileMapPrefabs:
   - {fileID: 4332902301604754245, guid: 5d01ee8e57aff81469b0d75354845f71, type: 3}
-  - {fileID: 4332902301604754245, guid: fb0a6a7e4c249c64e8867efbbf0e93b2, type: 3}
-  - {fileID: 4332902301604754245, guid: 19ff81888c97466428e194db61fcf83d, type: 3}
 --- !u!4 &1808312576
 Transform:
   m_ObjectHideFlags: 0
