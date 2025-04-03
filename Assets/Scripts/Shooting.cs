@@ -68,6 +68,12 @@ public class Shooting : MonoBehaviour
             {
                 StartCoroutine(Reload());
             }
+
+            // Manual reload with R key
+            if (Input.GetKeyDown(KeyCode.R) && currentAmmo < magazineSize)
+            {
+                StartCoroutine(Reload());
+            }
         }
 
         UpdateFirePoint();
@@ -184,11 +190,13 @@ public class Shooting : MonoBehaviour
     IEnumerator Reload()
     {
         isReloading = true;
+        Debug.Log("Reloading...");
         yield return new WaitForSeconds(reloadTime);
         CalculatePoolSize();
         AdjustPoolSize();
         currentAmmo = magazineSize;
         isReloading = false;
+        Debug.Log("Reload complete!");
     }
 
     public void UpgradeBulletDamage()
