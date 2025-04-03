@@ -78,7 +78,7 @@ public class CanvasController : MonoBehaviour
         if (shooting != null && displayText != null)
         {
             int currentAmmo = shooting.GetCurrentAmmo();
-            string ammoString = $"Ammo: {currentAmmo}/{shooting.magazineSize}";
+            string ammoString = $"Ammo: {currentAmmo}/{shooting.GetMagazineSize()}";
             displayText.text = shooting.IsReloading() ? $"{ammoString} - Reloading..." : ammoString;
         }
 
@@ -207,11 +207,11 @@ public class CanvasController : MonoBehaviour
     {
         switch (option)
         {
-            case PlayerUpgradeOption.BulletSpeed: return $"Bullet Speed +10% (Current: {shooting.bulletSpeed:F1})";
-            case PlayerUpgradeOption.FiresPerMinute: return $"Fire Rate +10% (Current: {shooting.firesPerMinute:F1})";
-            case PlayerUpgradeOption.BulletLifetime: return $"Bullet Lifetime +10% (Current: {shooting.bulletLifetime:F1})";
-            case PlayerUpgradeOption.MagazineSize: return $"Magazine Size +10% (Current: {shooting.magazineSize})";
-            case PlayerUpgradeOption.ReloadTime: return $"Reload Time -10% (Current: {shooting.reloadTime:F1})";
+            case PlayerUpgradeOption.BulletSpeed: return $"Bullet Speed +10% (Current: {shooting.GetBulletSpeed():F1})";
+            case PlayerUpgradeOption.FiresPerMinute: return $"Fire Rate +10% (Current: {shooting.GetFiresPerMinute():F1})";
+            case PlayerUpgradeOption.BulletLifetime: return $"Bullet Lifetime +10% (Current: {shooting.GetBulletLifetime():F1})";
+            case PlayerUpgradeOption.MagazineSize: return $"Magazine Size +10% (Current: {shooting.GetMagazineSize()})";
+            case PlayerUpgradeOption.ReloadTime: return $"Reload Time -10% (Current: {shooting.GetReloadTime():F1})";
             case PlayerUpgradeOption.HealRate: return $"Heal Rate +10% (Current: {playerController.healRate * 100:F2}%)";
             case PlayerUpgradeOption.ExpAmount: return $"EXP Gain +10% (Current: {playerController.expMultiplier * 100:F0}%)";
             default: return "";

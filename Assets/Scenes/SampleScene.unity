@@ -3286,12 +3286,7 @@ MonoBehaviour:
   bulletPrefab: {fileID: 71979686626409600, guid: 243e9c805720058429f44e784a5539e2, type: 3}
   firePoint: {fileID: 1013674465}
   firePointRadius: 0.5
-  bulletDamage: 10
-  bulletSpeed: 20
-  firesPerMinute: 300
-  bulletLifetime: 2
-  magazineSize: 30
-  reloadTime: 2
+  weaponData: {fileID: 11400000, guid: cbbff848f61877542b0d36d2806508a8, type: 2}
   bulletSpeedUpgrade: 1.1
   firesPerMinuteUpgrade: 1.1
   bulletLifetimeUpgrade: 1.1

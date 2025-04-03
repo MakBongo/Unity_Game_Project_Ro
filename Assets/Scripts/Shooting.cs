@@ -9,13 +9,10 @@ public class Shooting : MonoBehaviour
     public Transform firePoint;
     public float firePointRadius = 0.5f;
 
-    [Header("Gun Data")]
-    public int bulletDamage = 10;
-    public float bulletSpeed = 20f;
-    public float firesPerMinute = 300f;
-    public float bulletLifetime = 2f;
-    public int magazineSize = 30;
-    public float reloadTime = 2f;
+    [Header("Weapon Data")]
+    public WeaponData weaponData; // Template ScriptableObject
+    private WeaponData runtimeData; // Runtime copy
+
     private int poolSize;
     private float nextFireTime = 0f;
     private Queue<GameObject> bulletPool;
@@ -32,15 +29,23 @@ public class Shooting : MonoBehaviour
     public float reloadTimeUpgrade = 0.9f;
 
     [Header("Player Reference")]
-    public PlayerController player; // Reference to PlayerController on the parent
+    public PlayerController player;
 
     void Start()
     {
+        if (weaponData == null)
+        {
+            Debug.LogError("WeaponData not assigned in Shooting script!");
+            return;
+        }
+
+        runtimeData = Instantiate(weaponData);
+
         bulletPool = new Queue<GameObject>();
-        fireRate = 60f / firesPerMinute;
+        fireRate = 60f / runtimeData.firesPerMinute;
         CalculatePoolSize();
         InitializeBulletPool();
-        currentAmmo = magazineSize;
+        currentAmmo = runtimeData.magazineSize;
 
         if (player == null)
         {
@@ -61,7 +66,7 @@ public class Shooting : MonoBehaviour
             if (Input.GetKey(KeyCode.Mouse0) && Time.time >= nextFireTime && currentAmmo > 0)
             {
                 Shoot();
-                fireRate = 60f / firesPerMinute;
+                fireRate = 60f / runtimeData.firesPerMinute;
                 nextFireTime = Time.time + fireRate;
             }
             else if (currentAmmo <= 0)
@@ -69,8 +74,7 @@ public class Shooting : MonoBehaviour
                 StartCoroutine(Reload());
             }
 
-            // Manual reload with R key
-            if (Input.GetKeyDown(KeyCode.R) && currentAmmo < magazineSize)
+            if (Input.GetKeyDown(KeyCode.R) && currentAmmo < runtimeData.magazineSize)
             {
                 StartCoroutine(Reload());
             }
@@ -81,10 +85,10 @@ public class Shooting : MonoBehaviour
 
     void CalculatePoolSize()
     {
-        fireRate = 60f / firesPerMinute;
+        fireRate = 60f / runtimeData.firesPerMinute;
         float shotsPerSecond = 1f / fireRate;
-        int calculatedPoolSize = Mathf.CeilToInt(shotsPerSecond * bulletLifetime) + 5;
-        poolSize = Mathf.Max(calculatedPoolSize, magazineSize);
+        int calculatedPoolSize = Mathf.CeilToInt(shotsPerSecond * runtimeData.bulletLifetime) + 5;
+        poolSize = Mathf.Max(calculatedPoolSize, runtimeData.magazineSize);
     }
 
     void InitializeBulletPool()
@@ -146,7 +150,7 @@ public class Shooting : MonoBehaviour
     {
         if (firePoint != null)
         {
-            Vector2 direction = transform.right; // Use this transform's right direction
+            Vector2 direction = transform.right;
             firePoint.position = transform.position + (Vector3)(direction * firePointRadius);
             firePoint.rotation = transform.rotation;
         }
@@ -164,13 +168,13 @@ public class Shooting : MonoBehaviour
             Bullet bulletScript = bullet.GetComponent<Bullet>();
             if (bulletScript != null)
             {
-                bulletScript.damage = bulletDamage;
-                bulletScript.player = player; // Use the player reference
+                bulletScript.damage = runtimeData.bulletDamage;
+                bulletScript.player = player;
             }
 
             Rigidbody2D bulletRB = bullet.GetComponent<Rigidbody2D>();
-            Vector2 bulletDirection = transform.right; // Use this transform's right direction
-            bulletRB.velocity = bulletDirection * bulletSpeed;
+            Vector2 bulletDirection = transform.right;
+            bulletRB.velocity = bulletDirection * runtimeData.bulletSpeed;
 
             currentAmmo--;
             StartCoroutine(ReturnBulletToPool(bullet));
@@ -179,7 +183,7 @@ public class Shooting : MonoBehaviour
 
     IEnumerator ReturnBulletToPool(GameObject bullet)
     {
-        yield return new WaitForSeconds(bulletLifetime);
+        yield return new WaitForSeconds(runtimeData.bulletLifetime);
         if (bullet != null)
         {
             bullet.SetActive(false);
@@ -191,57 +195,66 @@ public class Shooting : MonoBehaviour
     {
         isReloading = true;
         Debug.Log("Reloading...");
-        yield return new WaitForSeconds(reloadTime);
+        yield return new WaitForSeconds(runtimeData.reloadTime);
         CalculatePoolSize();
         AdjustPoolSize();
-        currentAmmo = magazineSize;
+        currentAmmo = runtimeData.magazineSize;
         isReloading = false;
         Debug.Log("Reload complete!");
     }
 
     public void UpgradeBulletDamage()
     {
-        bulletDamage += 2;
-        Debug.Log($"Upgraded Bullet Damage to {bulletDamage}");
+        runtimeData.bulletDamage += 2;
+        Debug.Log($"Upgraded Bullet Damage to {runtimeData.bulletDamage}");
     }
 
     public void UpgradeBulletSpeed()
     {
-        bulletSpeed *= bulletSpeedUpgrade;
-        Debug.Log($"Upgraded Bullet Speed to {bulletSpeed:F2}");
+        runtimeData.bulletSpeed *= bulletSpeedUpgrade;
+        Debug.Log($"Upgraded Bullet Speed to {runtimeData.bulletSpeed:F2}");
     }
 
     public void UpgradeFiresPerMinute()
     {
-        firesPerMinute *= firesPerMinuteUpgrade;
-        fireRate = 60f / firesPerMinute;
+        runtimeData.firesPerMinute *= firesPerMinuteUpgrade;
+        fireRate = 60f / runtimeData.firesPerMinute;
         CalculatePoolSize();
         AdjustPoolSize();
-        Debug.Log($"Upgraded Fires Per Minute to {firesPerMinute:F2}");
+        Debug.Log($"Upgraded Fires Per Minute to {runtimeData.firesPerMinute:F2}");
     }
 
     public void UpgradeBulletLifetime()
     {
-        bulletLifetime *= bulletLifetimeUpgrade;
+        runtimeData.bulletLifetime *= bulletLifetimeUpgrade;
         CalculatePoolSize();
         AdjustPoolSize();
-        Debug.Log($"Upgraded Bullet Lifetime to {bulletLifetime:F2}");
+        Debug.Log($"Upgraded Bullet Lifetime to {runtimeData.bulletLifetime:F2}");
     }
 
     public void UpgradeMagazineSize()
     {
-        magazineSize = Mathf.RoundToInt(magazineSize * magazineSizeUpgrade);
+        runtimeData.magazineSize = Mathf.RoundToInt(runtimeData.magazineSize * magazineSizeUpgrade);
         CalculatePoolSize();
         AdjustPoolSize();
-        Debug.Log($"Upgraded Magazine Size to {magazineSize}");
+        Debug.Log($"Upgraded Magazine Size to {runtimeData.magazineSize}");
     }
 
     public void UpgradeReloadTime()
     {
-        reloadTime *= reloadTimeUpgrade;
-        Debug.Log($"Upgraded Reload Time to {reloadTime:F2}");
+        runtimeData.reloadTime *= reloadTimeUpgrade;
+        Debug.Log($"Upgraded Reload Time to {runtimeData.reloadTime:F2}");
     }
 
+    // Existing getters
     public int GetCurrentAmmo() { return currentAmmo; }
     public bool IsReloading() { return isReloading; }
+
+    // New getters for WeaponData fields
+    public int GetBulletDamage() { return runtimeData.bulletDamage; }
+    public float GetBulletSpeed() { return runtimeData.bulletSpeed; }
+    public float GetFiresPerMinute() { return runtimeData.firesPerMinute; }
+    public float GetBulletLifetime() { return runtimeData.bulletLifetime; }
+    public int GetMagazineSize() { return runtimeData.magazineSize; }
+    public float GetReloadTime() { return runtimeData.reloadTime; }
 }
