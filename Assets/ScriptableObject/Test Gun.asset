@@ -15,6 +15,6 @@ MonoBehaviour:
   bulletDamage: 10
   bulletSpeed: 20
   firesPerMinute: 300
-  bulletLifetime: 2
+  bulletLifetime: 0.3
   magazineSize: 30
   reloadTime: 2

@@ -1,19 +1,20 @@
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
+using UnityEngine.SceneManagement; // For Restart and Quit
 
 public class CanvasController : MonoBehaviour
 {
     [Header("References")]
     public PlayerController playerController;
-    public Shooting shooting; // Reference to Shooting script
+    public Shooting shooting;
     public Text displayText;
     public Slider healthSlider;
     public Slider expSlider;
-    public GameObject upgradePanel; // Player level-up panel
+    public GameObject upgradePanel;
 
     [Header("Level Complete UI")]
-    public GameObject upgradeDataPanel; // Player upgrades
+    public GameObject upgradeDataPanel;
     public Text upgradeOption1Text;
     public Text upgradeOption2Text;
     public Text upgradeOption3Text;
@@ -25,6 +26,10 @@ public class CanvasController : MonoBehaviour
     public Text option2Text;
     public Button option1Button;
     public Button option2Button;
+
+    [Header("Pause UI")]
+    public GameObject pausePanel; // New: Reference to pause panel GameObject
+    private bool isPaused = false; // Tracks pause state
 
     private enum PlayerUpgradeOption { BulletSpeed, FiresPerMinute, BulletLifetime, MagazineSize, ReloadTime, HealRate, ExpAmount }
     private PlayerUpgradeOption[] playerUpgradeOptions = {
@@ -71,15 +76,23 @@ public class CanvasController : MonoBehaviour
         if (upgradePanel != null) upgradePanel.SetActive(false);
         if (upgradeDataPanel != null) upgradeDataPanel.SetActive(false);
         if (levelCompletePanel != null) levelCompletePanel.SetActive(false);
+        if (pausePanel != null) pausePanel.SetActive(false); // Initialize pause panel as hidden
     }
 
     void Update()
     {
         if (shooting != null && displayText != null)
         {
-            int currentAmmo = shooting.GetCurrentAmmo();
-            string ammoString = $"Ammo: {currentAmmo}/{shooting.GetMagazineSize()}";
-            displayText.text = shooting.IsReloading() ? $"{ammoString} - Reloading..." : ammoString;
+            if (shooting.IsReloading())
+            {
+                displayText.text = "Reloading...";
+            }
+            else
+            {
+                int currentAmmo = shooting.GetCurrentAmmo();
+                string ammoString = $"{currentAmmo}/{shooting.GetMagazineSize()}";
+                displayText.text = ammoString;
+            }
         }
 
         if (playerController != null && healthSlider != null)
@@ -92,6 +105,19 @@ public class CanvasController : MonoBehaviour
         {
             expSlider.maxValue = playerController.GetMaxExp();
             expSlider.value = playerController.GetCurrentExp();
+        }
+
+        // Toggle pause with Escape key
+        if (Input.GetKeyDown(KeyCode.Escape) && !isShowingPanel) // Prevent pausing during other panels
+        {
+            if (isPaused)
+            {
+                ResumeGame();
+            }
+            else
+            {
+                PauseGame();
+            }
         }
 
         if (!isShowingPanel && panelQueue.Count > 0)
@@ -277,5 +303,42 @@ public class CanvasController : MonoBehaviour
             Time.timeScale = 1f;
             isShowingPanel = false;
         }
+    }
+
+    // Pause panel methods
+    void PauseGame()
+    {
+        if (pausePanel != null)
+        {
+            pausePanel.SetActive(true);
+            Time.timeScale = 0f;
+            isPaused = true;
+            Debug.Log("Game Paused");
+        }
+    }
+
+    public void ResumeGame() // Public for button use
+    {
+        if (pausePanel != null)
+        {
+            pausePanel.SetActive(false);
+            Time.timeScale = 1f;
+            isPaused = false;
+            Debug.Log("Game Resumed");
+        }
+    }
+
+    /*public void RestartGame() // Public for button use
+    {
+        Time.timeScale = 1f; // Reset time scale before reloading
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name); // Reload current scene
+        Debug.Log("Game Restarted");
+    }*/
+
+    public void QuitGame() // Public for button use
+    {
+        Time.timeScale = 1f; // Reset time scale before quitting
+        Application.Quit();
+        Debug.Log("Game Quit"); // Won't show in builds, but useful in Editor
     }
 }
