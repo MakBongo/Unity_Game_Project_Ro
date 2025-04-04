@@ -15,6 +15,8 @@ public class Enemy : MonoBehaviour
     [Header("Behavior Settings")]
     private EnemyMode currentMode = EnemyMode.Patrol;
     public float detectionRange = 10f;
+    private float timeSincePlayerLeftRange;
+    private float patrolSwitchDelay = 15f;
 
     [Header("Patrol Settings")]
     public Transform patrolPointA;
@@ -29,6 +31,7 @@ public class Enemy : MonoBehaviour
     private bool isGrounded;
     public float jumpCooldown = 2f;
     private float nextJumpTime;
+    public float jumpHorizontalRange = 10f; // New: Increased range for jumping
 
     [Header("Drop Settings")]
     public float dropDelay = 0.5f;
@@ -80,6 +83,7 @@ public class Enemy : MonoBehaviour
             return;
         }
         targetPatrolPoint = patrolPointA.position;
+        timeSincePlayerLeftRange = patrolSwitchDelay;
     }
 
     public void Initialize()
@@ -92,14 +96,22 @@ public class Enemy : MonoBehaviour
         if (player == null) return;
 
         float distanceToPlayer = Vector2.Distance(transform.position, player.position);
+
         if (distanceToPlayer <= detectionRange)
         {
             currentMode = EnemyMode.Pursuit;
+            timeSincePlayerLeftRange = 0f;
         }
         else
         {
-            currentMode = EnemyMode.Patrol;
+            timeSincePlayerLeftRange += Time.deltaTime;
+            if (timeSincePlayerLeftRange >= patrolSwitchDelay)
+            {
+                currentMode = EnemyMode.Patrol;
+            }
         }
+
+        Debug.Log($"Mode: {currentMode}, Time since player left: {timeSincePlayerLeftRange:F2}");
 
         switch (currentMode)
         {
@@ -114,25 +126,41 @@ public class Enemy : MonoBehaviour
 
     void Patrol()
     {
-        Vector2 direction = (targetPatrolPoint - (Vector2)transform.position).normalized;
-        enemyRB.velocity = new Vector2(direction.x * moveSpeed, enemyRB.velocity.y);
-
-        float distanceToTarget = Vector2.Distance(transform.position, targetPatrolPoint); // Fixed: Added semicolon
-        if (distanceToTarget < 0.5f)
+        if (!isDropping)
         {
-            if (Vector2.Distance(transform.position, patrolPointA.position) < 0.5f)
+            Vector2 direction = (targetPatrolPoint - (Vector2)transform.position).normalized;
+            enemyRB.velocity = new Vector2(direction.x * moveSpeed, enemyRB.velocity.y);
+
+            UpdateGroundedState();
+
+            if (isGrounded && Time.time >= nextJumpTime)
             {
-                targetPatrolPoint = patrolPointB.position;
-                Debug.Log("Switching to Patrol Point B");
+                if (ShouldJump(targetPatrolPoint))
+                {
+                    Jump();
+                    nextJumpTime = Time.time + jumpCooldown;
+                }
+                else if (ShouldDrop(targetPatrolPoint))
+                {
+                    StartCoroutine(DropThroughPlatform());
+                }
             }
-            else if (Vector2.Distance(transform.position, patrolPointB.position) < 0.5f)
+
+            float distanceToTarget = Vector2.Distance(transform.position, targetPatrolPoint);
+            if (distanceToTarget < 0.5f)
             {
-                targetPatrolPoint = patrolPointA.position;
-                Debug.Log("Switching to Patrol Point A");
+                if (Vector2.Distance(transform.position, patrolPointA.position) < 0.5f)
+                {
+                    targetPatrolPoint = patrolPointB.position;
+                    Debug.Log("Switching to Patrol Point B");
+                }
+                else if (Vector2.Distance(transform.position, patrolPointB.position) < 0.5f)
+                {
+                    targetPatrolPoint = patrolPointA.position;
+                    Debug.Log("Switching to Patrol Point A");
+                }
             }
         }
-
-        UpdateGroundedState();
     }
 
     void PursuePlayer()
@@ -146,12 +174,12 @@ public class Enemy : MonoBehaviour
 
             if (isGrounded && Time.time >= nextJumpTime)
             {
-                if (ShouldJump())
+                if (ShouldJump(player.position))
                 {
                     Jump();
                     nextJumpTime = Time.time + jumpCooldown;
                 }
-                else if (ShouldDrop())
+                else if (ShouldDrop(player.position))
                 {
                     StartCoroutine(DropThroughPlatform());
                 }
@@ -174,17 +202,17 @@ public class Enemy : MonoBehaviour
         Debug.Log("Enemy jumped!");
     }
 
-    bool ShouldJump()
+    bool ShouldJump(Vector2 targetPosition)
     {
-        float verticalDistance = player.position.y - transform.position.y;
-        float horizontalDistance = Mathf.Abs(player.position.x - transform.position.x); // Fixed: Added semicolon
-        return verticalDistance > 1f && horizontalDistance < 5f;
+        float verticalDistance = targetPosition.y - transform.position.y;
+        float horizontalDistance = Mathf.Abs(targetPosition.x - transform.position.x);
+        return verticalDistance > 1f && horizontalDistance < jumpHorizontalRange; // Updated range
     }
 
-    bool ShouldDrop()
+    bool ShouldDrop(Vector2 targetPosition)
     {
-        float verticalDistance = player.position.y - transform.position.y;
-        float horizontalDistance = Mathf.Abs(player.position.x - transform.position.x);
+        float verticalDistance = targetPosition.y - transform.position.y;
+        float horizontalDistance = Mathf.Abs(targetPosition.x - transform.position.x);
         return verticalDistance < -1f && horizontalDistance < 5f && isGrounded;
     }
 
