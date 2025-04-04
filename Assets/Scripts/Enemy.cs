@@ -31,7 +31,7 @@ public class Enemy : MonoBehaviour
     private bool isGrounded;
     public float jumpCooldown = 2f;
     private float nextJumpTime;
-    public float jumpHorizontalRange = 10f; // New: Increased range for jumping
+    public float jumpHorizontalRange = 10f;
 
     [Header("Drop Settings")]
     public float dropDelay = 0.5f;
@@ -206,7 +206,7 @@ public class Enemy : MonoBehaviour
     {
         float verticalDistance = targetPosition.y - transform.position.y;
         float horizontalDistance = Mathf.Abs(targetPosition.x - transform.position.x);
-        return verticalDistance > 1f && horizontalDistance < jumpHorizontalRange; // Updated range
+        return verticalDistance > 1f && horizontalDistance < jumpHorizontalRange;
     }
 
     bool ShouldDrop(Vector2 targetPosition)
@@ -259,6 +259,15 @@ public class Enemy : MonoBehaviour
         currentHealth -= damage;
         currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
         Debug.Log($"Enemy took {damage} damage. Current health: {currentHealth}");
+
+        // Switch to Pursuit Mode when attacked
+        if (currentHealth > 0) // Only switch if not dead
+        {
+            currentMode = EnemyMode.Pursuit;
+            timeSincePlayerLeftRange = 0f; // Reset timer to keep in Pursuit Mode
+            Debug.Log("Enemy attacked, switching to Pursuit Mode!");
+        }
+
         if (currentHealth <= 0)
         {
             Die();
