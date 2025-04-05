@@ -32,14 +32,17 @@ public class PlayerController : MonoBehaviour
     public int currentExp = 0;
     public int maxExp = 100;
     public int level = 1;
-    public float expMultiplier = 1f;
+    private int highestLevel = 1; // Tracks the highest level reached
 
     [Header("Set Shooting Reference")]
     public Shooting shooting;
 
     [Header("Set Money")]
     public int money = 0; // Starting money
-    public float moneyMultiplier = 1f; // New: Multiplier for money gain
+    public float moneyMultiplier = 1f; // Multiplier for money gain
+
+    [Header("Set Experience Multiplier")]
+    public float expMultiplier = 1f;
 
     void Awake()
     {
@@ -121,14 +124,29 @@ public class PlayerController : MonoBehaviour
 
     void LevelUp()
     {
-        level++;
-        currentExp -= maxExp;
-        maxExp = Mathf.RoundToInt(maxExp * 1.5f);
+        level++; // Increment the player's level
+        currentExp -= maxExp; // Subtract the required EXP for the level-up
+
+        // Only increase maxExp every 10 levels by 20%
+        if (level % 5 == 0)
+        {
+            maxExp = Mathf.RoundToInt(maxExp * 1.2f);
+            Debug.Log($"Level {level} reached! Added 20% to max EXP. New max EXP: {maxExp}");
+        }
+
         CanvasController canvas = FindObjectOfType<CanvasController>();
         if (canvas != null)
         {
             canvas.QueuePanel("PlayerLevelUp");
         }
+
+        // Update highest level if current level exceeds it
+        if (level > highestLevel)
+        {
+            highestLevel = level;
+            Debug.Log($"New level record set! Highest Level: {highestLevel}");
+        }
+
         Debug.Log($"Leveled up to {level}! New max EXP: {maxExp}");
     }
 
@@ -151,7 +169,7 @@ public class PlayerController : MonoBehaviour
     // Money methods
     public void AddMoney(int amount)
     {
-        int scaledMoney = Mathf.RoundToInt(amount * moneyMultiplier); // Apply multiplier
+        int scaledMoney = Mathf.RoundToInt(amount * moneyMultiplier);
         money += scaledMoney;
         Debug.Log($"Added {scaledMoney} money (Base: {amount}, Multiplier: {moneyMultiplier:F2}). Total money: {money}");
     }
@@ -186,7 +204,7 @@ public class PlayerController : MonoBehaviour
         Debug.Log($"Upgraded EXP Multiplier to {expMultiplier:F2}");
     }
 
-    public void UpgradeMoneyAmount() // New: Upgrade money gain
+    public void UpgradeMoneyAmount()
     {
         moneyMultiplier *= 1.1f;
         Debug.Log($"Upgraded Money Multiplier to {moneyMultiplier:F2}");
@@ -202,6 +220,14 @@ public class PlayerController : MonoBehaviour
     public int GetCurrentExp() { return currentExp; }
     public int GetMaxExp() { return maxExp; }
     public int GetLevel() { return level; }
+    public int GetHighestLevel()
+    {
+        return highestLevel;
+    }
+    public void SetHighestLevel(int value)
+    {
+        highestLevel = value;
+    }
 
     void OnDrawGizmos()
     {

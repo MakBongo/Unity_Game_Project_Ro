@@ -4,5 +4,6 @@ using UnityEngine;
 public class SaveData
 {
     public int money;
-    public int highestRound; // Added to support record tracking
+    public int highestRound;
+    public int highestLevel; // New: Added to save highest player level
 }

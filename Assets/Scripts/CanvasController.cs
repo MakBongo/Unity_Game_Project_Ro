@@ -13,7 +13,8 @@ public class CanvasController : MonoBehaviour
     public Slider expSlider;
     public GameObject upgradePanel;
     public Text coinText;
-    public Text roundText; // New: Text field for displaying round number
+    public Text roundText; // Text field for displaying round number
+    public Text levelText; // New: Text field for displaying player level
     public UpgradeSystem upgradeSystem;
 
     [Header("Round Complete UI")]
@@ -105,6 +106,12 @@ public class CanvasController : MonoBehaviour
         {
             roundText.text = $"Round: {sceneManager.GetCurrentRound()}";
         }
+
+        // Initialize level text
+        if (playerController != null && levelText != null)
+        {
+            levelText.text = $"Level: {playerController.GetLevel()}";
+        }
     }
 
     void Update()
@@ -144,6 +151,12 @@ public class CanvasController : MonoBehaviour
         if (sceneManager != null && roundText != null)
         {
             roundText.text = $"Round: {sceneManager.GetCurrentRound()}";
+        }
+
+        // Update level text
+        if (playerController != null && levelText != null)
+        {
+            levelText.text = $"Level: {playerController.GetLevel()}";
         }
 
         if (Input.GetKeyDown(KeyCode.Escape) && !isShowingPanel)

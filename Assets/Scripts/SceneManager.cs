@@ -6,10 +6,10 @@ using System.IO;
 public class SceneManager : MonoBehaviour
 {
     [Header("Round Prefabs")]
-    public GameObject[] tileMapPrefabs; // Each prefab contains pre-placed enemies with their own stats
+    public GameObject[] tileMapPrefabs;
 
     private int currentRound = 1;
-    private int highestRound = 0; // Tracks the highest round reached
+    private int highestRound = 0;
     private List<Enemy> activeEnemies = new List<Enemy>();
     private GameObject currentTileMap;
     private PlayerController player;
@@ -27,7 +27,7 @@ public class SceneManager : MonoBehaviour
     {
         player = FindObjectOfType<PlayerController>();
         savePath = Path.Combine(Application.persistentDataPath, "saveData.json");
-        LoadGame(); // Load money and highest round at start
+        LoadGame(); // Load money, highest round, and highest level
         GenerateRound();
     }
 
@@ -54,7 +54,6 @@ public class SceneManager : MonoBehaviour
         Enemy[] enemiesInRound = currentTileMap.GetComponentsInChildren<Enemy>();
         foreach (Enemy enemy in enemiesInRound)
         {
-            // Apply upgrades to instantiated enemies only
             enemy.moveSpeed *= speedMultiplier;
             enemy.maxHealth = Mathf.RoundToInt(enemy.maxHealth * healthMultiplier);
             enemy.damage = Mathf.RoundToInt(enemy.damage * damageMultiplier);
@@ -81,13 +80,12 @@ public class SceneManager : MonoBehaviour
         if (player != null)
         {
             player.AddMoney(10);
-            // Update highest round if current round exceeds it
             if (currentRound > highestRound)
             {
                 highestRound = currentRound;
                 Debug.Log($"New record set! Highest Round: {highestRound}");
             }
-            SaveGame(); // Save money and highest round
+            SaveGame(); // Save money, highest round, and highest level
             Debug.Log($"Round {currentRound} completed! Money increased by 10. Total money: {player.GetMoney()}");
         }
 
@@ -120,7 +118,6 @@ public class SceneManager : MonoBehaviour
         GenerateRound();
     }
 
-    // Save system using standalone SaveData
     void SaveGame()
     {
         if (player == null)
@@ -132,7 +129,8 @@ public class SceneManager : MonoBehaviour
         SaveData data = new SaveData
         {
             money = player.GetMoney(),
-            highestRound = highestRound
+            highestRound = highestRound,
+            highestLevel = player.GetHighestLevel() // New: Save highest level
         };
 
         string json = JsonUtility.ToJson(data, true);
@@ -149,9 +147,10 @@ public class SceneManager : MonoBehaviour
 
             if (player != null)
             {
-                player.AddMoney(data.money - player.GetMoney()); // Adjust to match saved value
-                highestRound = data.highestRound; // Load highest round
-                Debug.Log($"Game loaded. Money set to: {player.GetMoney()}, Highest Round: {highestRound}");
+                player.AddMoney(data.money - player.GetMoney());
+                highestRound = data.highestRound;
+                player.SetHighestLevel(data.highestLevel); // New: Load highest level (requires setter)
+                Debug.Log($"Game loaded. Money set to: {player.GetMoney()}, Highest Round: {highestRound}, Highest Level: {player.GetHighestLevel()}");
             }
         }
         else
@@ -162,16 +161,14 @@ public class SceneManager : MonoBehaviour
 
     void OnApplicationQuit()
     {
-        SaveGame(); // Save when quitting
+        SaveGame();
     }
 
-    // Public method to access highest round
     public int GetHighestRound()
     {
         return highestRound;
     }
 
-    // Public method to access current round (added for CanvasController)
     public int GetCurrentRound()
     {
         return currentRound;
