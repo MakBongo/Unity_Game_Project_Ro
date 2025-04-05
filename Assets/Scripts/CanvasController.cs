@@ -13,9 +13,9 @@ public class CanvasController : MonoBehaviour
     public Slider expSlider;
     public GameObject upgradePanel;
     public Text coinText;
-    public UpgradeSystem upgradeSystem; // New: Reference to UpgradeSystem
+    public UpgradeSystem upgradeSystem;
 
-    [Header("Level Complete UI")]
+    [Header("Round Complete UI")]
     public GameObject upgradeDataPanel;
     public Text upgradeOption1Text;
     public Text upgradeOption2Text;
@@ -23,7 +23,7 @@ public class CanvasController : MonoBehaviour
     public Button upgradeOption1Button;
     public Button upgradeOption2Button;
     public Button upgradeOption3Button;
-    public GameObject levelCompletePanel;
+    public GameObject roundCompletePanel;
     public Text option1Text;
     public Text option2Text;
     public Button option1Button;
@@ -33,11 +33,11 @@ public class CanvasController : MonoBehaviour
     public GameObject pausePanel;
     private bool isPaused = false;
 
-    private enum LevelUpgradeOption { Speed, Health, Damage }
-    private LevelUpgradeOption[] levelUpgradeOptions = { LevelUpgradeOption.Speed, LevelUpgradeOption.Health, LevelUpgradeOption.Damage };
-    private LevelUpgradeOption[] currentLevelOptions = new LevelUpgradeOption[2];
+    private enum RoundUpgradeOption { Speed, Health, Damage }
+    private RoundUpgradeOption[] roundUpgradeOptions = { RoundUpgradeOption.Speed, RoundUpgradeOption.Health, RoundUpgradeOption.Damage };
+    private RoundUpgradeOption[] currentRoundOptions = new RoundUpgradeOption[2];
 
-    private UpgradeSystem.PlayerUpgradeOption[] currentPlayerOptions = new UpgradeSystem.PlayerUpgradeOption[3]; // Updated to use UpgradeSystem enum
+    private UpgradeSystem.PlayerUpgradeOption[] currentPlayerOptions = new UpgradeSystem.PlayerUpgradeOption[3];
 
     private SceneManager sceneManager;
     private Queue<string> panelQueue = new Queue<string>();
@@ -81,7 +81,7 @@ public class CanvasController : MonoBehaviour
 
         if (upgradePanel != null) upgradePanel.SetActive(false);
         if (upgradeDataPanel != null) upgradeDataPanel.SetActive(false);
-        if (levelCompletePanel != null) levelCompletePanel.SetActive(false);
+        if (roundCompletePanel != null) roundCompletePanel.SetActive(false);
         if (pausePanel != null) pausePanel.SetActive(false);
 
         if (playerController != null && coinText != null)
@@ -158,17 +158,17 @@ public class CanvasController : MonoBehaviour
             case "PlayerLevelUp":
                 ShowUpgradePanel();
                 break;
-            case "LevelFinished":
+            case "RoundFinished":
                 sceneManager = FindObjectOfType<SceneManager>();
                 if (sceneManager != null)
                 {
-                    ShowUpgradeDataPanel();
+                    ShowUpgradeDataPanel(); // Show player upgrades first
                 }
                 break;
         }
     }
 
-    // Player level-up panel
+    // Player level-up panel (for player leveling up, not round completion)
     public void ShowUpgradePanel()
     {
         if (upgradePanel != null)
@@ -215,12 +215,13 @@ public class CanvasController : MonoBehaviour
         }
     }
 
-    // Upgrade data panel (player upgrades)
+    // Player upgrade panel (for round completion)
     public void ShowUpgradeDataPanel()
     {
         if (upgradeDataPanel != null && upgradeSystem != null)
         {
             upgradeDataPanel.SetActive(true);
+            roundCompletePanel.SetActive(false); // Ensure enemy upgrade panel is hidden
             Time.timeScale = 0f;
 
             currentPlayerOptions = upgradeSystem.GetRandomUpgradeOptions(3);
@@ -238,56 +239,57 @@ public class CanvasController : MonoBehaviour
         }
     }
 
-    void ApplyPlayerUpgrade(UpgradeSystem.PlayerUpgradeOption option) // Updated to use UpgradeSystem enum
+    void ApplyPlayerUpgrade(UpgradeSystem.PlayerUpgradeOption option)
     {
         if (upgradeSystem != null)
         {
             upgradeSystem.ApplyPlayerUpgrade(option);
             upgradeDataPanel.SetActive(false);
-            ShowLevelCompletePanel();
+            ShowRoundCompletePanel(); // Proceed to enemy upgrades after player upgrade
         }
     }
 
-    // Level complete panel (enemy upgrades)
-    public void ShowLevelCompletePanel()
+    // Round complete panel (enemy upgrades)
+    public void ShowRoundCompletePanel()
     {
-        if (levelCompletePanel != null && sceneManager != null)
+        if (roundCompletePanel != null && sceneManager != null)
         {
-            levelCompletePanel.SetActive(true);
+            roundCompletePanel.SetActive(true);
+            Time.timeScale = 0f;
 
-            currentLevelOptions[0] = levelUpgradeOptions[Random.Range(0, levelUpgradeOptions.Length)];
+            currentRoundOptions[0] = roundUpgradeOptions[Random.Range(0, roundUpgradeOptions.Length)];
             do
             {
-                currentLevelOptions[1] = levelUpgradeOptions[Random.Range(0, levelUpgradeOptions.Length)];
-            } while (currentLevelOptions[1] == currentLevelOptions[0]);
+                currentRoundOptions[1] = roundUpgradeOptions[Random.Range(0, roundUpgradeOptions.Length)];
+            } while (currentRoundOptions[1] == currentRoundOptions[0]);
 
-            option1Text.text = GetLevelUpgradeText(currentLevelOptions[0]);
-            option2Text.text = GetLevelUpgradeText(currentLevelOptions[1]);
+            option1Text.text = GetRoundUpgradeText(currentRoundOptions[0]);
+            option2Text.text = GetRoundUpgradeText(currentRoundOptions[1]);
 
             option1Button.onClick.RemoveAllListeners();
             option2Button.onClick.RemoveAllListeners();
-            option1Button.onClick.AddListener(() => ApplyLevelUpgrade(currentLevelOptions[0]));
-            option2Button.onClick.AddListener(() => ApplyLevelUpgrade(currentLevelOptions[1]));
+            option1Button.onClick.AddListener(() => ApplyRoundUpgrade(currentRoundOptions[0]));
+            option2Button.onClick.AddListener(() => ApplyRoundUpgrade(currentRoundOptions[1]));
         }
     }
 
-    string GetLevelUpgradeText(LevelUpgradeOption option)
+    string GetRoundUpgradeText(RoundUpgradeOption option)
     {
         switch (option)
         {
-            case LevelUpgradeOption.Speed: return "Enemy Speed +20%";
-            case LevelUpgradeOption.Health: return "Enemy Health +20%";
-            case LevelUpgradeOption.Damage: return "Enemy Damage +20%";
+            case RoundUpgradeOption.Speed: return "Enemy Speed +20%";
+            case RoundUpgradeOption.Health: return "Enemy Health +20%";
+            case RoundUpgradeOption.Damage: return "Enemy Damage +20%";
             default: return "";
         }
     }
 
-    void ApplyLevelUpgrade(LevelUpgradeOption option)
+    void ApplyRoundUpgrade(RoundUpgradeOption option)
     {
         if (sceneManager != null)
         {
             sceneManager.ApplyUpgrade(option.ToString());
-            levelCompletePanel.SetActive(false);
+            roundCompletePanel.SetActive(false);
             Time.timeScale = 1f;
             isShowingPanel = false;
         }

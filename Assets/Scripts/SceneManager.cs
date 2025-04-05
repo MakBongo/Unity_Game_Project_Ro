@@ -5,14 +5,14 @@ using System.IO;
 
 public class SceneManager : MonoBehaviour
 {
-    [Header("Level Prefabs")]
+    [Header("Round Prefabs")] // Updated header
     public GameObject[] tileMapPrefabs; // Each prefab contains pre-placed enemies with their own stats
 
-    private int currentLevel = 1;
+    private int currentRound = 1; // Renamed from currentLevel
     private List<Enemy> activeEnemies = new List<Enemy>();
     private GameObject currentTileMap;
     private PlayerController player;
-    private bool levelCompleted = false;
+    private bool roundCompleted = false; // Renamed from levelCompleted
 
     // Upgrade multipliers tracked in memory
     private float speedMultiplier = 1f;
@@ -27,19 +27,19 @@ public class SceneManager : MonoBehaviour
         player = FindObjectOfType<PlayerController>();
         savePath = Path.Combine(Application.persistentDataPath, "saveData.json");
         LoadGame(); // Load money at start
-        GenerateLevel();
+        GenerateRound(); // Renamed from GenerateLevel
     }
 
     void Update()
     {
-        if (!levelCompleted && activeEnemies.Count > 0 && activeEnemies.TrueForAll(e => e == null || e.IsDead()))
+        if (!roundCompleted && activeEnemies.Count > 0 && activeEnemies.TrueForAll(e => e == null || e.IsDead()))
         {
-            LevelCompleted();
-            levelCompleted = true;
+            RoundCompleted(); // Renamed from LevelCompleted
+            roundCompleted = true;
         }
     }
 
-    void GenerateLevel()
+    void GenerateRound() // Renamed from GenerateLevel
     {
         if (currentTileMap != null)
         {
@@ -50,8 +50,8 @@ public class SceneManager : MonoBehaviour
         currentTileMap = Instantiate(tileMapPrefabs[randomIndex], Vector3.zero, Quaternion.identity);
 
         activeEnemies.Clear();
-        Enemy[] enemiesInLevel = currentTileMap.GetComponentsInChildren<Enemy>();
-        foreach (Enemy enemy in enemiesInLevel)
+        Enemy[] enemiesInRound = currentTileMap.GetComponentsInChildren<Enemy>(); // Renamed variable
+        foreach (Enemy enemy in enemiesInRound)
         {
             // Apply upgrades to instantiated enemies only
             enemy.moveSpeed *= speedMultiplier;
@@ -71,24 +71,24 @@ public class SceneManager : MonoBehaviour
             }
         }
 
-        levelCompleted = false;
-        Debug.Log($"Level {currentLevel} generated with {activeEnemies.Count} enemies.");
+        roundCompleted = false;
+        Debug.Log($"Round {currentRound} generated with {activeEnemies.Count} enemies."); // Updated log
     }
 
-    void LevelCompleted()
+    void RoundCompleted() // Renamed from LevelCompleted
     {
         // Increase money by 10 and save
         if (player != null)
         {
             player.AddMoney(10);
             SaveGame();
-            Debug.Log($"Level {currentLevel} completed! Money increased by 10. Total money: {player.GetMoney()}");
+            Debug.Log($"Round {currentRound} completed! Money increased by 10. Total money: {player.GetMoney()}"); // Updated log
         }
 
         CanvasController canvas = FindObjectOfType<CanvasController>();
         if (canvas != null)
         {
-            canvas.QueuePanel("LevelFinished");
+            canvas.QueuePanel("RoundFinished"); // Renamed from "LevelFinished"
         }
     }
 
@@ -111,8 +111,8 @@ public class SceneManager : MonoBehaviour
                 break;
         }
 
-        currentLevel++;
-        GenerateLevel();
+        currentRound++; // Updated variable name
+        GenerateRound(); // Updated method call
     }
 
     // Save system using independent SaveData
