@@ -12,6 +12,8 @@ public class CanvasController : MonoBehaviour
     public Slider healthSlider;
     public Slider expSlider;
     public GameObject upgradePanel;
+    public Text coinText;
+    public UpgradeSystem upgradeSystem; // New: Reference to UpgradeSystem
 
     [Header("Level Complete UI")]
     public GameObject upgradeDataPanel;
@@ -31,17 +33,11 @@ public class CanvasController : MonoBehaviour
     public GameObject pausePanel;
     private bool isPaused = false;
 
-    private enum PlayerUpgradeOption { BulletSpeed, FiresPerMinute, BulletLifetime, MagazineSize, ReloadTime, HealRate, ExpAmount, MoneyAmount } // Added MoneyAmount
-    private PlayerUpgradeOption[] playerUpgradeOptions = {
-        PlayerUpgradeOption.BulletSpeed, PlayerUpgradeOption.FiresPerMinute, PlayerUpgradeOption.BulletLifetime,
-        PlayerUpgradeOption.MagazineSize, PlayerUpgradeOption.ReloadTime, PlayerUpgradeOption.HealRate,
-        PlayerUpgradeOption.ExpAmount, PlayerUpgradeOption.MoneyAmount // Added MoneyAmount
-    };
-    private PlayerUpgradeOption[] currentPlayerOptions = new PlayerUpgradeOption[3];
-
     private enum LevelUpgradeOption { Speed, Health, Damage }
     private LevelUpgradeOption[] levelUpgradeOptions = { LevelUpgradeOption.Speed, LevelUpgradeOption.Health, LevelUpgradeOption.Damage };
     private LevelUpgradeOption[] currentLevelOptions = new LevelUpgradeOption[2];
+
+    private UpgradeSystem.PlayerUpgradeOption[] currentPlayerOptions = new UpgradeSystem.PlayerUpgradeOption[3]; // Updated to use UpgradeSystem enum
 
     private SceneManager sceneManager;
     private Queue<string> panelQueue = new Queue<string>();
@@ -74,10 +70,24 @@ public class CanvasController : MonoBehaviour
             }
         }
 
+        if (upgradeSystem == null)
+        {
+            upgradeSystem = FindObjectOfType<UpgradeSystem>();
+            if (upgradeSystem == null)
+            {
+                Debug.LogError("CanvasController: UpgradeSystem not found!");
+            }
+        }
+
         if (upgradePanel != null) upgradePanel.SetActive(false);
         if (upgradeDataPanel != null) upgradeDataPanel.SetActive(false);
         if (levelCompletePanel != null) levelCompletePanel.SetActive(false);
         if (pausePanel != null) pausePanel.SetActive(false);
+
+        if (playerController != null && coinText != null)
+        {
+            coinText.text = $"Coins: {playerController.GetMoney()}";
+        }
     }
 
     void Update()
@@ -106,6 +116,11 @@ public class CanvasController : MonoBehaviour
         {
             expSlider.maxValue = playerController.GetMaxExp();
             expSlider.value = playerController.GetCurrentExp();
+        }
+
+        if (playerController != null && coinText != null)
+        {
+            coinText.text = $"Coins: {playerController.GetMoney()}";
         }
 
         if (Input.GetKeyDown(KeyCode.Escape) && !isShowingPanel)
@@ -203,22 +218,16 @@ public class CanvasController : MonoBehaviour
     // Upgrade data panel (player upgrades)
     public void ShowUpgradeDataPanel()
     {
-        if (upgradeDataPanel != null)
+        if (upgradeDataPanel != null && upgradeSystem != null)
         {
             upgradeDataPanel.SetActive(true);
             Time.timeScale = 0f;
 
-            List<PlayerUpgradeOption> availableOptions = new List<PlayerUpgradeOption>(playerUpgradeOptions);
-            for (int i = 0; i < 3; i++)
-            {
-                int randomIndex = Random.Range(0, availableOptions.Count);
-                currentPlayerOptions[i] = availableOptions[randomIndex];
-                availableOptions.RemoveAt(randomIndex);
-            }
+            currentPlayerOptions = upgradeSystem.GetRandomUpgradeOptions(3);
 
-            upgradeOption1Text.text = GetPlayerUpgradeText(currentPlayerOptions[0]);
-            upgradeOption2Text.text = GetPlayerUpgradeText(currentPlayerOptions[1]);
-            upgradeOption3Text.text = GetPlayerUpgradeText(currentPlayerOptions[2]);
+            upgradeOption1Text.text = upgradeSystem.GetPlayerUpgradeText(currentPlayerOptions[0]);
+            upgradeOption2Text.text = upgradeSystem.GetPlayerUpgradeText(currentPlayerOptions[1]);
+            upgradeOption3Text.text = upgradeSystem.GetPlayerUpgradeText(currentPlayerOptions[2]);
 
             upgradeOption1Button.onClick.RemoveAllListeners();
             upgradeOption2Button.onClick.RemoveAllListeners();
@@ -229,37 +238,14 @@ public class CanvasController : MonoBehaviour
         }
     }
 
-    string GetPlayerUpgradeText(PlayerUpgradeOption option)
+    void ApplyPlayerUpgrade(UpgradeSystem.PlayerUpgradeOption option) // Updated to use UpgradeSystem enum
     {
-        switch (option)
+        if (upgradeSystem != null)
         {
-            case PlayerUpgradeOption.BulletSpeed: return $"Bullet Speed +10% (Current: {shooting.GetBulletSpeed():F1})";
-            case PlayerUpgradeOption.FiresPerMinute: return $"Fire Rate +10% (Current: {shooting.GetFiresPerMinute():F1})";
-            case PlayerUpgradeOption.BulletLifetime: return $"Bullet Lifetime +10% (Current: {shooting.GetBulletLifetime():F1})";
-            case PlayerUpgradeOption.MagazineSize: return $"Magazine Size +10% (Current: {shooting.GetMagazineSize()})";
-            case PlayerUpgradeOption.ReloadTime: return $"Reload Time -10% (Current: {shooting.GetReloadTime():F1})";
-            case PlayerUpgradeOption.HealRate: return $"Heal Rate +10% (Current: {playerController.healRate * 100:F2}%)";
-            case PlayerUpgradeOption.ExpAmount: return $"EXP Gain +10% (Current: {playerController.expMultiplier * 100:F0}%)";
-            case PlayerUpgradeOption.MoneyAmount: return $"Money Gain +10% (Current: {playerController.moneyMultiplier * 100:F0}%)"; // New: Money upgrade text
-            default: return "";
+            upgradeSystem.ApplyPlayerUpgrade(option);
+            upgradeDataPanel.SetActive(false);
+            ShowLevelCompletePanel();
         }
-    }
-
-    void ApplyPlayerUpgrade(PlayerUpgradeOption option)
-    {
-        switch (option)
-        {
-            case PlayerUpgradeOption.BulletSpeed: shooting.UpgradeBulletSpeed(); break;
-            case PlayerUpgradeOption.FiresPerMinute: shooting.UpgradeFiresPerMinute(); break;
-            case PlayerUpgradeOption.BulletLifetime: shooting.UpgradeBulletLifetime(); break;
-            case PlayerUpgradeOption.MagazineSize: shooting.UpgradeMagazineSize(); break;
-            case PlayerUpgradeOption.ReloadTime: shooting.UpgradeReloadTime(); break;
-            case PlayerUpgradeOption.HealRate: playerController.UpgradeHealRate(); break;
-            case PlayerUpgradeOption.ExpAmount: playerController.UpgradeExpAmount(); break;
-            case PlayerUpgradeOption.MoneyAmount: playerController.UpgradeMoneyAmount(); break; // New: Apply money upgrade
-        }
-        upgradeDataPanel.SetActive(false);
-        ShowLevelCompletePanel();
     }
 
     // Level complete panel (enemy upgrades)
