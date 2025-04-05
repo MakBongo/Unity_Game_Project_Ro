@@ -13,6 +13,7 @@ public class CanvasController : MonoBehaviour
     public Slider expSlider;
     public GameObject upgradePanel;
     public Text coinText;
+    public Text roundText; // New: Text field for displaying round number
     public UpgradeSystem upgradeSystem;
 
     [Header("Round Complete UI")]
@@ -79,6 +80,16 @@ public class CanvasController : MonoBehaviour
             }
         }
 
+        // Find SceneManager at start
+        if (sceneManager == null)
+        {
+            sceneManager = FindObjectOfType<SceneManager>();
+            if (sceneManager == null)
+            {
+                Debug.LogError("CanvasController: SceneManager not found!");
+            }
+        }
+
         if (upgradePanel != null) upgradePanel.SetActive(false);
         if (upgradeDataPanel != null) upgradeDataPanel.SetActive(false);
         if (roundCompletePanel != null) roundCompletePanel.SetActive(false);
@@ -87,6 +98,12 @@ public class CanvasController : MonoBehaviour
         if (playerController != null && coinText != null)
         {
             coinText.text = $"Coins: {playerController.GetMoney()}";
+        }
+
+        // Initialize round text
+        if (sceneManager != null && roundText != null)
+        {
+            roundText.text = $"Round: {sceneManager.GetCurrentRound()}";
         }
     }
 
@@ -121,6 +138,12 @@ public class CanvasController : MonoBehaviour
         if (playerController != null && coinText != null)
         {
             coinText.text = $"Coins: {playerController.GetMoney()}";
+        }
+
+        // Update round text
+        if (sceneManager != null && roundText != null)
+        {
+            roundText.text = $"Round: {sceneManager.GetCurrentRound()}";
         }
 
         if (Input.GetKeyDown(KeyCode.Escape) && !isShowingPanel)

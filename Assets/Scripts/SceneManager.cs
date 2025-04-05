@@ -5,14 +5,15 @@ using System.IO;
 
 public class SceneManager : MonoBehaviour
 {
-    [Header("Round Prefabs")] // Updated header
+    [Header("Round Prefabs")]
     public GameObject[] tileMapPrefabs; // Each prefab contains pre-placed enemies with their own stats
 
-    private int currentRound = 1; // Renamed from currentLevel
+    private int currentRound = 1;
+    private int highestRound = 0; // Tracks the highest round reached
     private List<Enemy> activeEnemies = new List<Enemy>();
     private GameObject currentTileMap;
     private PlayerController player;
-    private bool roundCompleted = false; // Renamed from levelCompleted
+    private bool roundCompleted = false;
 
     // Upgrade multipliers tracked in memory
     private float speedMultiplier = 1f;
@@ -26,20 +27,20 @@ public class SceneManager : MonoBehaviour
     {
         player = FindObjectOfType<PlayerController>();
         savePath = Path.Combine(Application.persistentDataPath, "saveData.json");
-        LoadGame(); // Load money at start
-        GenerateRound(); // Renamed from GenerateLevel
+        LoadGame(); // Load money and highest round at start
+        GenerateRound();
     }
 
     void Update()
     {
         if (!roundCompleted && activeEnemies.Count > 0 && activeEnemies.TrueForAll(e => e == null || e.IsDead()))
         {
-            RoundCompleted(); // Renamed from LevelCompleted
+            RoundCompleted();
             roundCompleted = true;
         }
     }
 
-    void GenerateRound() // Renamed from GenerateLevel
+    void GenerateRound()
     {
         if (currentTileMap != null)
         {
@@ -50,7 +51,7 @@ public class SceneManager : MonoBehaviour
         currentTileMap = Instantiate(tileMapPrefabs[randomIndex], Vector3.zero, Quaternion.identity);
 
         activeEnemies.Clear();
-        Enemy[] enemiesInRound = currentTileMap.GetComponentsInChildren<Enemy>(); // Renamed variable
+        Enemy[] enemiesInRound = currentTileMap.GetComponentsInChildren<Enemy>();
         foreach (Enemy enemy in enemiesInRound)
         {
             // Apply upgrades to instantiated enemies only
@@ -72,29 +73,33 @@ public class SceneManager : MonoBehaviour
         }
 
         roundCompleted = false;
-        Debug.Log($"Round {currentRound} generated with {activeEnemies.Count} enemies."); // Updated log
+        Debug.Log($"Round {currentRound} generated with {activeEnemies.Count} enemies.");
     }
 
-    void RoundCompleted() // Renamed from LevelCompleted
+    void RoundCompleted()
     {
-        // Increase money by 10 and save
         if (player != null)
         {
             player.AddMoney(10);
-            SaveGame();
-            Debug.Log($"Round {currentRound} completed! Money increased by 10. Total money: {player.GetMoney()}"); // Updated log
+            // Update highest round if current round exceeds it
+            if (currentRound > highestRound)
+            {
+                highestRound = currentRound;
+                Debug.Log($"New record set! Highest Round: {highestRound}");
+            }
+            SaveGame(); // Save money and highest round
+            Debug.Log($"Round {currentRound} completed! Money increased by 10. Total money: {player.GetMoney()}");
         }
 
         CanvasController canvas = FindObjectOfType<CanvasController>();
         if (canvas != null)
         {
-            canvas.QueuePanel("RoundFinished"); // Renamed from "LevelFinished"
+            canvas.QueuePanel("RoundFinished");
         }
     }
 
     public void ApplyUpgrade(string option)
     {
-        // Update multipliers instead of modifying prefabs
         switch (option)
         {
             case "Speed":
@@ -111,11 +116,11 @@ public class SceneManager : MonoBehaviour
                 break;
         }
 
-        currentRound++; // Updated variable name
-        GenerateRound(); // Updated method call
+        currentRound++;
+        GenerateRound();
     }
 
-    // Save system using independent SaveData
+    // Save system using standalone SaveData
     void SaveGame()
     {
         if (player == null)
@@ -126,7 +131,8 @@ public class SceneManager : MonoBehaviour
 
         SaveData data = new SaveData
         {
-            money = player.GetMoney()
+            money = player.GetMoney(),
+            highestRound = highestRound
         };
 
         string json = JsonUtility.ToJson(data, true);
@@ -144,7 +150,8 @@ public class SceneManager : MonoBehaviour
             if (player != null)
             {
                 player.AddMoney(data.money - player.GetMoney()); // Adjust to match saved value
-                Debug.Log("Game loaded. Money set to: " + player.GetMoney());
+                highestRound = data.highestRound; // Load highest round
+                Debug.Log($"Game loaded. Money set to: {player.GetMoney()}, Highest Round: {highestRound}");
             }
         }
         else
@@ -156,5 +163,17 @@ public class SceneManager : MonoBehaviour
     void OnApplicationQuit()
     {
         SaveGame(); // Save when quitting
+    }
+
+    // Public method to access highest round
+    public int GetHighestRound()
+    {
+        return highestRound;
+    }
+
+    // Public method to access current round (added for CanvasController)
+    public int GetCurrentRound()
+    {
+        return currentRound;
     }
 }
