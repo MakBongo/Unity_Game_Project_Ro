@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
-using UnityEngine.SceneManagement; // For Restart and Quit
+using UnityEngine.SceneManagement;
 
 public class CanvasController : MonoBehaviour
 {
@@ -28,13 +28,14 @@ public class CanvasController : MonoBehaviour
     public Button option2Button;
 
     [Header("Pause UI")]
-    public GameObject pausePanel; // New: Reference to pause panel GameObject
-    private bool isPaused = false; // Tracks pause state
+    public GameObject pausePanel;
+    private bool isPaused = false;
 
-    private enum PlayerUpgradeOption { BulletSpeed, FiresPerMinute, BulletLifetime, MagazineSize, ReloadTime, HealRate, ExpAmount }
+    private enum PlayerUpgradeOption { BulletSpeed, FiresPerMinute, BulletLifetime, MagazineSize, ReloadTime, HealRate, ExpAmount, MoneyAmount } // Added MoneyAmount
     private PlayerUpgradeOption[] playerUpgradeOptions = {
         PlayerUpgradeOption.BulletSpeed, PlayerUpgradeOption.FiresPerMinute, PlayerUpgradeOption.BulletLifetime,
-        PlayerUpgradeOption.MagazineSize, PlayerUpgradeOption.ReloadTime, PlayerUpgradeOption.HealRate, PlayerUpgradeOption.ExpAmount
+        PlayerUpgradeOption.MagazineSize, PlayerUpgradeOption.ReloadTime, PlayerUpgradeOption.HealRate,
+        PlayerUpgradeOption.ExpAmount, PlayerUpgradeOption.MoneyAmount // Added MoneyAmount
     };
     private PlayerUpgradeOption[] currentPlayerOptions = new PlayerUpgradeOption[3];
 
@@ -76,7 +77,7 @@ public class CanvasController : MonoBehaviour
         if (upgradePanel != null) upgradePanel.SetActive(false);
         if (upgradeDataPanel != null) upgradeDataPanel.SetActive(false);
         if (levelCompletePanel != null) levelCompletePanel.SetActive(false);
-        if (pausePanel != null) pausePanel.SetActive(false); // Initialize pause panel as hidden
+        if (pausePanel != null) pausePanel.SetActive(false);
     }
 
     void Update()
@@ -107,8 +108,7 @@ public class CanvasController : MonoBehaviour
             expSlider.value = playerController.GetCurrentExp();
         }
 
-        // Toggle pause with Escape key
-        if (Input.GetKeyDown(KeyCode.Escape) && !isShowingPanel) // Prevent pausing during other panels
+        if (Input.GetKeyDown(KeyCode.Escape) && !isShowingPanel)
         {
             if (isPaused)
             {
@@ -240,6 +240,7 @@ public class CanvasController : MonoBehaviour
             case PlayerUpgradeOption.ReloadTime: return $"Reload Time -10% (Current: {shooting.GetReloadTime():F1})";
             case PlayerUpgradeOption.HealRate: return $"Heal Rate +10% (Current: {playerController.healRate * 100:F2}%)";
             case PlayerUpgradeOption.ExpAmount: return $"EXP Gain +10% (Current: {playerController.expMultiplier * 100:F0}%)";
+            case PlayerUpgradeOption.MoneyAmount: return $"Money Gain +10% (Current: {playerController.moneyMultiplier * 100:F0}%)"; // New: Money upgrade text
             default: return "";
         }
     }
@@ -255,6 +256,7 @@ public class CanvasController : MonoBehaviour
             case PlayerUpgradeOption.ReloadTime: shooting.UpgradeReloadTime(); break;
             case PlayerUpgradeOption.HealRate: playerController.UpgradeHealRate(); break;
             case PlayerUpgradeOption.ExpAmount: playerController.UpgradeExpAmount(); break;
+            case PlayerUpgradeOption.MoneyAmount: playerController.UpgradeMoneyAmount(); break; // New: Apply money upgrade
         }
         upgradeDataPanel.SetActive(false);
         ShowLevelCompletePanel();
@@ -317,7 +319,7 @@ public class CanvasController : MonoBehaviour
         }
     }
 
-    public void ResumeGame() // Public for button use
+    public void ResumeGame()
     {
         if (pausePanel != null)
         {
@@ -328,17 +330,10 @@ public class CanvasController : MonoBehaviour
         }
     }
 
-    /*public void RestartGame() // Public for button use
+    public void QuitGame()
     {
-        Time.timeScale = 1f; // Reset time scale before reloading
-        SceneManager.LoadScene(SceneManager.GetActiveScene().name); // Reload current scene
-        Debug.Log("Game Restarted");
-    }*/
-
-    public void QuitGame() // Public for button use
-    {
-        Time.timeScale = 1f; // Reset time scale before quitting
+        Time.timeScale = 1f;
         Application.Quit();
-        Debug.Log("Game Quit"); // Won't show in builds, but useful in Editor
+        Debug.Log("Game Quit");
     }
 }

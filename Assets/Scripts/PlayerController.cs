@@ -39,6 +39,7 @@ public class PlayerController : MonoBehaviour
 
     [Header("Set Money")]
     public int money = 0; // Starting money
+    public float moneyMultiplier = 1f; // New: Multiplier for money gain
 
     void Awake()
     {
@@ -150,21 +151,9 @@ public class PlayerController : MonoBehaviour
     // Money methods
     public void AddMoney(int amount)
     {
-        money += amount;
-        Debug.Log($"Added {amount} money. Total money: {money}");
-    }
-
-    public void SpendMoney(int amount)
-    {
-        if (money >= amount)
-        {
-            money -= amount;
-            Debug.Log($"Spent {amount} money. Remaining money: {money}");
-        }
-        else
-        {
-            Debug.LogWarning("Not enough money!");
-        }
+        int scaledMoney = Mathf.RoundToInt(amount * moneyMultiplier); // Apply multiplier
+        money += scaledMoney;
+        Debug.Log($"Added {scaledMoney} money (Base: {amount}, Multiplier: {moneyMultiplier:F2}). Total money: {money}");
     }
 
     public int GetMoney()
@@ -172,7 +161,7 @@ public class PlayerController : MonoBehaviour
         return money;
     }
 
-    // Existing upgrade methods
+    // Upgrade methods
     public void UpgradeMaxHealth()
     {
         maxHealth += 10;
@@ -197,10 +186,16 @@ public class PlayerController : MonoBehaviour
         Debug.Log($"Upgraded EXP Multiplier to {expMultiplier:F2}");
     }
 
-    // Health access methods
+    public void UpgradeMoneyAmount() // New: Upgrade money gain
+    {
+        moneyMultiplier *= 1.1f;
+        Debug.Log($"Upgraded Money Multiplier to {moneyMultiplier:F2}");
+    }
+
+    // Access methods
     public int GetCurrentHealth() { return Mathf.RoundToInt(currentHealth); }
     public int GetMaxHealth() { return maxHealth; }
-    public void SetCurrentHealth(float health) // Added method
+    public void SetCurrentHealth(float health)
     {
         currentHealth = Mathf.Clamp(health, 0, maxHealth);
     }
