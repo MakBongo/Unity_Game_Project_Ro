@@ -5,9 +5,9 @@ public class UpgradeSystem : MonoBehaviour
     public PlayerController playerController;
     public Shooting shooting;
 
-    public enum PlayerUpgradeOption { BulletSpeed, FiresPerMinute, BulletLifetime, MagazineSize, ReloadTime, HealRate, ExpAmount, MoneyAmount }
+    public enum PlayerUpgradeOption { AmmunitionSpeed, FiresPerMinute, AmmunitionLifetime, MagazineSize, ReloadTime, HealRate, ExpAmount, MoneyAmount } // Renamed BulletSpeed, BulletLifetime
     private PlayerUpgradeOption[] playerUpgradeOptions = {
-        PlayerUpgradeOption.BulletSpeed, PlayerUpgradeOption.FiresPerMinute, PlayerUpgradeOption.BulletLifetime,
+        PlayerUpgradeOption.AmmunitionSpeed, PlayerUpgradeOption.FiresPerMinute, PlayerUpgradeOption.AmmunitionLifetime, // Renamed
         PlayerUpgradeOption.MagazineSize, PlayerUpgradeOption.ReloadTime, PlayerUpgradeOption.HealRate,
         PlayerUpgradeOption.ExpAmount, PlayerUpgradeOption.MoneyAmount
     };
@@ -55,9 +55,9 @@ public class UpgradeSystem : MonoBehaviour
 
         switch (option)
         {
-            case PlayerUpgradeOption.BulletSpeed: return $"Bullet Speed +10% (Current: {shooting.GetBulletSpeed():F1})";
+            case PlayerUpgradeOption.AmmunitionSpeed: return $"Ammunition Speed +10% (Current: {shooting.GetAmmunitionSpeed():F1})"; // Renamed from BulletSpeed
             case PlayerUpgradeOption.FiresPerMinute: return $"Fire Rate +10% (Current: {shooting.GetFiresPerMinute():F1})";
-            case PlayerUpgradeOption.BulletLifetime: return $"Bullet Lifetime +10% (Current: {shooting.GetBulletLifetime():F1})";
+            case PlayerUpgradeOption.AmmunitionLifetime: return $"Ammunition Lifetime +10% (Current: {shooting.GetAmmunitionLifetime():F1})"; // Renamed from BulletLifetime
             case PlayerUpgradeOption.MagazineSize: return $"Magazine Size +10% (Current: {shooting.GetMagazineSize()})";
             case PlayerUpgradeOption.ReloadTime: return $"Reload Time -10% (Current: {shooting.GetReloadTime():F1})";
             case PlayerUpgradeOption.HealRate: return $"Heal Rate +10% (Current: {playerController.healRate * 100:F2}%)";
@@ -77,9 +77,9 @@ public class UpgradeSystem : MonoBehaviour
 
         switch (option)
         {
-            case PlayerUpgradeOption.BulletSpeed: shooting.UpgradeBulletSpeed(); break;
+            case PlayerUpgradeOption.AmmunitionSpeed: shooting.UpgradeAmmunitionSpeed(); break; // Renamed from UpgradeBulletSpeed
             case PlayerUpgradeOption.FiresPerMinute: shooting.UpgradeFiresPerMinute(); break;
-            case PlayerUpgradeOption.BulletLifetime: shooting.UpgradeBulletLifetime(); break;
+            case PlayerUpgradeOption.AmmunitionLifetime: shooting.UpgradeAmmunitionLifetime(); break; // Renamed from UpgradeBulletLifetime
             case PlayerUpgradeOption.MagazineSize: shooting.UpgradeMagazineSize(); break;
             case PlayerUpgradeOption.ReloadTime: shooting.UpgradeReloadTime(); break;
             case PlayerUpgradeOption.HealRate: playerController.UpgradeHealRate(); break;

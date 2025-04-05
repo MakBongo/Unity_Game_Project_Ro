@@ -14,7 +14,7 @@ public class CanvasController : MonoBehaviour
     public GameObject upgradePanel;
     public Text coinText;
     public Text roundText; // Text field for displaying round number
-    public Text levelText; // New: Text field for displaying player level
+    public Text levelText; // Text field for displaying player level
     public UpgradeSystem upgradeSystem;
 
     [Header("Round Complete UI")]
@@ -227,7 +227,7 @@ public class CanvasController : MonoBehaviour
     {
         if (shooting != null)
         {
-            shooting.UpgradeBulletDamage();
+            shooting.UpgradeAmmunitionDamage(); // Renamed from UpgradeBulletDamage
             CloseUpgradePanel();
         }
     }

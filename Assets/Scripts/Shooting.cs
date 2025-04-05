@@ -5,7 +5,7 @@ using UnityEngine;
 public class Shooting : MonoBehaviour
 {
     [Header("Set Shooting")]
-    public GameObject bulletPrefab;
+    public GameObject ammunitionPrefab; // Renamed from bulletPrefab
     public Transform firePoint;
     public float firePointRadius = 0.5f;
 
@@ -15,16 +15,16 @@ public class Shooting : MonoBehaviour
 
     private int poolSize;
     private float nextFireTime = 0f;
-    private Queue<GameObject> bulletPool;
+    private Queue<GameObject> ammunitionPool; // Renamed from bulletPool
     private int currentAmmo;
     private bool isReloading = false;
     private float fireRate;
     private bool faceRight = true;
 
     [Header("Upgrade Multipliers")]
-    public float bulletSpeedUpgrade = 1.1f;
+    public float ammunitionSpeedUpgrade = 1.1f; // Renamed from bulletSpeedUpgrade
     public float firesPerMinuteUpgrade = 1.1f;
-    public float bulletLifetimeUpgrade = 1.1f;
+    public float ammunitionLifetimeUpgrade = 1.1f; // Renamed from bulletLifetimeUpgrade
     public float magazineSizeUpgrade = 1.1f;
     public float reloadTimeUpgrade = 0.9f;
 
@@ -41,10 +41,10 @@ public class Shooting : MonoBehaviour
 
         runtimeData = Instantiate(weaponData);
 
-        bulletPool = new Queue<GameObject>();
+        ammunitionPool = new Queue<GameObject>(); // Renamed from bulletPool
         fireRate = 60f / runtimeData.firesPerMinute;
         CalculatePoolSize();
-        InitializeBulletPool();
+        InitializeAmmunitionPool(); // Renamed from InitializeBulletPool
         currentAmmo = runtimeData.magazineSize;
 
         if (player == null)
@@ -87,36 +87,36 @@ public class Shooting : MonoBehaviour
     {
         fireRate = 60f / runtimeData.firesPerMinute;
         float shotsPerSecond = 1f / fireRate;
-        int calculatedPoolSize = Mathf.CeilToInt(shotsPerSecond * runtimeData.bulletLifetime) + 5;
+        int calculatedPoolSize = Mathf.CeilToInt(shotsPerSecond * runtimeData.ammunitionLifetime) + 5; // Renamed bulletLifetime
         poolSize = Mathf.Max(calculatedPoolSize, runtimeData.magazineSize);
     }
 
-    void InitializeBulletPool()
+    void InitializeAmmunitionPool() // Renamed from InitializeBulletPool
     {
-        while (bulletPool.Count < poolSize)
+        while (ammunitionPool.Count < poolSize)
         {
-            GameObject bullet = Instantiate(bulletPrefab);
-            bullet.SetActive(false);
-            bulletPool.Enqueue(bullet);
+            GameObject ammunition = Instantiate(ammunitionPrefab); // Renamed from bullet
+            ammunition.SetActive(false);
+            ammunitionPool.Enqueue(ammunition);
         }
     }
 
     void AdjustPoolSize()
     {
-        while (bulletPool.Count > poolSize)
+        while (ammunitionPool.Count > poolSize)
         {
-            GameObject bullet = bulletPool.Dequeue();
-            if (!bullet.activeSelf)
+            GameObject ammunition = ammunitionPool.Dequeue(); // Renamed from bullet
+            if (!ammunition.activeSelf)
             {
-                Destroy(bullet);
+                Destroy(ammunition);
             }
             else
             {
-                bulletPool.Enqueue(bullet);
+                ammunitionPool.Enqueue(ammunition);
                 break;
             }
         }
-        InitializeBulletPool();
+        InitializeAmmunitionPool(); // Renamed from InitializeBulletPool
     }
 
     void UpdateGunRotation()
@@ -158,36 +158,36 @@ public class Shooting : MonoBehaviour
 
     void Shoot()
     {
-        if (bulletPool.Count > 0)
+        if (ammunitionPool.Count > 0)
         {
-            GameObject bullet = bulletPool.Dequeue();
-            bullet.transform.position = firePoint.position;
-            bullet.transform.rotation = firePoint.rotation;
-            bullet.SetActive(true);
+            GameObject ammunition = ammunitionPool.Dequeue(); // Renamed from bullet
+            ammunition.transform.position = firePoint.position;
+            ammunition.transform.rotation = firePoint.rotation;
+            ammunition.SetActive(true);
 
-            Bullet bulletScript = bullet.GetComponent<Bullet>();
-            if (bulletScript != null)
+            Bullet ammunitionScript = ammunition.GetComponent<Bullet>(); // Renamed from bulletScript (assuming Bullet class exists)
+            if (ammunitionScript != null)
             {
-                bulletScript.damage = runtimeData.bulletDamage;
-                bulletScript.player = player;
+                ammunitionScript.damage = runtimeData.ammunitionDamage; // Renamed from bulletDamage
+                ammunitionScript.player = player;
             }
 
-            Rigidbody2D bulletRB = bullet.GetComponent<Rigidbody2D>();
-            Vector2 bulletDirection = transform.right;
-            bulletRB.velocity = bulletDirection * runtimeData.bulletSpeed;
+            Rigidbody2D ammunitionRB = ammunition.GetComponent<Rigidbody2D>(); // Renamed from bulletRB
+            Vector2 ammunitionDirection = transform.right; // Renamed from bulletDirection
+            ammunitionRB.velocity = ammunitionDirection * runtimeData.ammunitionSpeed; // Renamed from bulletSpeed
 
             currentAmmo--;
-            StartCoroutine(ReturnBulletToPool(bullet));
+            StartCoroutine(ReturnAmmunitionToPool(ammunition)); // Renamed from ReturnBulletToPool
         }
     }
 
-    IEnumerator ReturnBulletToPool(GameObject bullet)
+    IEnumerator ReturnAmmunitionToPool(GameObject ammunition) // Renamed from ReturnBulletToPool
     {
-        yield return new WaitForSeconds(runtimeData.bulletLifetime);
-        if (bullet != null)
+        yield return new WaitForSeconds(runtimeData.ammunitionLifetime); // Renamed from bulletLifetime
+        if (ammunition != null)
         {
-            bullet.SetActive(false);
-            bulletPool.Enqueue(bullet);
+            ammunition.SetActive(false);
+            ammunitionPool.Enqueue(ammunition);
         }
     }
 
@@ -203,16 +203,16 @@ public class Shooting : MonoBehaviour
         Debug.Log("Reload complete!");
     }
 
-    public void UpgradeBulletDamage()
+    public void UpgradeAmmunitionDamage() // Renamed from UpgradeBulletDamage
     {
-        runtimeData.bulletDamage += 2;
-        Debug.Log($"Upgraded Bullet Damage to {runtimeData.bulletDamage}");
+        runtimeData.ammunitionDamage += 2; // Renamed from bulletDamage
+        Debug.Log($"Upgraded Ammunition Damage to {runtimeData.ammunitionDamage}");
     }
 
-    public void UpgradeBulletSpeed()
+    public void UpgradeAmmunitionSpeed() // Renamed from UpgradeBulletSpeed
     {
-        runtimeData.bulletSpeed *= bulletSpeedUpgrade;
-        Debug.Log($"Upgraded Bullet Speed to {runtimeData.bulletSpeed:F2}");
+        runtimeData.ammunitionSpeed *= ammunitionSpeedUpgrade; // Renamed from bulletSpeed
+        Debug.Log($"Upgraded Ammunition Speed to {runtimeData.ammunitionSpeed:F2}");
     }
 
     public void UpgradeFiresPerMinute()
@@ -224,12 +224,12 @@ public class Shooting : MonoBehaviour
         Debug.Log($"Upgraded Fires Per Minute to {runtimeData.firesPerMinute:F2}");
     }
 
-    public void UpgradeBulletLifetime()
+    public void UpgradeAmmunitionLifetime() // Renamed from UpgradeBulletLifetime
     {
-        runtimeData.bulletLifetime *= bulletLifetimeUpgrade;
+        runtimeData.ammunitionLifetime *= ammunitionLifetimeUpgrade; // Renamed from bulletLifetime
         CalculatePoolSize();
         AdjustPoolSize();
-        Debug.Log($"Upgraded Bullet Lifetime to {runtimeData.bulletLifetime:F2}");
+        Debug.Log($"Upgraded Ammunition Lifetime to {runtimeData.ammunitionLifetime:F2}");
     }
 
     public void UpgradeMagazineSize()
@@ -250,11 +250,11 @@ public class Shooting : MonoBehaviour
     public int GetCurrentAmmo() { return currentAmmo; }
     public bool IsReloading() { return isReloading; }
 
-    // New getters for WeaponData fields
-    public int GetBulletDamage() { return runtimeData.bulletDamage; }
-    public float GetBulletSpeed() { return runtimeData.bulletSpeed; }
+    // New getters for WeaponData fields (renamed)
+    public int GetAmmunitionDamage() { return runtimeData.ammunitionDamage; } // Renamed from GetBulletDamage
+    public float GetAmmunitionSpeed() { return runtimeData.ammunitionSpeed; } // Renamed from GetBulletSpeed
     public float GetFiresPerMinute() { return runtimeData.firesPerMinute; }
-    public float GetBulletLifetime() { return runtimeData.bulletLifetime; }
+    public float GetAmmunitionLifetime() { return runtimeData.ammunitionLifetime; } // Renamed from GetBulletLifetime
     public int GetMagazineSize() { return runtimeData.magazineSize; }
     public float GetReloadTime() { return runtimeData.reloadTime; }
 }
