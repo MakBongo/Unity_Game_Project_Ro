@@ -5,13 +5,12 @@ using UnityEngine;
 public class Shooting : MonoBehaviour
 {
     [Header("Set Shooting")]
-    // Removed: public GameObject ammunitionPrefab;
     public Transform firePoint;
     public float firePointRadius = 0.5f;
 
     [Header("Weapon Data")]
-    public WeaponData weaponData; // Template ScriptableObject
-    private WeaponData runtimeData; // Runtime copy
+    public WeaponData weaponData;
+    private WeaponData runtimeData;
 
     private int poolSize;
     private float nextFireTime = 0f;
@@ -95,7 +94,7 @@ public class Shooting : MonoBehaviour
     {
         while (ammunitionPool.Count < poolSize)
         {
-            GameObject ammunition = Instantiate(runtimeData.ammunitionPrefab); // Changed from ammunitionPrefab
+            GameObject ammunition = Instantiate(runtimeData.ammunitionPrefab);
             ammunition.SetActive(false);
             ammunitionPool.Enqueue(ammunition);
         }
@@ -165,11 +164,16 @@ public class Shooting : MonoBehaviour
             ammunition.transform.rotation = firePoint.rotation;
             ammunition.SetActive(true);
 
-            Bullet ammunitionScript = ammunition.GetComponent<Bullet>();
+            // Use the Ammunition base class to set damage and player
+            Ammunition ammunitionScript = ammunition.GetComponent<Ammunition>();
             if (ammunitionScript != null)
             {
                 ammunitionScript.damage = runtimeData.ammunitionDamage;
                 ammunitionScript.player = player;
+            }
+            else
+            {
+                Debug.LogWarning("Ammunition prefab is missing an Ammunition component!");
             }
 
             Rigidbody2D ammunitionRB = ammunition.GetComponent<Rigidbody2D>();
