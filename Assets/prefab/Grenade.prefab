@@ -129,8 +129,9 @@ MonoBehaviour:
   damage: 0
   player: {fileID: 0}
   explosionRadius: 3
-  explosionDelay: 2
+  explosionDelay: 1
   explosionEffectPrefab: {fileID: 2734399000811168981, guid: 8f1909241d46de0479797b4d00550fa4, type: 3}
+  useExplosionDelay: 1
 --- !u!61 &2353740086293859589
 BoxCollider2D:
   m_ObjectHideFlags: 0

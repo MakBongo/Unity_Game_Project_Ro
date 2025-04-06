@@ -164,12 +164,18 @@ public class Shooting : MonoBehaviour
             ammunition.transform.rotation = firePoint.rotation;
             ammunition.SetActive(true);
 
-            // Use the Ammunition base class to set damage and player
             Ammunition ammunitionScript = ammunition.GetComponent<Ammunition>();
             if (ammunitionScript != null)
             {
                 ammunitionScript.damage = runtimeData.ammunitionDamage;
                 ammunitionScript.player = player;
+
+                // If it's a Grenade, set explosionDelay to ammunitionLifetime
+                Grenade grenadeScript = ammunitionScript as Grenade;
+                if (grenadeScript != null)
+                {
+                    grenadeScript.SetExplosionDelay(runtimeData.ammunitionLifetime);
+                }
             }
             else
             {

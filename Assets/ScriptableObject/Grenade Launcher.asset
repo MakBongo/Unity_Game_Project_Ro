@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ammunitionPrefab: {fileID: 71979686626409600, guid: 5e90cb7d41134e4498e865d51d34134a, type: 3}
   ammunitionDamage: 50
-  ammunitionSpeed: 10
-  firesPerMinute: 50
-  ammunitionLifetime: 2
+  ammunitionSpeed: 15
+  firesPerMinute: 100
+  ammunitionLifetime: 1.5
   magazineSize: 5
   reloadTime: 2

@@ -3548,7 +3548,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   firePoint: {fileID: 1013674465}
   firePointRadius: 0.5
-  weaponData: {fileID: 11400000, guid: cbbff848f61877542b0d36d2806508a8, type: 2}
+  weaponData: {fileID: 11400000, guid: 97385ee87fa92e741b9225650b84e43e, type: 2}
   ammunitionSpeedUpgrade: 1.1
   firesPerMinuteUpgrade: 1.1
   ammunitionLifetimeUpgrade: 1.1

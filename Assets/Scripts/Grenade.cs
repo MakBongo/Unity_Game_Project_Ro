@@ -3,7 +3,7 @@ using UnityEngine;
 public class Grenade : Ammunition
 {
     public float explosionRadius = 2f;
-    public float explosionDelay = 2f;
+    private float explosionDelay; // Set by Shooting
     public GameObject explosionEffectPrefab;
 
     private Rigidbody2D rb;
@@ -14,19 +14,26 @@ public class Grenade : Ammunition
         rb = GetComponent<Rigidbody2D>();
         if (rb == null)
         {
-            Debug.LogError("Grenade prefab requires a Rigidbody2D component!"); // Fixed missing parenthesis
+            Debug.LogError("Grenade prefab requires a Rigidbody2D component!");
         }
     }
 
     void OnEnable()
     {
         hasExploded = false;
-        Invoke(nameof(Explode), explosionDelay);
+        // Removed Invoke from here; it¡¦s now in SetExplosionDelay
     }
 
     void OnDisable()
     {
         CancelInvoke(nameof(Explode));
+    }
+
+    public void SetExplosionDelay(float delay)
+    {
+        explosionDelay = delay;
+        Debug.Log($"SetExplosionDelay called with delay = {delay}");
+        Invoke(nameof(Explode), explosionDelay); // Moved Invoke here
     }
 
     void Explode()
