@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a06ace543c774084793a8c169199b2e9, type: 3}
+  m_Name: Ts
+  m_EditorClassIdentifier: 
+  ammunitionPrefab: {fileID: 71979686626409600, guid: 5e90cb7d41134e4498e865d51d34134a, type: 3}
+  ammunitionDamage: 10
+  ammunitionSpeed: 10
+  firesPerMinute: 50
+  ammunitionLifetime: 2
+  magazineSize: 5
+  reloadTime: 2
