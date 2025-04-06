@@ -10,12 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a06ace543c774084793a8c169199b2e9, type: 3}
-  m_Name: Test Gun
+  m_Name: Assault Rifle
   m_EditorClassIdentifier: 
   ammunitionPrefab: {fileID: 71979686626409600, guid: 243e9c805720058429f44e784a5539e2, type: 3}
-  ammunitionDamage: 10
+  ammunitionDamage: 3
   ammunitionSpeed: 20
-  firesPerMinute: 300
-  ammunitionLifetime: 2
+  firesPerMinute: 600
+  ammunitionLifetime: 0.3
   magazineSize: 30
-  reloadTime: 2
+  reloadTime: 1.6

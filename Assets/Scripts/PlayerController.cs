@@ -30,7 +30,7 @@ public class PlayerController : MonoBehaviour
 
     [Header("Set Experience")]
     public int currentExp = 0;
-    public int maxExp = 100;
+    public int maxExp = 50;
     public int level = 1;
     private int highestLevel = 1; // Tracks the highest level reached
 
@@ -130,7 +130,7 @@ public class PlayerController : MonoBehaviour
         // Only increase maxExp every 10 levels by 20%
         if (level % 5 == 0)
         {
-            maxExp = Mathf.RoundToInt(maxExp * 1.2f);
+            maxExp = Mathf.RoundToInt(maxExp * 1.5f);
             Debug.Log($"Level {level} reached! Added 20% to max EXP. New max EXP: {maxExp}");
         }
 
