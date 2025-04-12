@@ -33,7 +33,6 @@ public class CanvasController : MonoBehaviour
 
     [Header("Pause UI")]
     public GameObject pausePanel;
-    private bool isPaused = false;
 
     private enum RoundUpgradeOption { Speed, Health, Damage }
     private RoundUpgradeOption[] roundUpgradeOptions = { RoundUpgradeOption.Speed, RoundUpgradeOption.Health, RoundUpgradeOption.Damage };
@@ -161,7 +160,7 @@ public class CanvasController : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.Escape) && !isShowingPanel)
         {
-            if (isPaused)
+            if (pausePanel != null && pausePanel.activeSelf)
             {
                 ResumeGame();
             }
@@ -227,7 +226,7 @@ public class CanvasController : MonoBehaviour
     {
         if (shooting != null)
         {
-            shooting.UpgradeAmmunitionDamage(); // Renamed from UpgradeBulletDamage
+            shooting.UpgradeAmmunitionDamage();
             CloseUpgradePanel();
         }
     }
@@ -338,7 +337,6 @@ public class CanvasController : MonoBehaviour
         {
             pausePanel.SetActive(true);
             Time.timeScale = 0f;
-            isPaused = true;
             Debug.Log("Game Paused");
         }
     }
@@ -349,7 +347,6 @@ public class CanvasController : MonoBehaviour
         {
             pausePanel.SetActive(false);
             Time.timeScale = 1f;
-            isPaused = false;
             Debug.Log("Game Resumed");
         }
     }

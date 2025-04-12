@@ -12,6 +12,12 @@ public class Shooting : MonoBehaviour
     public WeaponData weaponData;
     private WeaponData runtimeData;
 
+    [Header("Rotation Transition")]
+    public float rotationTransitionTime = 0.5f; // Duration of smooth transition after resuming
+    private Quaternion lastRotation; // Stores rotation before pause
+    private float transitionProgress = 1f; // 0 to 1, controls lerp progress
+    private bool wasPausedLastFrame = false; // Tracks pause state to detect resume
+
     private int poolSize;
     private float nextFireTime = 0f;
     private Queue<GameObject> ammunitionPool;
@@ -54,28 +60,80 @@ public class Shooting : MonoBehaviour
                 Debug.LogError("PlayerController not assigned and not found in parent!");
             }
         }
+
+        lastRotation = transform.rotation;
     }
 
     void Update()
     {
-        UpdateGunRotation();
+        bool isPaused = Time.timeScale == 0f;
 
-        if (!isReloading)
+        if (isPaused)
         {
-            if (Input.GetKey(KeyCode.Mouse0) && Time.time >= nextFireTime && currentAmmo > 0)
+            // Store the current rotation when entering pause
+            if (!wasPausedLastFrame)
             {
-                Shoot();
-                fireRate = 60f / runtimeData.firesPerMinute;
-                nextFireTime = Time.time + fireRate;
+                lastRotation = transform.rotation;
             }
-            else if (currentAmmo <= 0)
+            wasPausedLastFrame = true;
+        }
+        else
+        {
+            if (wasPausedLastFrame)
             {
-                StartCoroutine(Reload());
+                // Just resumed: start transition
+                transitionProgress = 0f;
+                wasPausedLastFrame = false;
             }
 
-            if (Input.GetKeyDown(KeyCode.R) && currentAmmo < runtimeData.magazineSize)
+            if (transitionProgress < 1f)
             {
-                StartCoroutine(Reload());
+                // Smoothly transition to the target rotation
+                transitionProgress += Time.deltaTime / rotationTransitionTime;
+                transitionProgress = Mathf.Clamp01(transitionProgress);
+
+                Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+                mousePos.z = 0f;
+                Vector2 direction = (mousePos - transform.position).normalized;
+                float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+                Quaternion targetRotation = Quaternion.Euler(0f, 0f, angle);
+
+                transform.rotation = Quaternion.Lerp(lastRotation, targetRotation, transitionProgress);
+
+                // Update facing direction during transition
+                if (direction.x > 0 && !faceRight)
+                {
+                    Flip();
+                }
+                else if (direction.x < 0 && faceRight)
+                {
+                    Flip();
+                }
+            }
+            else
+            {
+                // Normal rotation after transition is complete
+                UpdateGunRotation();
+            }
+
+            // Handle shooting and reloading only when not paused and not reloading
+            if (!isReloading)
+            {
+                if (Input.GetKey(KeyCode.Mouse0) && Time.time >= nextFireTime && currentAmmo > 0)
+                {
+                    Shoot();
+                    fireRate = 60f / runtimeData.firesPerMinute;
+                    nextFireTime = Time.time + fireRate;
+                }
+                else if (currentAmmo <= 0)
+                {
+                    StartCoroutine(Reload());
+                }
+
+                if (Input.GetKeyDown(KeyCode.R) && currentAmmo < runtimeData.magazineSize)
+                {
+                    StartCoroutine(Reload());
+                }
             }
         }
 
