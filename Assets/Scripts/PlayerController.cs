@@ -32,17 +32,23 @@ public class PlayerController : MonoBehaviour
     public int currentExp = 0;
     public int maxExp = 50;
     public int level = 1;
-    private int highestLevel = 1; // Tracks the highest level reached
+    private int highestLevel = 1;
 
     [Header("Set Shooting Reference")]
     public Shooting shooting;
 
     [Header("Set Money")]
-    public int money = 0; // Starting money
-    public float moneyMultiplier = 1f; // Multiplier for money gain
+    public int money = 0;
+    public float moneyMultiplier = 1f;
 
     [Header("Set Experience Multiplier")]
     public float expMultiplier = 1f;
+
+    [Header("Set Platform Pass-Through")]
+    public float dropDelay = 0.5f;
+    private bool isDropping = false;
+    private int playerLayer;
+    private int passThroughLayer;
 
     void Awake()
     {
@@ -64,6 +70,17 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    void Start()
+    {
+        // Cache layer IDs
+        playerLayer = LayerMask.NameToLayer("Player");
+        passThroughLayer = LayerMask.NameToLayer("PassThrough");
+        if (playerLayer == -1 || passThroughLayer == -1)
+        {
+            Debug.LogError("PlayerController: Ensure 'Player' and 'PassThrough' layers are defined in Layer settings!");
+        }
+    }
+
     void Update()
     {
         if (currentHealth <= 0)
@@ -77,6 +94,12 @@ public class PlayerController : MonoBehaviour
         {
             PlayerRB.velocity = new Vector2(PlayerRB.velocity.x, JumpForce);
             canJump = false;
+        }
+
+        // Check for platform drop, only when not paused
+        if ((Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.DownArrow)) && !isDropping && Time.timeScale > 0f)
+        {
+            StartCoroutine(DropThroughPlatform());
         }
     }
 
@@ -96,6 +119,19 @@ public class PlayerController : MonoBehaviour
         {
             canJump = true;
         }
+    }
+
+    private IEnumerator DropThroughPlatform()
+    {
+        isDropping = true;
+        gameObject.layer = passThroughLayer; // Switch to pass-through layer
+        Debug.Log("PlayerController: Dropping through platform");
+
+        yield return new WaitForSeconds(dropDelay);
+
+        gameObject.layer = playerLayer; // Restore original layer
+        isDropping = false;
+        Debug.Log("PlayerController: Restored player layer");
     }
 
     public void TakeDamage(int damage)
@@ -124,14 +160,13 @@ public class PlayerController : MonoBehaviour
 
     void LevelUp()
     {
-        level++; // Increment the player's level
-        currentExp -= maxExp; // Subtract the required EXP for the level-up
+        level++;
+        currentExp -= maxExp;
 
-        // Only increase maxExp every 10 levels by 20%
         if (level % 5 == 0)
         {
             maxExp = Mathf.RoundToInt(maxExp * 1.5f);
-            Debug.Log($"Level {level} reached! Added 20% to max EXP. New max EXP: {maxExp}");
+            Debug.Log($"Level {level} reached! Added 50% to max EXP. New max EXP: {maxExp}");
         }
 
         CanvasController canvas = FindObjectOfType<CanvasController>();
@@ -140,7 +175,6 @@ public class PlayerController : MonoBehaviour
             canvas.QueuePanel("PlayerLevelUp");
         }
 
-        // Update highest level if current level exceeds it
         if (level > highestLevel)
         {
             highestLevel = level;
@@ -166,7 +200,6 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    // Money methods
     public void AddMoney(int amount)
     {
         int scaledMoney = Mathf.RoundToInt(amount * moneyMultiplier);
@@ -179,7 +212,6 @@ public class PlayerController : MonoBehaviour
         return money;
     }
 
-    // Upgrade methods
     public void UpgradeMaxHealth()
     {
         maxHealth += 10;
@@ -210,7 +242,6 @@ public class PlayerController : MonoBehaviour
         Debug.Log($"Upgraded Money Multiplier to {moneyMultiplier:F2}");
     }
 
-    // Access methods
     public int GetCurrentHealth() { return Mathf.RoundToInt(currentHealth); }
     public int GetMaxHealth() { return maxHealth; }
     public void SetCurrentHealth(float health)
