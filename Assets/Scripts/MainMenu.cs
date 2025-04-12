@@ -17,8 +17,9 @@ public class MainMenu : MonoBehaviour
     public List<WeaponData> availableWeapons; // List of WeaponData SOs
 
     [Header("Scene Selection UI")]
-    public Button[] sceneButtons; // Assign buttons for each scene
-    public string[] sceneNames; // Corresponding scene names in Build Settings
+    public Transform sceneButtonParent; // Parent for dynamic scene buttons
+    public GameObject sceneButtonPrefab; // Prefab with Button and Text
+    public List<string> availableScenes; // List of scene names in Build Settings
 
     void Start()
     {
@@ -35,7 +36,7 @@ public class MainMenu : MonoBehaviour
         // Populate weapon selection buttons
         SetupWeaponButtons();
 
-        // Setup scene selection buttons
+        // Populate scene selection buttons
         SetupSceneButtons();
 
         // Ensure time scale is normal
@@ -110,33 +111,53 @@ public class MainMenu : MonoBehaviour
 
     void SetupSceneButtons()
     {
-        if (sceneButtons == null || sceneNames == null || sceneButtons.Length != sceneNames.Length)
+        if (sceneButtonParent == null || sceneButtonPrefab == null)
         {
-            Debug.LogError("MainMenu: SceneButtons or SceneNames not properly assigned or mismatched!");
+            Debug.LogError("MainMenu: SceneButtonParent or SceneButtonPrefab not assigned!");
             return;
         }
 
-        for (int i = 0; i < sceneButtons.Length; i++)
+        // Clear existing buttons
+        foreach (Transform child in sceneButtonParent)
         {
-            if (sceneButtons[i] == null || string.IsNullOrEmpty(sceneNames[i])) continue;
+            Destroy(child.gameObject);
+        }
 
-            int index = i;
-            sceneButtons[i].onClick.RemoveAllListeners();
-            sceneButtons[i].onClick.AddListener(() => OnSceneSelected(sceneNames[index]));
+        // Create a button for each scene
+        for (int i = 0; i < availableScenes.Count; i++)
+        {
+            if (string.IsNullOrEmpty(availableScenes[i])) continue;
 
-            Text text = sceneButtons[i].GetComponentInChildren<Text>();
-            TextMeshProUGUI tmpText = sceneButtons[i].GetComponentInChildren<TextMeshProUGUI>();
+            GameObject buttonObj = Instantiate(sceneButtonPrefab, sceneButtonParent);
+            string sceneName = availableScenes[i];
+
+            Button button = buttonObj.GetComponent<Button>();
+            if (button == null)
+            {
+                Debug.LogWarning($"MainMenu: Scene button prefab {buttonObj.name} missing Button component!");
+                continue;
+            }
+
+            Text text = buttonObj.GetComponentInChildren<Text>();
+            TextMeshProUGUI tmpText = buttonObj.GetComponentInChildren<TextMeshProUGUI>();
+
             if (text != null)
             {
-                text.text = sceneNames[i];
+                text.text = sceneName;
             }
             else if (tmpText != null)
             {
-                tmpText.text = sceneNames[i];
+                tmpText.text = sceneName;
             }
+            else
+            {
+                Debug.LogWarning($"MainMenu: Scene button {buttonObj.name} missing Text or TextMeshProUGUI!");
+            }
+
+            button.onClick.AddListener(() => OnSceneSelected(sceneName));
         }
 
-        Debug.Log($"MainMenu: Set up {sceneButtons.Length} scene buttons");
+        Debug.Log($"MainMenu: Created {availableScenes.Count} scene buttons");
     }
 
     void OnSceneSelected(string sceneName)
