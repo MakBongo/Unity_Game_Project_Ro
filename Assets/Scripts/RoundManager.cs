@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
 
-public class SceneManager : MonoBehaviour
+public class RoundManager : MonoBehaviour
 {
     [Header("Round Prefabs")]
     public GameObject[] tileMapPrefabs;

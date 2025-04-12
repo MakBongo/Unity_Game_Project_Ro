@@ -9,14 +9,14 @@ public class Shooting : MonoBehaviour
     public float firePointRadius = 0.5f;
 
     [Header("Weapon Data")]
-    public WeaponData weaponData;
+    public WeaponData weaponData; // Can be assigned in Inspector or set via GameData
     private WeaponData runtimeData;
 
     [Header("Rotation Transition")]
-    public float rotationTransitionTime = 0.5f; // Duration of smooth transition after resuming
-    private Quaternion lastRotation; // Stores rotation before pause
-    private float transitionProgress = 1f; // 0 to 1, controls lerp progress
-    private bool wasPausedLastFrame = false; // Tracks pause state to detect resume
+    public float rotationTransitionTime = 0.5f;
+    private Quaternion lastRotation;
+    private float transitionProgress = 1f;
+    private bool wasPausedLastFrame = false;
 
     private int poolSize;
     private float nextFireTime = 0f;
@@ -38,10 +38,16 @@ public class Shooting : MonoBehaviour
 
     void Start()
     {
+        // Use GameData if weaponData is not assigned
         if (weaponData == null)
         {
-            Debug.LogError("WeaponData not assigned in Shooting script!");
-            return;
+            weaponData = GameData.GetSelectedWeapon();
+            if (weaponData == null)
+            {
+                Debug.LogError("Shooting: No WeaponData assigned and none found in GameData!");
+                return;
+            }
+            Debug.Log($"Shooting: Using weapon {weaponData.name} from GameData");
         }
 
         runtimeData = Instantiate(weaponData);
@@ -70,7 +76,6 @@ public class Shooting : MonoBehaviour
 
         if (isPaused)
         {
-            // Store the current rotation when entering pause
             if (!wasPausedLastFrame)
             {
                 lastRotation = transform.rotation;
@@ -81,14 +86,12 @@ public class Shooting : MonoBehaviour
         {
             if (wasPausedLastFrame)
             {
-                // Just resumed: start transition
                 transitionProgress = 0f;
                 wasPausedLastFrame = false;
             }
 
             if (transitionProgress < 1f)
             {
-                // Smoothly transition to the target rotation
                 transitionProgress += Time.deltaTime / rotationTransitionTime;
                 transitionProgress = Mathf.Clamp01(transitionProgress);
 
@@ -100,7 +103,6 @@ public class Shooting : MonoBehaviour
 
                 transform.rotation = Quaternion.Lerp(lastRotation, targetRotation, transitionProgress);
 
-                // Update facing direction during transition
                 if (direction.x > 0 && !faceRight)
                 {
                     Flip();
@@ -112,11 +114,9 @@ public class Shooting : MonoBehaviour
             }
             else
             {
-                // Normal rotation after transition is complete
                 UpdateGunRotation();
             }
 
-            // Handle shooting and reloading only when not paused and not reloading
             if (!isReloading)
             {
                 if (Input.GetKey(KeyCode.Mouse0) && Time.time >= nextFireTime && currentAmmo > 0)
@@ -228,7 +228,6 @@ public class Shooting : MonoBehaviour
                 ammunitionScript.damage = runtimeData.ammunitionDamage;
                 ammunitionScript.player = player;
 
-                // If it's a Grenade, set explosionDelay to ammunitionLifetime
                 Grenade grenadeScript = ammunitionScript as Grenade;
                 if (grenadeScript != null)
                 {

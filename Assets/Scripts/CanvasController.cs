@@ -40,7 +40,7 @@ public class CanvasController : MonoBehaviour
 
     private UpgradeSystem.PlayerUpgradeOption[] currentPlayerOptions = new UpgradeSystem.PlayerUpgradeOption[3];
 
-    private SceneManager sceneManager;
+    private RoundManager roundManager;
     private Queue<string> panelQueue = new Queue<string>();
     private bool isShowingPanel = false;
 
@@ -80,13 +80,12 @@ public class CanvasController : MonoBehaviour
             }
         }
 
-        // Find SceneManager at start
-        if (sceneManager == null)
+        if (roundManager == null)
         {
-            sceneManager = FindObjectOfType<SceneManager>();
-            if (sceneManager == null)
+            roundManager = FindObjectOfType<RoundManager>();
+            if (roundManager == null)
             {
-                Debug.LogError("CanvasController: SceneManager not found!");
+                Debug.LogError("CanvasController: RoundManager not found!");
             }
         }
 
@@ -101,9 +100,9 @@ public class CanvasController : MonoBehaviour
         }
 
         // Initialize round text
-        if (sceneManager != null && roundText != null)
+        if (roundManager != null && roundText != null)
         {
-            roundText.text = $"Round: {sceneManager.GetCurrentRound()}";
+            roundText.text = $"Round: {roundManager.GetCurrentRound()}";
         }
 
         // Initialize level text
@@ -147,9 +146,9 @@ public class CanvasController : MonoBehaviour
         }
 
         // Update round text
-        if (sceneManager != null && roundText != null)
+        if (roundManager != null && roundText != null)
         {
-            roundText.text = $"Round: {sceneManager.GetCurrentRound()}";
+            roundText.text = $"Round: {roundManager.GetCurrentRound()}";
         }
 
         // Update level text
@@ -194,8 +193,8 @@ public class CanvasController : MonoBehaviour
                 ShowUpgradePanel();
                 break;
             case "RoundFinished":
-                sceneManager = FindObjectOfType<SceneManager>();
-                if (sceneManager != null)
+                roundManager = FindObjectOfType<RoundManager>();
+                if (roundManager != null)
                 {
                     ShowUpgradeDataPanel(); // Show player upgrades first
                 }
@@ -287,7 +286,7 @@ public class CanvasController : MonoBehaviour
     // Round complete panel (enemy upgrades)
     public void ShowRoundCompletePanel()
     {
-        if (roundCompletePanel != null && sceneManager != null)
+        if (roundCompletePanel != null && roundManager != null)
         {
             roundCompletePanel.SetActive(true);
             Time.timeScale = 0f;
@@ -321,9 +320,9 @@ public class CanvasController : MonoBehaviour
 
     void ApplyRoundUpgrade(RoundUpgradeOption option)
     {
-        if (sceneManager != null)
+        if (roundManager != null)
         {
-            sceneManager.ApplyUpgrade(option.ToString());
+            roundManager.ApplyUpgrade(option.ToString());
             roundCompletePanel.SetActive(false);
             Time.timeScale = 1f;
             isShowingPanel = false;
