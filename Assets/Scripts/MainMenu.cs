@@ -2,17 +2,14 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using System.Collections.Generic;
-using TMPro; // For TextMeshPro if used
+using TMPro;
 
 public class MainMenu : MonoBehaviour
 {
     [Header("UI Panels")]
-    public GameObject mainMenuPanel; // Contains Start Game button
+    public GameObject mainMenuPanel; // Contains a button calling StartGame
     public GameObject weaponSelectionPanel; // Shows weapon choices
     public GameObject sceneSelectionPanel; // Shows scene choices
-
-    [Header("Main Menu UI")]
-    public Button startGameButton;
 
     [Header("Weapon Selection UI")]
     public Transform weaponButtonParent; // Parent for dynamic weapon buttons
@@ -27,18 +24,13 @@ public class MainMenu : MonoBehaviour
     {
         // Initialize UI state
         if (mainMenuPanel != null) mainMenuPanel.SetActive(true);
-        if (weaponSelectionPanel != null) weaponSelectionPanel.SetActive(false);
-        if (sceneSelectionPanel != null) sceneSelectionPanel.SetActive(false);
+        else Debug.LogError("MainMenu: MainMenuPanel not assigned!");
 
-        // Setup Start Game button
-        if (startGameButton != null)
-        {
-            startGameButton.onClick.AddListener(OnStartGameClicked);
-        }
-        else
-        {
-            Debug.LogError("MainMenu: StartGameButton not assigned!");
-        }
+        if (weaponSelectionPanel != null) weaponSelectionPanel.SetActive(false);
+        else Debug.LogError("MainMenu: WeaponSelectionPanel not assigned!");
+
+        if (sceneSelectionPanel != null) sceneSelectionPanel.SetActive(false);
+        else Debug.LogError("MainMenu: SceneSelectionPanel not assigned!");
 
         // Populate weapon selection buttons
         SetupWeaponButtons();
@@ -46,15 +38,15 @@ public class MainMenu : MonoBehaviour
         // Setup scene selection buttons
         SetupSceneButtons();
 
-        // Ensure time scale is normal (in case returning from game)
+        // Ensure time scale is normal
         Time.timeScale = 1f;
     }
 
-    void OnStartGameClicked()
+    public void StartGame()
     {
         if (mainMenuPanel != null) mainMenuPanel.SetActive(false);
         if (weaponSelectionPanel != null) weaponSelectionPanel.SetActive(true);
-        Debug.Log("MainMenu: Start Game clicked, showing weapon selection");
+        Debug.Log("MainMenu: Start Game initiated, showing weapon selection");
     }
 
     void SetupWeaponButtons()
@@ -65,7 +57,7 @@ public class MainMenu : MonoBehaviour
             return;
         }
 
-        // Clear existing buttons (if any)
+        // Clear existing buttons
         foreach (Transform child in weaponButtonParent)
         {
             Destroy(child.gameObject);
@@ -79,7 +71,6 @@ public class MainMenu : MonoBehaviour
             GameObject buttonObj = Instantiate(weaponButtonPrefab, weaponButtonParent);
             WeaponData weapon = availableWeapons[i];
 
-            // Get Button component
             Button button = buttonObj.GetComponent<Button>();
             if (button == null)
             {
@@ -87,7 +78,6 @@ public class MainMenu : MonoBehaviour
                 continue;
             }
 
-            // Get Text component (Text or TextMeshProUGUI)
             Text text = buttonObj.GetComponentInChildren<Text>();
             TextMeshProUGUI tmpText = buttonObj.GetComponentInChildren<TextMeshProUGUI>();
 
@@ -104,7 +94,6 @@ public class MainMenu : MonoBehaviour
                 Debug.LogWarning($"MainMenu: Weapon button {buttonObj.name} missing Text or TextMeshProUGUI!");
             }
 
-            // Add click listener
             button.onClick.AddListener(() => OnWeaponSelected(weapon));
         }
 
@@ -131,11 +120,10 @@ public class MainMenu : MonoBehaviour
         {
             if (sceneButtons[i] == null || string.IsNullOrEmpty(sceneNames[i])) continue;
 
-            int index = i; // Capture for lambda
+            int index = i;
             sceneButtons[i].onClick.RemoveAllListeners();
             sceneButtons[i].onClick.AddListener(() => OnSceneSelected(sceneNames[index]));
 
-            // Update button text (optional, if not set in Inspector)
             Text text = sceneButtons[i].GetComponentInChildren<Text>();
             TextMeshProUGUI tmpText = sceneButtons[i].GetComponentInChildren<TextMeshProUGUI>();
             if (text != null)
