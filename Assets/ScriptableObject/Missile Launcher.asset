@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Missile Launcher
   m_EditorClassIdentifier: 
   ammunitionPrefab: {fileID: 487876291074108178, guid: 0447e07d50c432a4ca1a8e98c0219242, type: 3}
-  ammunitionDamage: 100
+  ammunitionDamage: 50
   ammunitionSpeed: 5
   firesPerMinute: 55
   ammunitionLifetime: 5
