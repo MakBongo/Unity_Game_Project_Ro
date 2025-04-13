@@ -17,5 +17,5 @@ MonoBehaviour:
   ammunitionSpeed: 5
   firesPerMinute: 55
   ammunitionLifetime: 5
-  magazineSize: 5
-  reloadTime: 2
+  magazineSize: 1
+  reloadTime: 4
