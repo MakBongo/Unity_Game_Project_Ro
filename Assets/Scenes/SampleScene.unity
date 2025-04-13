@@ -2453,6 +2453,7 @@ MonoBehaviour:
   money: 0
   moneyMultiplier: 1
   expMultiplier: 1
+  dropDelay: 0.5
 --- !u!212 &1152628165
 SpriteRenderer:
   m_ObjectHideFlags: 0

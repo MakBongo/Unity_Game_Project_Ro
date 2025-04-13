@@ -1,6 +1,6 @@
+using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 
 public class Shooting : MonoBehaviour
 {
@@ -9,7 +9,7 @@ public class Shooting : MonoBehaviour
     public float firePointRadius = 0.5f;
 
     [Header("Weapon Data")]
-    public WeaponData weaponData; // Can be assigned in Inspector or set via GameData
+    public WeaponData weaponData; // Inspector or GameData
     private WeaponData runtimeData;
 
     [Header("Rotation Transition")]
@@ -38,13 +38,12 @@ public class Shooting : MonoBehaviour
 
     void Start()
     {
-        // Use GameData if weaponData is not assigned
         if (weaponData == null)
         {
             weaponData = GameData.GetSelectedWeapon();
             if (weaponData == null)
             {
-                Debug.LogError("Shooting: No WeaponData assigned and none found in GameData!");
+                Debug.LogError("Shooting: No WeaponData assigned or found in GameData!");
                 return;
             }
             Debug.Log($"Shooting: Using weapon {weaponData.name} from GameData");
@@ -63,8 +62,13 @@ public class Shooting : MonoBehaviour
             player = GetComponentInParent<PlayerController>();
             if (player == null)
             {
-                Debug.LogError("PlayerController not assigned and not found in parent!");
+                Debug.LogError("Shooting: PlayerController not assigned or found in parent!");
             }
+        }
+
+        if (firePoint == null)
+        {
+            Debug.LogError("Shooting: FirePoint not assigned!");
         }
 
         lastRotation = transform.rotation;
@@ -81,59 +85,58 @@ public class Shooting : MonoBehaviour
                 lastRotation = transform.rotation;
             }
             wasPausedLastFrame = true;
+            return;
+        }
+
+        if (wasPausedLastFrame)
+        {
+            transitionProgress = 0f;
+            wasPausedLastFrame = false;
+        }
+
+        if (transitionProgress < 1f)
+        {
+            transitionProgress += Time.deltaTime / rotationTransitionTime;
+            transitionProgress = Mathf.Clamp01(transitionProgress);
+
+            Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            mousePos.z = 0f;
+            Vector2 direction = (mousePos - transform.position).normalized;
+            float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+            Quaternion targetRotation = Quaternion.Euler(0f, 0f, angle);
+
+            transform.rotation = Quaternion.Lerp(lastRotation, targetRotation, transitionProgress);
+
+            if (direction.x > 0 && !faceRight)
+            {
+                Flip();
+            }
+            else if (direction.x < 0 && faceRight)
+            {
+                Flip();
+            }
         }
         else
         {
-            if (wasPausedLastFrame)
+            UpdateGunRotation();
+        }
+
+        if (!isReloading)
+        {
+            if (Input.GetKey(KeyCode.Mouse0) && Time.time >= nextFireTime && currentAmmo > 0)
             {
-                transitionProgress = 0f;
-                wasPausedLastFrame = false;
+                Shoot();
+                fireRate = 60f / runtimeData.firesPerMinute;
+                nextFireTime = Time.time + fireRate;
+            }
+            else if (currentAmmo <= 0)
+            {
+                StartCoroutine(Reload());
             }
 
-            if (transitionProgress < 1f)
+            if (Input.GetKeyDown(KeyCode.R) && currentAmmo < runtimeData.magazineSize)
             {
-                transitionProgress += Time.deltaTime / rotationTransitionTime;
-                transitionProgress = Mathf.Clamp01(transitionProgress);
-
-                Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-                mousePos.z = 0f;
-                Vector2 direction = (mousePos - transform.position).normalized;
-                float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-                Quaternion targetRotation = Quaternion.Euler(0f, 0f, angle);
-
-                transform.rotation = Quaternion.Lerp(lastRotation, targetRotation, transitionProgress);
-
-                if (direction.x > 0 && !faceRight)
-                {
-                    Flip();
-                }
-                else if (direction.x < 0 && faceRight)
-                {
-                    Flip();
-                }
-            }
-            else
-            {
-                UpdateGunRotation();
-            }
-
-            if (!isReloading)
-            {
-                if (Input.GetKey(KeyCode.Mouse0) && Time.time >= nextFireTime && currentAmmo > 0)
-                {
-                    Shoot();
-                    fireRate = 60f / runtimeData.firesPerMinute;
-                    nextFireTime = Time.time + fireRate;
-                }
-                else if (currentAmmo <= 0)
-                {
-                    StartCoroutine(Reload());
-                }
-
-                if (Input.GetKeyDown(KeyCode.R) && currentAmmo < runtimeData.magazineSize)
-                {
-                    StartCoroutine(Reload());
-                }
+                StartCoroutine(Reload());
             }
         }
 
@@ -215,43 +218,66 @@ public class Shooting : MonoBehaviour
 
     void Shoot()
     {
-        if (ammunitionPool.Count > 0)
+        if (ammunitionPool.Count == 0)
         {
-            GameObject ammunition = ammunitionPool.Dequeue();
-            ammunition.transform.position = firePoint.position;
-            ammunition.transform.rotation = firePoint.rotation;
-            ammunition.SetActive(true);
-
-            Ammunition ammunitionScript = ammunition.GetComponent<Ammunition>();
-            if (ammunitionScript != null)
-            {
-                ammunitionScript.damage = runtimeData.ammunitionDamage;
-                ammunitionScript.player = player;
-
-                Grenade grenadeScript = ammunitionScript as Grenade;
-                if (grenadeScript != null)
-                {
-                    grenadeScript.SetExplosionDelay(runtimeData.ammunitionLifetime);
-                }
-            }
-            else
-            {
-                Debug.LogWarning("Ammunition prefab is missing an Ammunition component!");
-            }
-
-            Rigidbody2D ammunitionRB = ammunition.GetComponent<Rigidbody2D>();
-            Vector2 ammunitionDirection = transform.right;
-            ammunitionRB.velocity = ammunitionDirection * runtimeData.ammunitionSpeed;
-
-            currentAmmo--;
-            StartCoroutine(ReturnAmmunitionToPool(ammunition));
+            InitializeAmmunitionPool();
         }
+
+        GameObject ammunition = ammunitionPool.Dequeue();
+        ammunition.transform.position = firePoint.position;
+        ammunition.transform.rotation = firePoint.rotation;
+        ammunition.SetActive(true);
+
+        Ammunition ammunitionScript = ammunition.GetComponent<Ammunition>();
+        if (ammunitionScript != null)
+        {
+            ammunitionScript.damage = runtimeData.ammunitionDamage;
+            ammunitionScript.player = player;
+
+            Grenade grenadeScript = ammunitionScript as Grenade;
+            if (grenadeScript != null)
+            {
+                grenadeScript.SetExplosionDelay(runtimeData.ammunitionLifetime);
+            }
+
+            TrackingMissile missileScript = ammunitionScript as TrackingMissile;
+            if (missileScript != null)
+            {
+                missileScript.SetExplosionDelay(runtimeData.ammunitionLifetime);
+            }
+        }
+        else
+        {
+            Debug.LogWarning("Shooting: Ammunition prefab missing Ammunition component!");
+        }
+
+        Rigidbody2D ammunitionRB = ammunition.GetComponent<Rigidbody2D>();
+        if (ammunitionRB != null)
+        {
+            Vector2 direction = transform.right;
+            ammunitionRB.velocity = direction * runtimeData.ammunitionSpeed;
+        }
+        else
+        {
+            Debug.LogWarning("Shooting: Ammunition prefab missing Rigidbody2D!");
+        }
+
+        currentAmmo--;
+        StartCoroutine(ReturnAmmunitionToPool(ammunition));
     }
 
     IEnumerator ReturnAmmunitionToPool(GameObject ammunition)
     {
-        yield return new WaitForSeconds(runtimeData.ammunitionLifetime);
-        if (ammunition != null)
+        float elapsed = 0f;
+        while (elapsed < runtimeData.ammunitionLifetime)
+        {
+            if (Time.timeScale > 0f)
+            {
+                elapsed += Time.deltaTime;
+            }
+            yield return null;
+        }
+        if (ammunition != null && ammunition.activeSelf)
         {
             ammunition.SetActive(false);
             ammunitionPool.Enqueue(ammunition);
@@ -261,25 +287,33 @@ public class Shooting : MonoBehaviour
     IEnumerator Reload()
     {
         isReloading = true;
-        Debug.Log("Reloading...");
-        yield return new WaitForSeconds(runtimeData.reloadTime);
+        Debug.Log("Shooting: Reloading...");
+        float elapsed = 0f;
+        while (elapsed < runtimeData.reloadTime)
+        {
+            if (Time.timeScale > 0f)
+            {
+                elapsed += Time.deltaTime;
+            }
+            yield return null;
+        }
         CalculatePoolSize();
         AdjustPoolSize();
         currentAmmo = runtimeData.magazineSize;
         isReloading = false;
-        Debug.Log("Reload complete!");
+        Debug.Log("Shooting: Reload complete!");
     }
 
     public void UpgradeAmmunitionDamage()
     {
         runtimeData.ammunitionDamage += 2;
-        Debug.Log($"Upgraded Ammunition Damage to {runtimeData.ammunitionDamage}");
+        Debug.Log($"Shooting: Upgraded Ammunition Damage to {runtimeData.ammunitionDamage}");
     }
 
     public void UpgradeAmmunitionSpeed()
     {
         runtimeData.ammunitionSpeed *= ammunitionSpeedUpgrade;
-        Debug.Log($"Upgraded Ammunition Speed to {runtimeData.ammunitionSpeed:F2}");
+        Debug.Log($"Shooting: Upgraded Ammunition Speed to {runtimeData.ammunitionSpeed:F2}");
     }
 
     public void UpgradeFiresPerMinute()
@@ -288,7 +322,7 @@ public class Shooting : MonoBehaviour
         fireRate = 60f / runtimeData.firesPerMinute;
         CalculatePoolSize();
         AdjustPoolSize();
-        Debug.Log($"Upgraded Fires Per Minute to {runtimeData.firesPerMinute:F2}");
+        Debug.Log($"Shooting: Upgraded Fires Per Minute to {runtimeData.firesPerMinute:F2}");
     }
 
     public void UpgradeAmmunitionLifetime()
@@ -296,7 +330,7 @@ public class Shooting : MonoBehaviour
         runtimeData.ammunitionLifetime *= ammunitionLifetimeUpgrade;
         CalculatePoolSize();
         AdjustPoolSize();
-        Debug.Log($"Upgraded Ammunition Lifetime to {runtimeData.ammunitionLifetime:F2}");
+        Debug.Log($"Shooting: Upgraded Ammunition Lifetime to {runtimeData.ammunitionLifetime:F2}");
     }
 
     public void UpgradeMagazineSize()
@@ -304,13 +338,13 @@ public class Shooting : MonoBehaviour
         runtimeData.magazineSize = Mathf.RoundToInt(runtimeData.magazineSize * magazineSizeUpgrade);
         CalculatePoolSize();
         AdjustPoolSize();
-        Debug.Log($"Upgraded Magazine Size to {runtimeData.magazineSize}");
+        Debug.Log($"Shooting: Upgraded Magazine Size to {runtimeData.magazineSize}");
     }
 
     public void UpgradeReloadTime()
     {
         runtimeData.reloadTime *= reloadTimeUpgrade;
-        Debug.Log($"Upgraded Reload Time to {runtimeData.reloadTime:F2}");
+        Debug.Log($"Shooting: Upgraded Reload Time to {runtimeData.reloadTime:F2}");
     }
 
     public int GetCurrentAmmo() { return currentAmmo; }

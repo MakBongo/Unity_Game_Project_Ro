@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a06ace543c774084793a8c169199b2e9, type: 3}
+  m_Name: Missile Launcher
+  m_EditorClassIdentifier: 
+  ammunitionPrefab: {fileID: 487876291074108178, guid: 0447e07d50c432a4ca1a8e98c0219242, type: 3}
+  ammunitionDamage: 100
+  ammunitionSpeed: 5
+  firesPerMinute: 55
+  ammunitionLifetime: 5
+  magazineSize: 5
+  reloadTime: 2
