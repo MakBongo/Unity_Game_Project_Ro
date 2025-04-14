@@ -11,6 +11,7 @@ public class Shooting : MonoBehaviour
     [Header("Weapon Data")]
     public WeaponData weaponData; // Inspector or GameData
     private WeaponData runtimeData;
+    private WeaponData baseData; // Stores base stats
 
     [Header("Rotation Transition")]
     public float rotationTransitionTime = 0.5f;
@@ -27,11 +28,16 @@ public class Shooting : MonoBehaviour
     private bool faceRight = true;
 
     [Header("Upgrade Multipliers")]
-    public float ammunitionSpeedUpgrade = 1.1f;
-    public float firesPerMinuteUpgrade = 1.1f;
-    public float ammunitionLifetimeUpgrade = 1.1f;
-    public float magazineSizeUpgrade = 1.1f;
-    public float reloadTimeUpgrade = 0.9f;
+    public float ammunitionSpeedUpgrade = 0.1f;
+    public float firesPerMinuteUpgrade = 0.1f;
+    public float ammunitionLifetimeUpgrade = 0.1f;
+    public float magazineSizeUpgrade = 0.1f;
+    public float reloadTimeUpgrade = 0.1f;
+    private float ammunitionSpeedMultiplier = 0f;
+    private float firesPerMinuteMultiplier = 0f;
+    private float ammunitionLifetimeMultiplier = 0f;
+    private float magazineSizeMultiplier = 0f;
+    private float reloadTimeMultiplier = 1f;
 
     [Header("Player Reference")]
     public PlayerController player;
@@ -50,7 +56,7 @@ public class Shooting : MonoBehaviour
         }
 
         runtimeData = Instantiate(weaponData);
-
+        baseData = Instantiate(weaponData);
         ammunitionPool = new Queue<GameObject>();
         fireRate = 60f / runtimeData.firesPerMinute;
         CalculatePoolSize();
@@ -239,12 +245,6 @@ public class Shooting : MonoBehaviour
             {
                 grenadeScript.SetExplosionDelay(runtimeData.ammunitionLifetime);
             }
-
-            TrackingMissile missileScript = ammunitionScript as TrackingMissile;
-            if (missileScript != null)
-            {
-                missileScript.SetExplosionDelay(runtimeData.ammunitionLifetime);
-            }
         }
         else
         {
@@ -312,39 +312,54 @@ public class Shooting : MonoBehaviour
 
     public void UpgradeAmmunitionSpeed()
     {
-        runtimeData.ammunitionSpeed *= ammunitionSpeedUpgrade;
-        Debug.Log($"Shooting: Upgraded Ammunition Speed to {runtimeData.ammunitionSpeed:F2}");
+        ammunitionSpeedMultiplier += ammunitionSpeedUpgrade;
+        runtimeData.ammunitionSpeed = baseData.ammunitionSpeed +
+            (baseData.ammunitionSpeed * ammunitionSpeedMultiplier);
+        Debug.Log($"Shooting: Upgraded Ammunition Speed to {runtimeData.ammunitionSpeed:F2} " +
+            $"(Base: {baseData.ammunitionSpeed}, Multiplier: {ammunitionSpeedMultiplier:F2})");
     }
 
     public void UpgradeFiresPerMinute()
     {
-        runtimeData.firesPerMinute *= firesPerMinuteUpgrade;
+        firesPerMinuteMultiplier += firesPerMinuteUpgrade;
+        runtimeData.firesPerMinute = baseData.firesPerMinute +
+            (baseData.firesPerMinute * firesPerMinuteMultiplier);
         fireRate = 60f / runtimeData.firesPerMinute;
         CalculatePoolSize();
         AdjustPoolSize();
-        Debug.Log($"Shooting: Upgraded Fires Per Minute to {runtimeData.firesPerMinute:F2}");
+        Debug.Log($"Shooting: Upgraded Fires Per Minute to {runtimeData.firesPerMinute:F2} " +
+            $"(Base: {baseData.firesPerMinute}, Multiplier: {firesPerMinuteMultiplier:F2})");
     }
 
     public void UpgradeAmmunitionLifetime()
     {
-        runtimeData.ammunitionLifetime *= ammunitionLifetimeUpgrade;
+        ammunitionLifetimeMultiplier += ammunitionLifetimeUpgrade;
+        runtimeData.ammunitionLifetime = baseData.ammunitionLifetime +
+            (baseData.ammunitionLifetime * ammunitionLifetimeMultiplier);
         CalculatePoolSize();
         AdjustPoolSize();
-        Debug.Log($"Shooting: Upgraded Ammunition Lifetime to {runtimeData.ammunitionLifetime:F2}");
+        Debug.Log($"Shooting: Upgraded Ammunition Lifetime to {runtimeData.ammunitionLifetime:F2} " +
+            $"(Base: {baseData.ammunitionLifetime}, Multiplier: {ammunitionLifetimeMultiplier:F2})");
     }
 
     public void UpgradeMagazineSize()
     {
-        runtimeData.magazineSize = Mathf.RoundToInt(runtimeData.magazineSize * magazineSizeUpgrade);
+        magazineSizeMultiplier += magazineSizeUpgrade;
+        float newSize = baseData.magazineSize + (baseData.magazineSize * magazineSizeMultiplier);
+        runtimeData.magazineSize = Mathf.RoundToInt(newSize);
         CalculatePoolSize();
         AdjustPoolSize();
-        Debug.Log($"Shooting: Upgraded Magazine Size to {runtimeData.magazineSize}");
+        Debug.Log($"Shooting: Upgraded Magazine Size to {runtimeData.magazineSize} " +
+            $"(Base: {baseData.magazineSize}, Multiplier: {magazineSizeMultiplier:F2})");
     }
 
     public void UpgradeReloadTime()
     {
-        runtimeData.reloadTime *= reloadTimeUpgrade;
-        Debug.Log($"Shooting: Upgraded Reload Time to {runtimeData.reloadTime:F2}");
+        reloadTimeMultiplier -= reloadTimeUpgrade;
+        runtimeData.reloadTime = baseData.reloadTime * reloadTimeMultiplier;
+        runtimeData.reloadTime = Mathf.Max(0.1f, runtimeData.reloadTime);
+        Debug.Log($"Shooting: Upgraded Reload Time to {runtimeData.reloadTime:F2} " +
+            $"(Base: {baseData.reloadTime}, Multiplier: {reloadTimeMultiplier:F2})");
     }
 
     public int GetCurrentAmmo() { return currentAmmo; }
@@ -356,4 +371,11 @@ public class Shooting : MonoBehaviour
     public float GetAmmunitionLifetime() { return runtimeData.ammunitionLifetime; }
     public int GetMagazineSize() { return runtimeData.magazineSize; }
     public float GetReloadTime() { return runtimeData.reloadTime; }
+
+    // Getters for base stats
+    public float GetBaseAmmunitionSpeed() { return baseData.ammunitionSpeed; }
+    public float GetBaseFiresPerMinute() { return baseData.firesPerMinute; }
+    public float GetBaseAmmunitionLifetime() { return baseData.ammunitionLifetime; }
+    public int GetBaseMagazineSize() { return baseData.magazineSize; }
+    public float GetBaseReloadTime() { return baseData.reloadTime; }
 }

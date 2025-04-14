@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -14,8 +14,8 @@ public class PlayerController : MonoBehaviour
     private bool canJump = true;
 
     [Header("Set GroundCheck")]
-    public float rayLength = 0.2f;
-    public float rayOffset = 0.4f;
+    public float rayLength = 0.7f;
+    public float rayOffset = 0.5f;
     public LayerMask WhatIsGround;
     private bool isGrounded;
 
@@ -25,6 +25,8 @@ public class PlayerController : MonoBehaviour
 
     [Header("Healing")]
     public float healRate = 0.001f;
+    private float baseHealRate = 0.001f;
+    private float healRateMultiplier = 0f;
     private float healTimer = 0f;
     private float healInterval = 1f;
 
@@ -40,9 +42,13 @@ public class PlayerController : MonoBehaviour
     [Header("Set Money")]
     public int money = 0;
     public float moneyMultiplier = 1f;
+    private float baseMoneyMultiplier = 1f;
+    private float moneyMultiplierMultiplier = 0f;
 
     [Header("Set Experience Multiplier")]
     public float expMultiplier = 1f;
+    private float baseExpMultiplier = 1f;
+    private float expMultiplierMultiplier = 0f;
 
     [Header("Set Platform Pass-Through")]
     public float dropDelay = 0.5f;
@@ -54,6 +60,10 @@ public class PlayerController : MonoBehaviour
     {
         PlayerRB = GetComponent<Rigidbody2D>();
         currentHealth = maxHealth;
+
+        baseHealRate = healRate;
+        baseExpMultiplier = expMultiplier;
+        baseMoneyMultiplier = moneyMultiplier;
 
         if (shooting == null)
         {
@@ -72,7 +82,6 @@ public class PlayerController : MonoBehaviour
 
     void Start()
     {
-        // Cache layer IDs
         playerLayer = LayerMask.NameToLayer("Player");
         passThroughLayer = LayerMask.NameToLayer("PassThrough");
         if (playerLayer == -1 || passThroughLayer == -1)
@@ -96,7 +105,6 @@ public class PlayerController : MonoBehaviour
             canJump = false;
         }
 
-        // Check for platform drop, only when not paused
         if ((Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.DownArrow)) && !isDropping && Time.timeScale > 0f)
         {
             StartCoroutine(DropThroughPlatform());
@@ -124,12 +132,12 @@ public class PlayerController : MonoBehaviour
     private IEnumerator DropThroughPlatform()
     {
         isDropping = true;
-        gameObject.layer = passThroughLayer; // Switch to pass-through layer
+        gameObject.layer = passThroughLayer;
         Debug.Log("PlayerController: Dropping through platform");
 
         yield return new WaitForSeconds(dropDelay);
 
-        gameObject.layer = playerLayer; // Restore original layer
+        gameObject.layer = playerLayer;
         isDropping = false;
         Debug.Log("PlayerController: Restored player layer");
     }
@@ -226,20 +234,23 @@ public class PlayerController : MonoBehaviour
 
     public void UpgradeHealRate()
     {
-        healRate *= 1.1f;
-        Debug.Log($"Upgraded Heal Rate to {healRate:F4}");
+        healRateMultiplier += 0.1f;
+        healRate = baseHealRate + (baseHealRate * healRateMultiplier);
+        Debug.Log($"Upgraded Heal Rate to {healRate:F4} (Base: {baseHealRate:F4}, Multiplier: {healRateMultiplier:F2})");
     }
 
     public void UpgradeExpAmount()
     {
-        expMultiplier *= 1.1f;
-        Debug.Log($"Upgraded EXP Multiplier to {expMultiplier:F2}");
+        expMultiplierMultiplier += 0.1f;
+        expMultiplier = baseExpMultiplier + (baseExpMultiplier * expMultiplierMultiplier);
+        Debug.Log($"Upgraded EXP Multiplier to {expMultiplier:F2} (Base: {baseExpMultiplier:F2}, Multiplier: {expMultiplierMultiplier:F2})");
     }
 
     public void UpgradeMoneyAmount()
     {
-        moneyMultiplier *= 1.1f;
-        Debug.Log($"Upgraded Money Multiplier to {moneyMultiplier:F2}");
+        moneyMultiplierMultiplier += 0.1f;
+        moneyMultiplier = baseMoneyMultiplier + (baseMoneyMultiplier * moneyMultiplierMultiplier);
+        Debug.Log($"Upgraded Money Multiplier to {moneyMultiplier:F2} (Base: {baseMoneyMultiplier:F2}, Multiplier: {moneyMultiplierMultiplier:F2})");
     }
 
     public int GetCurrentHealth() { return Mathf.RoundToInt(currentHealth); }
@@ -259,6 +270,11 @@ public class PlayerController : MonoBehaviour
     {
         highestLevel = value;
     }
+
+    // Getters for base stats
+    public float GetBaseHealRate() { return baseHealRate; }
+    public float GetBaseExpMultiplier() { return baseExpMultiplier; }
+    public float GetBaseMoneyMultiplier() { return baseMoneyMultiplier; }
 
     void OnDrawGizmos()
     {

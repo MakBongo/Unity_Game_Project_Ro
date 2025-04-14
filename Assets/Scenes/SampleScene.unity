@@ -2349,7 +2349,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   moveSpeed: 5
   JumpForce: 10
-  rayLength: 0.69
+  rayLength: 0.7
   rayOffset: 0.5
   WhatIsGround:
     serializedVersion: 2
@@ -3653,13 +3653,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   firePoint: {fileID: 1013674465}
   firePointRadius: 0.5
-  weaponData: {fileID: 0}
-  rotationTransitionTime: 0.1
-  ammunitionSpeedUpgrade: 1.1
-  firesPerMinuteUpgrade: 1.1
-  ammunitionLifetimeUpgrade: 1.1
-  magazineSizeUpgrade: 1.1
-  reloadTimeUpgrade: 0.9
+  weaponData: {fileID: 11400000, guid: cbbff848f61877542b0d36d2806508a8, type: 2}
+  rotationTransitionTime: 0.5
+  ammunitionSpeedUpgrade: 0.1
+  firesPerMinuteUpgrade: 0.1
+  ammunitionLifetimeUpgrade: 0.1
+  magazineSizeUpgrade: 0.1
+  reloadTimeUpgrade: 0.1
   player: {fileID: 0}
 --- !u!1 &2137788441
 GameObject:
