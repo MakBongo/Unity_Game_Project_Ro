@@ -58,6 +58,7 @@ public class Shooting : MonoBehaviour
         runtimeData = Instantiate(weaponData);
         baseData = Instantiate(weaponData);
         ammunitionPool = new Queue<GameObject>();
+        ApplyShopUpgrades();
         fireRate = 60f / runtimeData.firesPerMinute;
         CalculatePoolSize();
         InitializeAmmunitionPool();
@@ -78,6 +79,28 @@ public class Shooting : MonoBehaviour
         }
 
         lastRotation = transform.rotation;
+    }
+
+    void ApplyShopUpgrades()
+    {
+        // Simulate loading SaveData
+        SaveData saveData = new SaveData();
+        if (saveData.ammunitionSpeedMultiplier == 0f) saveData.ammunitionSpeedMultiplier = 1f;
+        if (saveData.firesPerMinuteMultiplier == 0f) saveData.firesPerMinuteMultiplier = 1f;
+        if (saveData.ammunitionLifetimeMultiplier == 0f) saveData.ammunitionLifetimeMultiplier = 1f;
+        if (saveData.magazineSizeMultiplier == 0f) saveData.magazineSizeMultiplier = 1f;
+        if (saveData.reloadTimeMultiplier == 0f) saveData.reloadTimeMultiplier = 1f;
+
+        // Total Value = WeaponData * ShopSystem Upgrade * Random Upgrade Options
+        runtimeData.ammunitionDamage = Mathf.RoundToInt(runtimeData.ammunitionDamage * saveData.ammunitionSpeedMultiplier * (1f + ammunitionSpeedMultiplier));
+        runtimeData.ammunitionSpeed = runtimeData.ammunitionSpeed * saveData.ammunitionSpeedMultiplier * (1f + ammunitionSpeedMultiplier);
+        runtimeData.firesPerMinute = runtimeData.firesPerMinute * saveData.firesPerMinuteMultiplier * (1f + firesPerMinuteMultiplier);
+        runtimeData.ammunitionLifetime = runtimeData.ammunitionLifetime * saveData.ammunitionLifetimeMultiplier * (1f + ammunitionLifetimeMultiplier);
+        runtimeData.magazineSize = Mathf.RoundToInt(runtimeData.magazineSize * saveData.magazineSizeMultiplier * (1f + magazineSizeMultiplier));
+        runtimeData.reloadTime = runtimeData.reloadTime * saveData.reloadTimeMultiplier * reloadTimeMultiplier;
+        runtimeData.reloadTime = Mathf.Max(0.1f, runtimeData.reloadTime);
+
+        Debug.Log($"Shooting: Applied shop upgrades. Damage: {runtimeData.ammunitionDamage}, Speed: {runtimeData.ammunitionSpeed:F2}, FireRate: {runtimeData.firesPerMinute:F2}");
     }
 
     void Update()
@@ -313,53 +336,44 @@ public class Shooting : MonoBehaviour
     public void UpgradeAmmunitionSpeed()
     {
         ammunitionSpeedMultiplier += ammunitionSpeedUpgrade;
-        runtimeData.ammunitionSpeed = baseData.ammunitionSpeed +
-            (baseData.ammunitionSpeed * ammunitionSpeedMultiplier);
-        Debug.Log($"Shooting: Upgraded Ammunition Speed to {runtimeData.ammunitionSpeed:F2} " +
-            $"(Base: {baseData.ammunitionSpeed}, Multiplier: {ammunitionSpeedMultiplier:F2})");
+        runtimeData.ammunitionSpeed *= 1.1f;
+        Debug.Log($"Shooting: Upgraded Ammunition Speed to {runtimeData.ammunitionSpeed:F2} (Multiplier: {ammunitionSpeedMultiplier:F2})");
     }
 
     public void UpgradeFiresPerMinute()
     {
         firesPerMinuteMultiplier += firesPerMinuteUpgrade;
-        runtimeData.firesPerMinute = baseData.firesPerMinute +
-            (baseData.firesPerMinute * firesPerMinuteMultiplier);
+        runtimeData.firesPerMinute *= 1.1f;
         fireRate = 60f / runtimeData.firesPerMinute;
         CalculatePoolSize();
         AdjustPoolSize();
-        Debug.Log($"Shooting: Upgraded Fires Per Minute to {runtimeData.firesPerMinute:F2} " +
-            $"(Base: {baseData.firesPerMinute}, Multiplier: {firesPerMinuteMultiplier:F2})");
+        Debug.Log($"Shooting: Upgraded Fires Per Minute to {runtimeData.firesPerMinute:F2} (Multiplier: {firesPerMinuteMultiplier:F2})");
     }
 
     public void UpgradeAmmunitionLifetime()
     {
         ammunitionLifetimeMultiplier += ammunitionLifetimeUpgrade;
-        runtimeData.ammunitionLifetime = baseData.ammunitionLifetime +
-            (baseData.ammunitionLifetime * ammunitionLifetimeMultiplier);
+        runtimeData.ammunitionLifetime *= 1.1f;
         CalculatePoolSize();
         AdjustPoolSize();
-        Debug.Log($"Shooting: Upgraded Ammunition Lifetime to {runtimeData.ammunitionLifetime:F2} " +
-            $"(Base: {baseData.ammunitionLifetime}, Multiplier: {ammunitionLifetimeMultiplier:F2})");
+        Debug.Log($"Shooting: Upgraded Ammunition Lifetime to {runtimeData.ammunitionLifetime:F2} (Multiplier: {ammunitionLifetimeMultiplier:F2})");
     }
 
     public void UpgradeMagazineSize()
     {
         magazineSizeMultiplier += magazineSizeUpgrade;
-        float newSize = baseData.magazineSize + (baseData.magazineSize * magazineSizeMultiplier);
-        runtimeData.magazineSize = Mathf.RoundToInt(newSize);
+        runtimeData.magazineSize = Mathf.RoundToInt(runtimeData.magazineSize * 1.1f);
         CalculatePoolSize();
         AdjustPoolSize();
-        Debug.Log($"Shooting: Upgraded Magazine Size to {runtimeData.magazineSize} " +
-            $"(Base: {baseData.magazineSize}, Multiplier: {magazineSizeMultiplier:F2})");
+        Debug.Log($"Shooting: Upgraded Magazine Size to {runtimeData.magazineSize} (Multiplier: {magazineSizeMultiplier:F2})");
     }
 
     public void UpgradeReloadTime()
     {
         reloadTimeMultiplier -= reloadTimeUpgrade;
-        runtimeData.reloadTime = baseData.reloadTime * reloadTimeMultiplier;
+        runtimeData.reloadTime *= 0.9f;
         runtimeData.reloadTime = Mathf.Max(0.1f, runtimeData.reloadTime);
-        Debug.Log($"Shooting: Upgraded Reload Time to {runtimeData.reloadTime:F2} " +
-            $"(Base: {baseData.reloadTime}, Multiplier: {reloadTimeMultiplier:F2})");
+        Debug.Log($"Shooting: Upgraded Reload Time to {runtimeData.reloadTime:F2} (Multiplier: {reloadTimeMultiplier:F2})");
     }
 
     public int GetCurrentAmmo() { return currentAmmo; }
@@ -378,4 +392,11 @@ public class Shooting : MonoBehaviour
     public float GetBaseAmmunitionLifetime() { return baseData.ammunitionLifetime; }
     public int GetBaseMagazineSize() { return baseData.magazineSize; }
     public float GetBaseReloadTime() { return baseData.reloadTime; }
+
+    // Getters for multipliers
+    public float GetAmmunitionSpeedMultiplier() { return ammunitionSpeedMultiplier; }
+    public float GetFiresPerMinuteMultiplier() { return firesPerMinuteMultiplier; }
+    public float GetAmmunitionLifetimeMultiplier() { return ammunitionLifetimeMultiplier; }
+    public float GetMagazineSizeMultiplier() { return magazineSizeMultiplier; }
+    public float GetReloadTimeMultiplier() { return reloadTimeMultiplier; }
 }

@@ -5,5 +5,14 @@ public class SaveData
 {
     public int money;
     public int highestRound;
-    public int highestLevel; // New: Added to save highest player level
+    public int highestLevel;
+    // Shop upgrade multipliers
+    public float ammunitionSpeedMultiplier;
+    public float firesPerMinuteMultiplier;
+    public float ammunitionLifetimeMultiplier;
+    public float magazineSizeMultiplier;
+    public float reloadTimeMultiplier;
+    public float healRateMultiplier;
+    public float expMultiplier;
+    public float moneyMultiplier;
 }

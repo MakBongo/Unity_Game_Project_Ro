@@ -2,15 +2,14 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using System.Collections.Generic;
-using TMPro;
 
 public class MainMenu : MonoBehaviour
 {
     [Header("UI Panels")]
-    public GameObject mainMenuPanel; // Contains a button calling StartGame
+    public GameObject mainMenuPanel; // Contains buttons for StartGame and OpenShop
     public GameObject weaponSelectionPanel; // Shows weapon choices
     public GameObject sceneSelectionPanel; // Shows scene choices
-    public GameObject shopPanel; // New: Shop panel for future store functionality
+    public GameObject shopPanel; // Shop panel with ShopSystem
 
     [Header("Weapon Selection UI")]
     public Transform weaponButtonParent; // Parent for dynamic weapon buttons
@@ -98,19 +97,13 @@ public class MainMenu : MonoBehaviour
             }
 
             Text text = buttonObj.GetComponentInChildren<Text>();
-            TextMeshProUGUI tmpText = buttonObj.GetComponentInChildren<TextMeshProUGUI>();
-
             if (text != null)
             {
                 text.text = weapon.name;
             }
-            else if (tmpText != null)
-            {
-                tmpText.text = weapon.name;
-            }
             else
             {
-                Debug.LogWarning($"MainMenu: Weapon button {buttonObj.name} missing Text or TextMeshProUGUI!");
+                Debug.LogWarning($"MainMenu: Weapon button {buttonObj.name} missing Text!");
             }
 
             button.onClick.AddListener(() => OnWeaponSelected(weapon));
@@ -157,19 +150,13 @@ public class MainMenu : MonoBehaviour
             }
 
             Text text = buttonObj.GetComponentInChildren<Text>();
-            TextMeshProUGUI tmpText = buttonObj.GetComponentInChildren<TextMeshProUGUI>();
-
             if (text != null)
             {
                 text.text = sceneName;
             }
-            else if (tmpText != null)
-            {
-                tmpText.text = sceneName;
-            }
             else
             {
-                Debug.LogWarning($"MainMenu: Scene button {buttonObj.name} missing Text or TextMeshProUGUI!");
+                Debug.LogWarning($"MainMenu: Scene button {buttonObj.name} missing Text!");
             }
 
             button.onClick.AddListener(() => OnSceneSelected(sceneName));

@@ -71,13 +71,13 @@ public class UpgradeSystem : MonoBehaviour
                 float reloadReduce = shooting.GetBaseReloadTime() * 0.1f;
                 return $"Reload Time -{reloadReduce:F1} (Current: {shooting.GetReloadTime():F1})";
             case PlayerUpgradeOption.HealRate:
-                float healAdd = playerController.GetBaseHealRate() * 0.1f;
+                float healAdd = playerController.healRate * 0.1f; // Use current healRate
                 return $"Heal Rate +{healAdd:F4} (Current: {playerController.healRate:F4})";
             case PlayerUpgradeOption.ExpAmount:
-                float expAdd = playerController.GetBaseExpMultiplier() * 0.1f;
+                float expAdd = playerController.expMultiplier * 0.1f; // Use current expMultiplier
                 return $"EXP Gain +{expAdd:F2} (Current: {playerController.expMultiplier:F2})";
             case PlayerUpgradeOption.MoneyAmount:
-                float moneyAdd = playerController.GetBaseMoneyMultiplier() * 0.1f;
+                float moneyAdd = playerController.moneyMultiplier * 0.1f; // Use current moneyMultiplier
                 return $"Money Gain +{moneyAdd:F2} (Current: {playerController.moneyMultiplier:F2})";
             default:
                 return "";

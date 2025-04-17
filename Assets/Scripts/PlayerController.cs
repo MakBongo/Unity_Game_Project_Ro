@@ -25,7 +25,6 @@ public class PlayerController : MonoBehaviour
 
     [Header("Healing")]
     public float healRate = 0.001f;
-    private float baseHealRate = 0.001f;
     private float healRateMultiplier = 0f;
     private float healTimer = 0f;
     private float healInterval = 1f;
@@ -42,12 +41,10 @@ public class PlayerController : MonoBehaviour
     [Header("Set Money")]
     public int money = 0;
     public float moneyMultiplier = 1f;
-    private float baseMoneyMultiplier = 1f;
     private float moneyMultiplierMultiplier = 0f;
 
     [Header("Set Experience Multiplier")]
     public float expMultiplier = 1f;
-    private float baseExpMultiplier = 1f;
     private float expMultiplierMultiplier = 0f;
 
     [Header("Set Platform Pass-Through")]
@@ -61,23 +58,38 @@ public class PlayerController : MonoBehaviour
         PlayerRB = GetComponent<Rigidbody2D>();
         currentHealth = maxHealth;
 
-        baseHealRate = healRate;
-        baseExpMultiplier = expMultiplier;
-        baseMoneyMultiplier = moneyMultiplier;
-
         if (shooting == null)
         {
-            Debug.LogWarning("Shooting script not assigned in PlayerController! Attempting to find it...");
+            Debug.LogWarning("PlayerController: Shooting script not assigned! Attempting to find it...");
             shooting = GetComponentInChildren<Shooting>();
             if (shooting == null)
             {
-                Debug.LogError("Could not find Shooting script in children of PlayerController!");
+                Debug.LogError("PlayerController: Could not find Shooting script in children!");
             }
             else
             {
-                Debug.Log("Shooting script found in children!");
+                Debug.Log("PlayerController: Shooting script found in children!");
             }
         }
+
+        // Apply shop upgrades from SaveData
+        ApplyShopUpgrades();
+    }
+
+    void ApplyShopUpgrades()
+    {
+        // Simulate loading SaveData (in a real game, use PlayerPrefs or file)
+        SaveData saveData = new SaveData();
+        if (saveData.healRateMultiplier == 0f) saveData.healRateMultiplier = 1f;
+        if (saveData.expMultiplier == 0f) saveData.expMultiplier = 1f;
+        if (saveData.moneyMultiplier == 0f) saveData.moneyMultiplier = 1f;
+
+        // Total Value = WeaponData * ShopSystem Upgrade * Random Upgrade Options
+        healRate = healRate * saveData.healRateMultiplier * (1f + healRateMultiplier);
+        expMultiplier = expMultiplier * saveData.expMultiplier * (1f + expMultiplierMultiplier);
+        moneyMultiplier = moneyMultiplier * saveData.moneyMultiplier * (1f + moneyMultiplierMultiplier);
+
+        Debug.Log($"PlayerController: Applied shop upgrades. HealRate: {healRate:F4}, ExpMultiplier: {expMultiplier:F2}, MoneyMultiplier: {moneyMultiplier:F2}");
     }
 
     void Start()
@@ -146,12 +158,12 @@ public class PlayerController : MonoBehaviour
     {
         currentHealth -= damage;
         currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
-        Debug.Log($"Player took {damage} damage. Current health: {currentHealth}");
+        Debug.Log($"PlayerController: Player took {damage} damage. Current health: {currentHealth}");
     }
 
     void Die()
     {
-        Debug.Log("Player died!");
+        Debug.Log("PlayerController: Player died!");
         gameObject.SetActive(false);
     }
 
@@ -159,7 +171,7 @@ public class PlayerController : MonoBehaviour
     {
         int scaledExp = Mathf.RoundToInt(exp * expMultiplier);
         currentExp += scaledExp;
-        Debug.Log($"Gained {scaledExp} EXP (Base: {exp}, Multiplier: {expMultiplier:F2}). Current EXP: {currentExp}/{maxExp}");
+        Debug.Log($"PlayerController: Gained {scaledExp} EXP (Base: {exp}, Multiplier: {expMultiplier:F2}). Current EXP: {currentExp}/{maxExp}");
         while (currentExp >= maxExp)
         {
             LevelUp();
@@ -174,7 +186,7 @@ public class PlayerController : MonoBehaviour
         if (level % 5 == 0)
         {
             maxExp = Mathf.RoundToInt(maxExp * 1.5f);
-            Debug.Log($"Level {level} reached! Added 50% to max EXP. New max EXP: {maxExp}");
+            Debug.Log($"PlayerController: Level {level} reached! Added 50% to max EXP. New max EXP: {maxExp}");
         }
 
         CanvasController canvas = FindObjectOfType<CanvasController>();
@@ -186,10 +198,10 @@ public class PlayerController : MonoBehaviour
         if (level > highestLevel)
         {
             highestLevel = level;
-            Debug.Log($"New level record set! Highest Level: {highestLevel}");
+            Debug.Log($"PlayerController: New level record set! Highest Level: {highestLevel}");
         }
 
-        Debug.Log($"Leveled up to {level}! New max EXP: {maxExp}");
+        Debug.Log($"PlayerController: Leveled up to {level}! New max EXP: {maxExp}");
     }
 
     void HealOverTime()
@@ -203,7 +215,7 @@ public class PlayerController : MonoBehaviour
                 currentHealth += healAmount;
                 currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
                 healTimer = 0f;
-                Debug.Log($"Player healed by {healAmount:F2}. Current health: {currentHealth}");
+                Debug.Log($"PlayerController: Player healed by {healAmount:F2}. Current health: {currentHealth}");
             }
         }
     }
@@ -212,7 +224,7 @@ public class PlayerController : MonoBehaviour
     {
         int scaledMoney = Mathf.RoundToInt(amount * moneyMultiplier);
         money += scaledMoney;
-        Debug.Log($"Added {scaledMoney} money (Base: {amount}, Multiplier: {moneyMultiplier:F2}). Total money: {money}");
+        Debug.Log($"PlayerController: Added {scaledMoney} money (Base: {amount}, Multiplier: {moneyMultiplier:F2}). Total money: {money}");
     }
 
     public int GetMoney()
@@ -223,34 +235,34 @@ public class PlayerController : MonoBehaviour
     public void UpgradeMaxHealth()
     {
         maxHealth += 10;
-        Debug.Log($"Upgraded Max Health to {maxHealth}");
+        Debug.Log($"PlayerController: Upgraded Max Health to {maxHealth}");
     }
 
     public void UpgradeMoveSpeed()
     {
         moveSpeed += 1f;
-        Debug.Log($"Upgraded Move Speed to {moveSpeed}");
+        Debug.Log($"PlayerController: Upgraded Move Speed to {moveSpeed}");
     }
 
     public void UpgradeHealRate()
     {
         healRateMultiplier += 0.1f;
-        healRate = baseHealRate + (baseHealRate * healRateMultiplier);
-        Debug.Log($"Upgraded Heal Rate to {healRate:F4} (Base: {baseHealRate:F4}, Multiplier: {healRateMultiplier:F2})");
+        healRate *= 1.1f; // Apply random upgrade multiplier
+        Debug.Log($"PlayerController: Upgraded Heal Rate to {healRate:F4} (Multiplier: {healRateMultiplier:F2})");
     }
 
     public void UpgradeExpAmount()
     {
         expMultiplierMultiplier += 0.1f;
-        expMultiplier = baseExpMultiplier + (baseExpMultiplier * expMultiplierMultiplier);
-        Debug.Log($"Upgraded EXP Multiplier to {expMultiplier:F2} (Base: {baseExpMultiplier:F2}, Multiplier: {expMultiplierMultiplier:F2})");
+        expMultiplier *= 1.1f;
+        Debug.Log($"PlayerController: Upgraded EXP Multiplier to {expMultiplier:F2} (Multiplier: {expMultiplierMultiplier:F2})");
     }
 
     public void UpgradeMoneyAmount()
     {
         moneyMultiplierMultiplier += 0.1f;
-        moneyMultiplier = baseMoneyMultiplier + (baseMoneyMultiplier * moneyMultiplierMultiplier);
-        Debug.Log($"Upgraded Money Multiplier to {moneyMultiplier:F2} (Base: {baseMoneyMultiplier:F2}, Multiplier: {moneyMultiplierMultiplier:F2})");
+        moneyMultiplier *= 1.1f;
+        Debug.Log($"PlayerController: Upgraded Money Multiplier to {moneyMultiplier:F2} (Multiplier: {moneyMultiplierMultiplier:F2})");
     }
 
     public int GetCurrentHealth() { return Mathf.RoundToInt(currentHealth); }
@@ -271,10 +283,10 @@ public class PlayerController : MonoBehaviour
         highestLevel = value;
     }
 
-    // Getters for base stats
-    public float GetBaseHealRate() { return baseHealRate; }
-    public float GetBaseExpMultiplier() { return baseExpMultiplier; }
-    public float GetBaseMoneyMultiplier() { return baseMoneyMultiplier; }
+    // Getters for multipliers
+    public float GetHealRateMultiplier() { return healRateMultiplier; }
+    public float GetExpMultiplier() { return expMultiplier; }
+    public float GetMoneyMultiplier() { return moneyMultiplier; }
 
     void OnDrawGizmos()
     {
