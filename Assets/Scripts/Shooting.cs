@@ -83,8 +83,10 @@ public class Shooting : MonoBehaviour
 
     void ApplyShopUpgrades()
     {
-        // Simulate loading SaveData
-        SaveData saveData = new SaveData();
+        // Load SaveData from SaveGameManager
+        SaveData saveData = SaveGameManager.Instance.GetSaveData();
+
+        // Initialize default multipliers if not set
         if (saveData.ammunitionSpeedMultiplier == 0f) saveData.ammunitionSpeedMultiplier = 1f;
         if (saveData.firesPerMinuteMultiplier == 0f) saveData.firesPerMinuteMultiplier = 1f;
         if (saveData.ammunitionLifetimeMultiplier == 0f) saveData.ammunitionLifetimeMultiplier = 1f;

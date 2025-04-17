@@ -8,6 +8,7 @@ public class ShopSystem : MonoBehaviour
     public Text coinText; // Displays coin count
     public Transform upgradeButtonParent; // Parent for upgrade buttons
     public GameObject upgradeButtonPrefab; // Button prefab with Text components
+    public Button addMoneyButton; // Button to add 100 money
 
     [Header("Upgrade Settings")]
     public int basePrice = 100; // Initial price for each upgrade
@@ -27,6 +28,7 @@ public class ShopSystem : MonoBehaviour
         LoadSaveData();
         InitializeUpgrades();
         SetupUpgradeButtons();
+        SetupMoneyButton();
         UpdateCoinDisplay();
     }
 
@@ -112,6 +114,27 @@ public class ShopSystem : MonoBehaviour
         }
     }
 
+    void SetupMoneyButton()
+    {
+        if (addMoneyButton == null)
+        {
+            Debug.LogWarning("ShopSystem: AddMoneyButton not assigned in Inspector!");
+            return;
+        }
+
+        // Remove existing listeners to prevent duplicates
+        addMoneyButton.onClick.RemoveAllListeners();
+        // Add listener to call AddMoney
+        addMoneyButton.onClick.AddListener(AddMoney);
+
+        // Ensure the button has a Text component (optional, for labeling)
+        Text buttonText = addMoneyButton.GetComponentInChildren<Text>();
+        if (buttonText != null)
+        {
+            buttonText.text = "Add 100 Money";
+        }
+    }
+
     string GetUpgradeDisplayText(string option)
     {
         switch (option)
@@ -170,6 +193,14 @@ public class ShopSystem : MonoBehaviour
         {
             Debug.Log("ShopSystem: Not enough coins!");
         }
+    }
+
+    void AddMoney()
+    {
+        int currentMoney = SaveGameManager.Instance.GetMoney();
+        SaveGameManager.Instance.SetMoney(currentMoney + 100);
+        UpdateCoinDisplay();
+        Debug.Log($"ShopSystem: Added 100 money. New total: {SaveGameManager.Instance.GetMoney()}");
     }
 
     void UpdateCoinDisplay()
