@@ -20,13 +20,9 @@ public class RoundManager : MonoBehaviour
     private float healthMultiplier = 1f;
     private float damageMultiplier = 1f;
 
-    // Save file path
-    private string savePath;
-
     void Start()
     {
         player = FindObjectOfType<PlayerController>();
-        savePath = Path.Combine(Application.persistentDataPath, "saveData.json");
         LoadGame(); // Load money, highest round, and highest level
         GenerateRound();
     }
@@ -126,36 +122,22 @@ public class RoundManager : MonoBehaviour
             return;
         }
 
-        SaveData data = new SaveData
-        {
-            money = player.GetMoney(),
-            highestRound = highestRound,
-            highestLevel = player.GetHighestLevel() // New: Save highest level
-        };
-
-        string json = JsonUtility.ToJson(data, true);
-        File.WriteAllText(savePath, json);
-        Debug.Log("Game saved to: " + savePath);
+        SaveData data = SaveGameManager.Instance.GetSaveData();
+        data.money = player.GetMoney();
+        data.highestRound = highestRound;
+        data.highestLevel = player.GetHighestLevel();
+        SaveGameManager.Instance.SaveGame();
     }
 
     void LoadGame()
     {
-        if (File.Exists(savePath))
+        SaveData data = SaveGameManager.Instance.GetSaveData();
+        if (player != null)
         {
-            string json = File.ReadAllText(savePath);
-            SaveData data = JsonUtility.FromJson<SaveData>(json);
-
-            if (player != null)
-            {
-                player.AddMoney(data.money - player.GetMoney());
-                highestRound = data.highestRound;
-                player.SetHighestLevel(data.highestLevel); // New: Load highest level (requires setter)
-                Debug.Log($"Game loaded. Money set to: {player.GetMoney()}, Highest Round: {highestRound}, Highest Level: {player.GetHighestLevel()}");
-            }
-        }
-        else
-        {
-            Debug.Log("No save file found at: " + savePath);
+            player.AddMoney(data.money - player.GetMoney());
+            highestRound = data.highestRound;
+            player.SetHighestLevel(data.highestLevel);
+            Debug.Log($"Game loaded. Money set to: {player.GetMoney()}, Highest Round: {highestRound}, Highest Level: {player.GetHighestLevel()}");
         }
     }
 

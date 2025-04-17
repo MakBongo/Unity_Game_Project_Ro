@@ -57,6 +57,7 @@ public class PlayerController : MonoBehaviour
     {
         PlayerRB = GetComponent<Rigidbody2D>();
         currentHealth = maxHealth;
+        money = SaveGameManager.Instance.GetMoney(); // Initialize money from SaveGameManager
 
         if (shooting == null)
         {
@@ -78,8 +79,7 @@ public class PlayerController : MonoBehaviour
 
     void ApplyShopUpgrades()
     {
-        // Simulate loading SaveData (in a real game, use PlayerPrefs or file)
-        SaveData saveData = new SaveData();
+        SaveData saveData = SaveGameManager.Instance.GetSaveData();
         if (saveData.healRateMultiplier == 0f) saveData.healRateMultiplier = 1f;
         if (saveData.expMultiplier == 0f) saveData.expMultiplier = 1f;
         if (saveData.moneyMultiplier == 0f) saveData.moneyMultiplier = 1f;
@@ -224,6 +224,7 @@ public class PlayerController : MonoBehaviour
     {
         int scaledMoney = Mathf.RoundToInt(amount * moneyMultiplier);
         money += scaledMoney;
+        SaveGameManager.Instance.SetMoney(money); // Update SaveGameManager
         Debug.Log($"PlayerController: Added {scaledMoney} money (Base: {amount}, Multiplier: {moneyMultiplier:F2}). Total money: {money}");
     }
 

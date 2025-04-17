@@ -32,8 +32,12 @@ public class ShopSystem : MonoBehaviour
 
     void LoadSaveData()
     {
-        // In a real game, load from file/PlayerPrefs; here we simulate
-        saveData = new SaveData();
+        saveData = SaveGameManager.Instance.GetSaveData();
+        InitializeDefaultMultipliers();
+    }
+
+    void InitializeDefaultMultipliers()
+    {
         if (saveData.ammunitionSpeedMultiplier == 0f) saveData.ammunitionSpeedMultiplier = 1f;
         if (saveData.firesPerMinuteMultiplier == 0f) saveData.firesPerMinuteMultiplier = 1f;
         if (saveData.ammunitionLifetimeMultiplier == 0f) saveData.ammunitionLifetimeMultiplier = 1f;
@@ -136,9 +140,10 @@ public class ShopSystem : MonoBehaviour
     void PurchaseUpgrade(string option)
     {
         int price = upgradePrices[option];
-        if (saveData.money >= price)
+        int currentMoney = SaveGameManager.Instance.GetMoney();
+        if (currentMoney >= price)
         {
-            saveData.money -= price;
+            SaveGameManager.Instance.SetMoney(currentMoney - price);
             upgradeLevels[option]++;
             upgradeMultipliers[option] *= 1.25f;
             upgradePrices[option] = Mathf.FloorToInt(upgradePrices[option] * 1.5f);
@@ -158,6 +163,7 @@ public class ShopSystem : MonoBehaviour
 
             UpdateCoinDisplay();
             SetupUpgradeButtons();
+            SaveGameManager.Instance.SaveGame();
             Debug.Log($"ShopSystem: Purchased {option}. New multiplier: {upgradeMultipliers[option]:F2}, Next price: {upgradePrices[option]}");
         }
         else
@@ -170,7 +176,7 @@ public class ShopSystem : MonoBehaviour
     {
         if (coinText != null)
         {
-            coinText.text = $"Coins: {saveData.money}";
+            coinText.text = $"Coins: {SaveGameManager.Instance.GetMoney()}";
         }
         else
         {
