@@ -10,6 +10,7 @@ public class MainMenu : MonoBehaviour
     public GameObject mainMenuPanel; // Contains a button calling StartGame
     public GameObject weaponSelectionPanel; // Shows weapon choices
     public GameObject sceneSelectionPanel; // Shows scene choices
+    public GameObject shopPanel; // New: Shop panel for future store functionality
 
     [Header("Weapon Selection UI")]
     public Transform weaponButtonParent; // Parent for dynamic weapon buttons
@@ -33,6 +34,9 @@ public class MainMenu : MonoBehaviour
         if (sceneSelectionPanel != null) sceneSelectionPanel.SetActive(false);
         else Debug.LogError("MainMenu: SceneSelectionPanel not assigned!");
 
+        if (shopPanel != null) shopPanel.SetActive(false);
+        else Debug.LogError("MainMenu: ShopPanel not assigned!");
+
         // Populate weapon selection buttons
         SetupWeaponButtons();
 
@@ -48,6 +52,20 @@ public class MainMenu : MonoBehaviour
         if (mainMenuPanel != null) mainMenuPanel.SetActive(false);
         if (weaponSelectionPanel != null) weaponSelectionPanel.SetActive(true);
         Debug.Log("MainMenu: Start Game initiated, showing weapon selection");
+    }
+
+    public void OpenShop()
+    {
+        if (mainMenuPanel != null) mainMenuPanel.SetActive(false);
+        if (shopPanel != null) shopPanel.SetActive(true);
+        Debug.Log("MainMenu: Opened shop panel");
+    }
+
+    public void CloseShop()
+    {
+        if (shopPanel != null) shopPanel.SetActive(false);
+        if (mainMenuPanel != null) mainMenuPanel.SetActive(true);
+        Debug.Log("MainMenu: Closed shop panel, returned to main menu");
     }
 
     void SetupWeaponButtons()
