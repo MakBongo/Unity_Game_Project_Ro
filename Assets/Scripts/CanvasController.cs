@@ -39,6 +39,7 @@ public class CanvasController : MonoBehaviour
     public int initialReselectCost = 10; // Initial cost for reselecting upgrades
     private int currentReselectCost; // Tracks the current cost
     private int reselectCount; // Tracks number of reselections in the current panel
+    private const int maxReselectCost = 100; // Maximum reselect cost
 
     private enum RoundUpgradeOption { Speed, Health, Damage }
     private RoundUpgradeOption[] roundUpgradeOptions = { RoundUpgradeOption.Speed, RoundUpgradeOption.Health, RoundUpgradeOption.Damage };
@@ -219,7 +220,7 @@ public class CanvasController : MonoBehaviour
         }
     }
 
-    // Player level-up panel (for player leveling up, not round completion)
+    // Player level-up panel (for player leveling up, not round completion
     public void ShowUpgradePanel()
     {
         if (upgradePanel != null)
@@ -314,14 +315,14 @@ public class CanvasController : MonoBehaviour
             RefreshUpgradeOptions(); // Get new upgrade options
             reselectCount++;
 
-            // Update reselect cost
+            // Update reselect cost with maximum cap
             if (reselectCount == 1)
             {
-                currentReselectCost += 5; // First reselect: add 5
+                currentReselectCost = Mathf.Min(currentReselectCost + 5, maxReselectCost); // First reselect: add 5
             }
             else
             {
-                currentReselectCost = Mathf.RoundToInt(currentReselectCost * 1.5f); // Subsequent reselections: increase by 50%
+                currentReselectCost = Mathf.Min(Mathf.RoundToInt(currentReselectCost * 1.5f), maxReselectCost); // Subsequent reselections: increase by 50%
             }
 
             Debug.Log($"Upgrades reselected for {currentReselectCost} coins. Reselection #{reselectCount}. Next cost: {currentReselectCost}");
