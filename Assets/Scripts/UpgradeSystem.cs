@@ -5,6 +5,12 @@ public class UpgradeSystem : MonoBehaviour
     public PlayerController playerController;
     public Shooting shooting;
 
+    [Header("Reselect Settings")]
+    public int initialReselectCost = 5; // Initial cost for reselecting upgrades
+    private int currentReselectCost; // Tracks the current cost
+    private int reselectCount; // Tracks number of reselections in the current panel
+    private const int maxReselectCost = 100; // Maximum reselect cost
+
     public enum PlayerUpgradeOption { AmmunitionSpeed, FiresPerMinute, AmmunitionLifetime, MagazineSize, ReloadTime, HealRate, ExpAmount, MoneyAmount }
     private PlayerUpgradeOption[] playerUpgradeOptions = {
         PlayerUpgradeOption.AmmunitionSpeed, PlayerUpgradeOption.FiresPerMinute, PlayerUpgradeOption.AmmunitionLifetime,
@@ -31,6 +37,10 @@ public class UpgradeSystem : MonoBehaviour
                 Debug.LogError("UpgradeSystem: Shooting script not found!");
             }
         }
+
+        // Initialize reselect cost
+        currentReselectCost = initialReselectCost;
+        reselectCount = 0;
     }
 
     public PlayerUpgradeOption[] GetRandomUpgradeOptions(int count = 3)
@@ -103,5 +113,55 @@ public class UpgradeSystem : MonoBehaviour
             case PlayerUpgradeOption.ExpAmount: playerController.UpgradeExpAmount(); break;
             case PlayerUpgradeOption.MoneyAmount: playerController.UpgradeMoneyAmount(); break;
         }
+    }
+
+    public void ResetReselectState()
+    {
+        currentReselectCost = initialReselectCost;
+        reselectCount = 0;
+        Debug.Log($"Reselect state reset. Cost: {currentReselectCost}, Count: {reselectCount}");
+    }
+
+    public bool TryReselectUpgrades()
+    {
+        if (playerController == null)
+        {
+            Debug.LogError("Cannot reselect upgrades: PlayerController is missing!");
+            return false;
+        }
+
+        if (playerController.GetMoney() >= currentReselectCost)
+        {
+            playerController.AddMoney(-currentReselectCost); // Deduct coins
+            reselectCount++;
+
+            // Update reselect cost with maximum cap
+            if (reselectCount == 1)
+            {
+                currentReselectCost = Mathf.Min(currentReselectCost + 5, maxReselectCost); // First reselect: add 5
+            }
+            else
+            {
+                currentReselectCost = Mathf.Min(Mathf.RoundToInt(currentReselectCost * 1.5f), maxReselectCost); // Subsequent reselections: increase by 50%
+            }
+
+            Debug.Log($"Upgrades reselected for {currentReselectCost} coins. Reselection #{reselectCount}. Next cost: {currentReselectCost}");
+            return true;
+        }
+        else
+        {
+            Debug.Log("Not enough coins to reselect upgrades!");
+            return false;
+        }
+    }
+
+    public int GetCurrentReselectCost()
+    {
+        return currentReselectCost;
+    }
+
+    public bool CanAffordReselect()
+    {
+        return playerController != null && playerController.GetMoney() >= currentReselectCost;
     }
 }

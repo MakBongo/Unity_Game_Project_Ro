@@ -1523,7 +1523,6 @@ MonoBehaviour:
   enemiesUpgradesOption1Button: {fileID: 582227563}
   enemiesUpgradesOption2Button: {fileID: 195737231}
   pausePanel: {fileID: 560070907}
-  initialReselectCost: 5
 --- !u!114 &636802630
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3890,6 +3889,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playerController: {fileID: 0}
   shooting: {fileID: 0}
+  initialReselectCost: 5
 --- !u!1 &2061546256
 GameObject:
   m_ObjectHideFlags: 0
