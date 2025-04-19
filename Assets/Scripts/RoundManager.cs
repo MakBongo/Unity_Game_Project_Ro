@@ -14,6 +14,7 @@ public class RoundManager : MonoBehaviour
     private GameObject currentTileMap;
     private PlayerController player;
     private bool roundCompleted = false;
+    private int lastTileMapIndex = -1; // Track the last used tile map index
 
     // Upgrade multipliers tracked in memory
     private float speedMultiplier = 1f;
@@ -43,7 +44,14 @@ public class RoundManager : MonoBehaviour
             Destroy(currentTileMap);
         }
 
-        int randomIndex = Random.Range(0, tileMapPrefabs.Length);
+        // Select a random tile map index different from the last one
+        int randomIndex;
+        do
+        {
+            randomIndex = Random.Range(0, tileMapPrefabs.Length);
+        } while (randomIndex == lastTileMapIndex && tileMapPrefabs.Length > 1); // Ensure different index unless only one prefab exists
+        lastTileMapIndex = randomIndex; // Update the last used index
+
         currentTileMap = Instantiate(tileMapPrefabs[randomIndex], Vector3.zero, Quaternion.identity);
 
         activeEnemies.Clear();
