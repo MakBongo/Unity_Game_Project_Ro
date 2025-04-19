@@ -39,6 +39,15 @@ public class RoundManager : MonoBehaviour
 
     void GenerateRound()
     {
+        // Clean up items in the "Item" layer
+        foreach (GameObject obj in FindObjectsOfType<GameObject>())
+        {
+            if (obj.layer == LayerMask.NameToLayer("Item"))
+            {
+                Destroy(obj);
+            }
+        }
+
         if (currentTileMap != null)
         {
             Destroy(currentTileMap);
