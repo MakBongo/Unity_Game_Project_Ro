@@ -1523,7 +1523,7 @@ MonoBehaviour:
   option1Button: {fileID: 582227563}
   option2Button: {fileID: 195737231}
   pausePanel: {fileID: 560070907}
-  reselectCost: 10
+  initialReselectCost: 5
 --- !u!114 &636802630
 MonoBehaviour:
   m_ObjectHideFlags: 0

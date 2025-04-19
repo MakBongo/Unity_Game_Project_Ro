@@ -25,7 +25,7 @@ public class CanvasController : MonoBehaviour
     public Button upgradeOption1Button;
     public Button upgradeOption2Button;
     public Button upgradeOption3Button;
-    public Button reselectButton; // New button for reselecting upgrades
+    public Button reselectButton; // Button for reselecting upgrades
     public GameObject roundCompletePanel;
     public Text option1Text;
     public Text option2Text;
@@ -36,7 +36,9 @@ public class CanvasController : MonoBehaviour
     public GameObject pausePanel;
 
     [Header("Reselect Settings")]
-    public int reselectCost = 10; // Cost in coins to reselect upgrades
+    public int initialReselectCost = 10; // Initial cost for reselecting upgrades
+    private int currentReselectCost; // Tracks the current cost
+    private int reselectCount; // Tracks number of reselections in the current panel
 
     private enum RoundUpgradeOption { Speed, Health, Damage }
     private RoundUpgradeOption[] roundUpgradeOptions = { RoundUpgradeOption.Speed, RoundUpgradeOption.Health, RoundUpgradeOption.Damage };
@@ -119,6 +121,7 @@ public class CanvasController : MonoBehaviour
         if (reselectButton != null)
         {
             reselectButton.onClick.AddListener(ReselectUpgrades);
+            currentReselectCost = initialReselectCost; // Initialize cost
             UpdateReselectButtonState();
         }
     }
@@ -272,6 +275,9 @@ public class CanvasController : MonoBehaviour
             roundCompletePanel.SetActive(false); // Ensure enemy upgrade panel is hidden
             Time.timeScale = 0f;
 
+            // Reset reselect cost and count
+            currentReselectCost = initialReselectCost;
+            reselectCount = 0;
             RefreshUpgradeOptions();
 
             upgradeOption1Button.onClick.RemoveAllListeners();
@@ -290,25 +296,35 @@ public class CanvasController : MonoBehaviour
         upgradeOption1Text.text = upgradeSystem.GetPlayerUpgradeText(currentPlayerOptions[0]);
         upgradeOption2Text.text = upgradeSystem.GetPlayerUpgradeText(currentPlayerOptions[1]);
         upgradeOption3Text.text = upgradeSystem.GetPlayerUpgradeText(currentPlayerOptions[2]);
-    }
 
-    void ApplyPlayerUpgrade(UpgradeSystem.PlayerUpgradeOption option)
-    {
-        if (upgradeSystem != null)
-        {
-            upgradeSystem.ApplyPlayerUpgrade(option);
-            upgradeDataPanel.SetActive(false);
-            ShowRoundCompletePanel(); // Proceed to enemy upgrades after player upgrade
-        }
+        UpdateReselectButtonState();
     }
 
     void ReselectUpgrades()
     {
-        if (playerController != null && playerController.GetMoney() >= reselectCost)
+        if (playerController == null || upgradeSystem == null)
         {
-            playerController.AddMoney(-reselectCost); // Deduct coins
+            Debug.LogError("Cannot reselect upgrades: PlayerController or UpgradeSystem is missing!");
+            return;
+        }
+
+        if (playerController.GetMoney() >= currentReselectCost)
+        {
+            playerController.AddMoney(-currentReselectCost); // Deduct coins
             RefreshUpgradeOptions(); // Get new upgrade options
-            Debug.Log($"Upgrades reselected for {reselectCost} coins. New options assigned.");
+            reselectCount++;
+
+            // Update reselect cost
+            if (reselectCount == 1)
+            {
+                currentReselectCost += 5; // First reselect: add 5
+            }
+            else
+            {
+                currentReselectCost = Mathf.RoundToInt(currentReselectCost * 1.5f); // Subsequent reselections: increase by 50%
+            }
+
+            Debug.Log($"Upgrades reselected for {currentReselectCost} coins. Reselection #{reselectCount}. Next cost: {currentReselectCost}");
         }
         else
         {
@@ -320,13 +336,23 @@ public class CanvasController : MonoBehaviour
     {
         if (reselectButton != null)
         {
-            bool canAfford = playerController != null && playerController.GetMoney() >= reselectCost;
+            bool canAfford = playerController != null && playerController.GetMoney() >= currentReselectCost;
             reselectButton.interactable = canAfford;
             Text buttonText = reselectButton.GetComponentInChildren<Text>();
             if (buttonText != null)
             {
-                buttonText.text = $"Reselect Upgrades (Cost: {reselectCost} Coins)";
+                buttonText.text = $"Reselect Upgrades (Cost: {currentReselectCost} Coins)";
             }
+        }
+    }
+
+    void ApplyPlayerUpgrade(UpgradeSystem.PlayerUpgradeOption option)
+    {
+        if (upgradeSystem != null)
+        {
+            upgradeSystem.ApplyPlayerUpgrade(option);
+            upgradeDataPanel.SetActive(false);
+            ShowRoundCompletePanel(); // Proceed to enemy upgrades after player upgrade
         }
     }
 
