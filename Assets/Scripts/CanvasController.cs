@@ -11,14 +11,19 @@ public class CanvasController : MonoBehaviour
     public Text displayText;
     public Slider healthSlider;
     public Slider expSlider;
-    public GameObject upgradePanel;
     public Text coinText;
     public Text roundText; // Text field for displaying round number
     public Text levelText; // Text field for displaying player level
+
+    [Header("Level Up UI")]
+    public GameObject upgradePanel;
     public UpgradeSystem upgradeSystem;
 
-    [Header("Round Complete UI")]
+    [Header("Round Complete Panel")]
     public GameObject upgradeDataPanel;
+    public GameObject enemiesUpgradePanel;
+
+    [Header("Random Upgrades Button")]
     public Text upgradeOption1Text;
     public Text upgradeOption2Text;
     public Text upgradeOption3Text;
@@ -26,11 +31,12 @@ public class CanvasController : MonoBehaviour
     public Button upgradeOption2Button;
     public Button upgradeOption3Button;
     public Button reselectButton; // Button for reselecting upgrades
-    public GameObject roundCompletePanel;
-    public Text option1Text;
-    public Text option2Text;
-    public Button option1Button;
-    public Button option2Button;
+
+    [Header("Enemies Upgrades Button")]
+    public Text enemiesUpgradesOption1Text;
+    public Text enemiesUpgradesOption2Text;
+    public Button enemiesUpgradesOption1Button;
+    public Button enemiesUpgradesOption2Button;
 
     [Header("Pause UI")]
     public GameObject pausePanel;
@@ -98,7 +104,7 @@ public class CanvasController : MonoBehaviour
 
         if (upgradePanel != null) upgradePanel.SetActive(false);
         if (upgradeDataPanel != null) upgradeDataPanel.SetActive(false);
-        if (roundCompletePanel != null) roundCompletePanel.SetActive(false);
+        if (enemiesUpgradePanel != null) enemiesUpgradePanel.SetActive(false);
         if (pausePanel != null) pausePanel.SetActive(false);
 
         if (playerController != null && coinText != null)
@@ -273,7 +279,7 @@ public class CanvasController : MonoBehaviour
         if (upgradeDataPanel != null && upgradeSystem != null)
         {
             upgradeDataPanel.SetActive(true);
-            roundCompletePanel.SetActive(false); // Ensure enemy upgrade panel is hidden
+            enemiesUpgradePanel.SetActive(false); // Ensure enemy upgrade panel is hidden
             Time.timeScale = 0f;
 
             // Reset reselect cost and count
@@ -360,9 +366,9 @@ public class CanvasController : MonoBehaviour
     // Round complete panel (enemy upgrades)
     public void ShowRoundCompletePanel()
     {
-        if (roundCompletePanel != null && roundManager != null)
+        if (enemiesUpgradePanel != null && roundManager != null)
         {
-            roundCompletePanel.SetActive(true);
+            enemiesUpgradePanel.SetActive(true);
             Time.timeScale = 0f;
 
             currentRoundOptions[0] = roundUpgradeOptions[Random.Range(0, roundUpgradeOptions.Length)];
@@ -371,13 +377,13 @@ public class CanvasController : MonoBehaviour
                 currentRoundOptions[1] = roundUpgradeOptions[Random.Range(0, roundUpgradeOptions.Length)];
             } while (currentRoundOptions[1] == currentRoundOptions[0]);
 
-            option1Text.text = GetRoundUpgradeText(currentRoundOptions[0]);
-            option2Text.text = GetRoundUpgradeText(currentRoundOptions[1]);
+            enemiesUpgradesOption1Text.text = GetRoundUpgradeText(currentRoundOptions[0]);
+            enemiesUpgradesOption2Text.text = GetRoundUpgradeText(currentRoundOptions[1]);
 
-            option1Button.onClick.RemoveAllListeners();
-            option2Button.onClick.RemoveAllListeners();
-            option1Button.onClick.AddListener(() => ApplyRoundUpgrade(currentRoundOptions[0]));
-            option2Button.onClick.AddListener(() => ApplyRoundUpgrade(currentRoundOptions[1]));
+            enemiesUpgradesOption1Button.onClick.RemoveAllListeners();
+            enemiesUpgradesOption2Button.onClick.RemoveAllListeners();
+            enemiesUpgradesOption1Button.onClick.AddListener(() => ApplyRoundUpgrade(currentRoundOptions[0]));
+            enemiesUpgradesOption2Button.onClick.AddListener(() => ApplyRoundUpgrade(currentRoundOptions[1]));
         }
     }
 
@@ -397,7 +403,7 @@ public class CanvasController : MonoBehaviour
         if (roundManager != null)
         {
             roundManager.ApplyUpgrade(option.ToString());
-            roundCompletePanel.SetActive(false);
+            enemiesUpgradePanel.SetActive(false);
             Time.timeScale = 1f;
             isShowingPanel = false;
         }

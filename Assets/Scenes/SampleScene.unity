@@ -1504,12 +1504,13 @@ MonoBehaviour:
   displayText: {fileID: 1469829164}
   healthSlider: {fileID: 385258299}
   expSlider: {fileID: 1295847685}
-  upgradePanel: {fileID: 969192772}
   coinText: {fileID: 2061546257}
   roundText: {fileID: 2100466674}
   levelText: {fileID: 908379058}
+  upgradePanel: {fileID: 969192772}
   upgradeSystem: {fileID: 0}
   upgradeDataPanel: {fileID: 772365286}
+  enemiesUpgradePanel: {fileID: 1007451109}
   upgradeOption1Text: {fileID: 615991798}
   upgradeOption2Text: {fileID: 1535857195}
   upgradeOption3Text: {fileID: 642570089}
@@ -1517,11 +1518,10 @@ MonoBehaviour:
   upgradeOption2Button: {fileID: 2137788445}
   upgradeOption3Button: {fileID: 570779685}
   reselectButton: {fileID: 1242445241}
-  roundCompletePanel: {fileID: 1007451109}
-  option1Text: {fileID: 211140703}
-  option2Text: {fileID: 1301968775}
-  option1Button: {fileID: 582227563}
-  option2Button: {fileID: 195737231}
+  enemiesUpgradesOption1Text: {fileID: 211140703}
+  enemiesUpgradesOption2Text: {fileID: 1301968775}
+  enemiesUpgradesOption1Button: {fileID: 582227563}
+  enemiesUpgradesOption2Button: {fileID: 195737231}
   pausePanel: {fileID: 560070907}
   initialReselectCost: 5
 --- !u!114 &636802630
@@ -2180,7 +2180,7 @@ GameObject:
   - component: {fileID: 1007451112}
   - component: {fileID: 1007451111}
   m_Layer: 5
-  m_Name: EnemyPanel
+  m_Name: Enemy Upgrades Panel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4226,7 +4226,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   firePoint: {fileID: 1013674465}
   firePointRadius: 0.5
-  weaponData: {fileID: 11400000, guid: cbbff848f61877542b0d36d2806508a8, type: 2}
+  weaponData: {fileID: 11400000, guid: 67611e0593903e349a8742333ac7b0f7, type: 2}
   rotationTransitionTime: 0.5
   ammunitionSpeedUpgrade: 0.1
   firesPerMinuteUpgrade: 0.1
