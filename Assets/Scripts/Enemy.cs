@@ -111,8 +111,6 @@ public class Enemy : MonoBehaviour
             }
         }
 
-        Debug.Log($"Mode: {currentMode}, Time since player left: {timeSincePlayerLeftRange:F2}");
-
         switch (currentMode)
         {
             case EnemyMode.Patrol:
@@ -152,12 +150,10 @@ public class Enemy : MonoBehaviour
                 if (Vector2.Distance(transform.position, patrolPointA.position) < 0.5f)
                 {
                     targetPatrolPoint = patrolPointB.position;
-                    Debug.Log("Switching to Patrol Point B");
                 }
                 else if (Vector2.Distance(transform.position, patrolPointB.position) < 0.5f)
                 {
                     targetPatrolPoint = patrolPointA.position;
-                    Debug.Log("Switching to Patrol Point A");
                 }
             }
         }
@@ -199,7 +195,6 @@ public class Enemy : MonoBehaviour
     void Jump()
     {
         enemyRB.velocity = new Vector2(enemyRB.velocity.x, jumpForce);
-        Debug.Log("Enemy jumped!");
     }
 
     bool ShouldJump(Vector2 targetPosition)
@@ -220,7 +215,6 @@ public class Enemy : MonoBehaviour
     {
         isDropping = true;
         gameObject.layer = passThroughLayer;
-        Debug.Log("Enemy dropping through platform!");
         yield return new WaitForSeconds(dropDelay);
         gameObject.layer = enemyLayer;
         isDropping = false;

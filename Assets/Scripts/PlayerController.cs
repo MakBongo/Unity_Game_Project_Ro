@@ -145,13 +145,11 @@ public class PlayerController : MonoBehaviour
     {
         isDropping = true;
         gameObject.layer = passThroughLayer;
-        Debug.Log("PlayerController: Dropping through platform");
 
         yield return new WaitForSeconds(dropDelay);
 
         gameObject.layer = playerLayer;
         isDropping = false;
-        Debug.Log("PlayerController: Restored player layer");
     }
 
     public void TakeDamage(int damage)
@@ -215,7 +213,6 @@ public class PlayerController : MonoBehaviour
                 currentHealth += healAmount;
                 currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
                 healTimer = 0f;
-                Debug.Log($"PlayerController: Player healed by {healAmount:F2}. Current health: {currentHealth}");
             }
         }
     }
