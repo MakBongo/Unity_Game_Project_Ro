@@ -14,6 +14,7 @@ public class CanvasController : MonoBehaviour
     public Text coinText;
     public Text roundText; // Text field for displaying round number
     public Text levelText; // Text field for displaying player level
+    public Text scoreText; // Text field for displaying score
 
     [Header("Level Up UI")]
     public GameObject upgradePanel;
@@ -118,6 +119,16 @@ public class CanvasController : MonoBehaviour
             levelText.text = $"Level: {playerController.GetLevel()}";
         }
 
+        // Initialize score text
+        if (roundManager != null && scoreText != null)
+        {
+            scoreText.text = $"Score: {roundManager.GetScore()}";
+        }
+        else if (scoreText == null)
+        {
+            Debug.LogWarning("CanvasController: ScoreText reference not set in Inspector!");
+        }
+
         // Set up reselect button listener
         if (reselectButton != null)
         {
@@ -169,6 +180,12 @@ public class CanvasController : MonoBehaviour
         if (playerController != null && levelText != null)
         {
             levelText.text = $"Level: {playerController.GetLevel()}";
+        }
+
+        // Update score text
+        if (roundManager != null && scoreText != null)
+        {
+            scoreText.text = $"Score: {roundManager.GetScore()}";
         }
 
         if (Input.GetKeyDown(KeyCode.Escape) && !isShowingPanel)
