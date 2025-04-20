@@ -10,6 +10,7 @@ public class RoundManager : MonoBehaviour
 
     private int currentRound = 1;
     private int highestRound = 0;
+    private int score = 0; // Current score for the session
     private List<Enemy> activeEnemies = new List<Enemy>();
     private GameObject currentTileMap;
     private PlayerController player;
@@ -24,7 +25,7 @@ public class RoundManager : MonoBehaviour
     void Start()
     {
         player = FindObjectOfType<PlayerController>();
-        LoadGame(); // Load money, highest round, and highest level
+        LoadGame(); // Load money, highest round, highest level, and highest score
         GenerateRound();
     }
 
@@ -93,13 +94,14 @@ public class RoundManager : MonoBehaviour
         if (player != null)
         {
             player.AddMoney(10);
+            score += 50; // Add 50 points for completing the round
             if (currentRound > highestRound)
             {
                 highestRound = currentRound;
                 Debug.Log($"New record set! Highest Round: {highestRound}");
             }
-            SaveGame(); // Save money, highest round, and highest level
-            Debug.Log($"Round {currentRound} completed! Money increased by 10. Total money: {player.GetMoney()}");
+            SaveGame(); // Save money, highest round, highest level, and highest score
+            Debug.Log($"Round {currentRound} completed! Money increased by 10. Total money: {player.GetMoney()}, Score: {score}");
         }
 
         CanvasController canvas = FindObjectOfType<CanvasController>();
@@ -143,6 +145,11 @@ public class RoundManager : MonoBehaviour
         data.money = player.GetMoney();
         data.highestRound = highestRound;
         data.highestLevel = player.GetHighestLevel();
+        if (score > data.highestScore) // Only update if current score is higher
+        {
+            data.highestScore = score;
+            Debug.Log($"New highest score saved: {data.highestScore}");
+        }
         SaveGameManager.Instance.SaveGame();
     }
 
@@ -154,7 +161,7 @@ public class RoundManager : MonoBehaviour
             player.AddMoney(data.money - player.GetMoney());
             highestRound = data.highestRound;
             player.SetHighestLevel(data.highestLevel);
-            Debug.Log($"Game loaded. Money set to: {player.GetMoney()}, Highest Round: {highestRound}, Highest Level: {player.GetHighestLevel()}");
+            Debug.Log($"Game loaded. Money set to: {player.GetMoney()}, Highest Round: {highestRound}, Highest Score: {data.highestScore}, Highest Level: {player.GetHighestLevel()}");
         }
     }
 
@@ -171,5 +178,10 @@ public class RoundManager : MonoBehaviour
     public int GetCurrentRound()
     {
         return currentRound;
+    }
+
+    public int GetScore()
+    {
+        return score;
     }
 }

@@ -30,12 +30,13 @@ public class SaveGameManager : MonoBehaviour
         {
             string json = File.ReadAllText(savePath);
             saveData = JsonUtility.FromJson<SaveData>(json);
-            Debug.Log($"SaveGameManager: Loaded save data. Money: {saveData.money}");
+            Debug.Log($"SaveGameManager: Loaded save data. Money: {saveData.money}, Highest Score: {saveData.highestScore}");
         }
         else
         {
             saveData = new SaveData();
             InitializeDefaultMultipliers();
+            saveData.highestScore = 0; // Initialize highestScore to 0
             Debug.Log("SaveGameManager: No save file found, initialized new SaveData");
         }
     }
@@ -73,5 +74,10 @@ public class SaveGameManager : MonoBehaviour
     public int GetMoney()
     {
         return saveData.money;
+    }
+
+    public int GetHighestScore()
+    {
+        return saveData.highestScore;
     }
 }

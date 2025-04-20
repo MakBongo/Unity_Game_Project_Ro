@@ -6,6 +6,7 @@ public class SaveData
     public int money;
     public int highestRound;
     public int highestLevel;
+    public int highestScore; // Changed from score to highestScore
     // Shop upgrade multipliers
     public float ammunitionSpeedMultiplier;
     public float firesPerMinuteMultiplier;
