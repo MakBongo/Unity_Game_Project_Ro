@@ -12,6 +12,7 @@ public class PlayerController : MonoBehaviour
     [Header("Set Jump")]
     public float JumpForce = 10;
     private bool canJump = true;
+    private bool isJumpingThrough = false; // Track if jumping through platform
 
     [Header("Set GroundCheck")]
     public float rayLength = 0.7f;
@@ -115,6 +116,9 @@ public class PlayerController : MonoBehaviour
         {
             PlayerRB.velocity = new Vector2(PlayerRB.velocity.x, JumpForce);
             canJump = false;
+            isJumpingThrough = true;
+            gameObject.layer = passThroughLayer; // Instantly switch to PassThrough layer
+            Debug.Log("PlayerController: Jumping, set to PassThrough layer.");
         }
 
         if ((Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.DownArrow)) && !isDropping && Time.timeScale > 0f)
@@ -138,6 +142,13 @@ public class PlayerController : MonoBehaviour
         if (!wasGrounded && isGrounded)
         {
             canJump = true;
+            if (isJumpingThrough)
+            {
+                // Revert layer when landing
+                gameObject.layer = playerLayer;
+                isJumpingThrough = false;
+                Debug.Log("PlayerController: Landed, reverted to Player layer.");
+            }
         }
     }
 
