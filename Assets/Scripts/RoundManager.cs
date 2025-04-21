@@ -25,7 +25,7 @@ public class RoundManager : MonoBehaviour
 
     // Timer for Boss Round
     public float bossRoundTimer = 900f; // 15 minutes in seconds
-    private bool isBossRoundTriggered = false; // Flag to indicate next round is Boss Round
+    public bool isBossRoundTriggered = false; // Changed to public to allow CanvasController access
     private bool isBossRoundActive = false; // Flag to track if current round is Boss Round
 
     void Start()
@@ -59,7 +59,7 @@ public class RoundManager : MonoBehaviour
         // Clean up items in the "Item" layer
         foreach (GameObject obj in FindObjectsOfType<GameObject>())
         {
-            if (obj.layer == LayerMask.NameToLayer("Item")) // Fixed typo: Removed negative sign
+            if (obj.layer == LayerMask.NameToLayer("Item"))
             {
                 Destroy(obj);
             }

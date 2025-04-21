@@ -14,7 +14,7 @@ public class Shooting : MonoBehaviour
     private WeaponData baseData; // Stores base stats
 
     [Header("Rotation Transition")]
-    public float rotationTransitionTime = 0.5f;
+    public float rotationTransitionTime = 0.1f;
     private Quaternion lastRotation;
     private float transitionProgress = 1f;
     private bool wasPausedLastFrame = false;

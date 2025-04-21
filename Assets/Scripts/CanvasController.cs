@@ -15,6 +15,7 @@ public class CanvasController : MonoBehaviour
     public Text roundText; // Text field for displaying round number
     public Text levelText; // Text field for displaying player level
     public Text scoreText; // Text field for displaying score
+    public Text bossTimerText; // Text field for displaying Boss Round timer
 
     [Header("Level Up UI")]
     public GameObject upgradePanel;
@@ -51,6 +52,7 @@ public class CanvasController : MonoBehaviour
     private RoundManager roundManager;
     private Queue<string> panelQueue = new Queue<string>();
     private bool isShowingPanel = false;
+    private float timerElapsed = 0f; // Track elapsed time for Boss Round timer
 
     void Start()
     {
@@ -129,6 +131,12 @@ public class CanvasController : MonoBehaviour
             Debug.LogWarning("CanvasController: ScoreText reference not set in Inspector!");
         }
 
+        // Initialize boss timer text
+        if (bossTimerText == null)
+        {
+            Debug.LogWarning("CanvasController: BossTimerText reference not set in Inspector!");
+        }
+
         // Set up reselect button listener
         if (reselectButton != null)
         {
@@ -186,6 +194,23 @@ public class CanvasController : MonoBehaviour
         if (roundManager != null && scoreText != null)
         {
             scoreText.text = $"Score: {roundManager.GetScore()}";
+        }
+
+        // Update boss timer text
+        if (roundManager != null && bossTimerText != null)
+        {
+            if (roundManager.isBossRoundTriggered)
+            {
+                bossTimerText.text = "Next round is Boss Round";
+            }
+            else
+            {
+                timerElapsed += Time.deltaTime;
+                float timeRemaining = Mathf.Max(0f, roundManager.bossRoundTimer - timerElapsed);
+                int minutes = Mathf.FloorToInt(timeRemaining / 60f);
+                int seconds = Mathf.FloorToInt(timeRemaining % 60f);
+                bossTimerText.text = $"Boss Round In: {minutes:D2}:{seconds:D2}";
+            }
         }
 
         if (Input.GetKeyDown(KeyCode.Escape) && !isShowingPanel)
@@ -328,8 +353,8 @@ public class CanvasController : MonoBehaviour
     {
         if (reselectButton != null && upgradeSystem != null)
         {
-            bool canAfford = upgradeSystem.CanAffordReselect();
-            reselectButton.interactable = canAfford;
+            bool library = upgradeSystem.CanAffordReselect();
+            reselectButton.interactable = library;
             Text buttonText = reselectButton.GetComponentInChildren<Text>();
             if (buttonText != null)
             {
