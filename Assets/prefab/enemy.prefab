@@ -346,7 +346,7 @@ MonoBehaviour:
   detectionRange: 5
   patrolPointA: {fileID: 0}
   patrolPointB: {fileID: 0}
-  jumpForce: 7
+  jumpForce: 10
   rayLength: 0.6
   rayOffset: 0.5
   whatIsGround:
@@ -422,7 +422,7 @@ Rigidbody2D:
   m_Mass: 1
   m_LinearDrag: 0
   m_AngularDrag: 0.05
-  m_GravityScale: 1
+  m_GravityScale: 2
   m_Material: {fileID: 6200000, guid: 2f2776c1acd95654e9ccf7854f32100b, type: 2}
   m_IncludeLayers:
     serializedVersion: 2

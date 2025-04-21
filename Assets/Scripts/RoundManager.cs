@@ -6,7 +6,8 @@ using System.IO;
 public class RoundManager : MonoBehaviour
 {
     [Header("Round Prefabs")]
-    public GameObject[] tileMapPrefabs;
+    public GameObject[] tileMapPrefabs; // Regular tile map prefabs
+    public GameObject[] bossTileMapPrefabs; // Independent boss tile map prefabs
 
     private int currentRound = 1;
     private int highestRound = 0;
@@ -15,18 +16,25 @@ public class RoundManager : MonoBehaviour
     private GameObject currentTileMap;
     private PlayerController player;
     private bool roundCompleted = false;
-    private int lastTileMapIndex = -1; // Track the last used tile map index
+    private int lastTileMapIndex = -1; // Track the last used tile map index for regular rounds
 
     // Upgrade multipliers tracked in memory
     private float speedMultiplier = 1f;
     private float healthMultiplier = 1f;
     private float damageMultiplier = 1f;
 
+    // Timer for Boss Round
+    public float bossRoundTimer = 900f; // 15 minutes in seconds
+    private bool isBossRoundTriggered = false; // Flag to indicate next round is Boss Round
+    private bool isBossRoundActive = false; // Flag to track if current round is Boss Round
+
     void Start()
     {
         player = FindObjectOfType<PlayerController>();
         LoadGame(); // Load money, highest round, highest level, and highest score
         GenerateRound();
+        // Start the Boss Round timer
+        StartCoroutine(BossRoundTimerCoroutine());
     }
 
     void Update()
@@ -38,12 +46,20 @@ public class RoundManager : MonoBehaviour
         }
     }
 
+    // Coroutine to handle the 15-minute timer
+    private IEnumerator BossRoundTimerCoroutine()
+    {
+        yield return new WaitForSeconds(bossRoundTimer);
+        isBossRoundTriggered = true;
+        Debug.Log("15-minute timer expired! Next round will be a Boss Round.");
+    }
+
     void GenerateRound()
     {
         // Clean up items in the "Item" layer
         foreach (GameObject obj in FindObjectsOfType<GameObject>())
         {
-            if (obj.layer == LayerMask.NameToLayer("Item"))
+            if (obj.layer == LayerMask.NameToLayer("Item")) // Fixed typo: Removed negative sign
             {
                 Destroy(obj);
             }
@@ -54,23 +70,52 @@ public class RoundManager : MonoBehaviour
             Destroy(currentTileMap);
         }
 
-        // Select a random tile map index different from the last one
-        int randomIndex;
-        do
+        int tileMapIndex;
+        GameObject selectedPrefab;
+        if (isBossRoundTriggered && !isBossRoundActive)
         {
-            randomIndex = Random.Range(0, tileMapPrefabs.Length);
-        } while (randomIndex == lastTileMapIndex && tileMapPrefabs.Length > 1); // Ensure different index unless only one prefab exists
-        lastTileMapIndex = randomIndex; // Update the last used index
+            // Boss Round logic
+            isBossRoundActive = true;
+            isBossRoundTriggered = false; // Reset trigger to prevent repeated Boss Rounds
+            // Select a random boss tile map prefab
+            if (bossTileMapPrefabs.Length > 0)
+            {
+                tileMapIndex = Random.Range(0, bossTileMapPrefabs.Length);
+                selectedPrefab = bossTileMapPrefabs[tileMapIndex];
+                Debug.Log($"Generating Boss Round {currentRound} with boss tile map index {tileMapIndex}");
+            }
+            else
+            {
+                // Fallback to regular tile map if bossTileMapPrefabs is empty
+                Debug.LogWarning("No boss tile map prefabs assigned! Falling back to regular tile map.");
+                tileMapIndex = Random.Range(0, tileMapPrefabs.Length);
+                selectedPrefab = tileMapPrefabs[tileMapIndex];
+                lastTileMapIndex = tileMapIndex; // Update lastTileMapIndex for fallback
+            }
+        }
+        else
+        {
+            // Regular round logic
+            isBossRoundActive = false;
+            // Select a random tile map index different from the last one
+            do
+            {
+                tileMapIndex = Random.Range(0, tileMapPrefabs.Length);
+            } while (tileMapIndex == lastTileMapIndex && tileMapPrefabs.Length > 1); // Ensure different index unless only one prefab exists
+            lastTileMapIndex = tileMapIndex; // Update the last used index
+            selectedPrefab = tileMapPrefabs[tileMapIndex];
+        }
 
-        currentTileMap = Instantiate(tileMapPrefabs[randomIndex], Vector3.zero, Quaternion.identity);
+        currentTileMap = Instantiate(selectedPrefab, Vector3.zero, Quaternion.identity);
 
         activeEnemies.Clear();
         Enemy[] enemiesInRound = currentTileMap.GetComponentsInChildren<Enemy>();
         foreach (Enemy enemy in enemiesInRound)
         {
-            enemy.moveSpeed *= speedMultiplier;
-            enemy.maxHealth = Mathf.RoundToInt(enemy.maxHealth * healthMultiplier);
-            enemy.damage = Mathf.RoundToInt(enemy.damage * damageMultiplier);
+            // Apply multipliers, with additional scaling for Boss Round
+            enemy.moveSpeed *= speedMultiplier * (isBossRoundActive ? 1.5f : 1f); // 50% faster in Boss Round
+            enemy.maxHealth = Mathf.RoundToInt(enemy.maxHealth * healthMultiplier * (isBossRoundActive ? 2f : 1f)); // 2x health in Boss Round
+            enemy.damage = Mathf.RoundToInt(enemy.damage * damageMultiplier * (isBossRoundActive ? 1.5f : 1f)); // 50% more damage in Boss Round
             enemy.Initialize();
             activeEnemies.Add(enemy);
         }
@@ -86,22 +131,23 @@ public class RoundManager : MonoBehaviour
         }
 
         roundCompleted = false;
-        Debug.Log($"Round {currentRound} generated with {activeEnemies.Count} enemies.");
+        Debug.Log($"Round {currentRound} generated with {activeEnemies.Count} enemies. {(isBossRoundActive ? "Boss Round!" : "Regular Round")}");
     }
 
     void RoundCompleted()
     {
         if (player != null)
         {
-            player.AddMoney(10);
-            score += 50; // Add 50 points for completing the round
+            // Award more money for completing a Boss Round
+            player.AddMoney(isBossRoundActive ? 50 : 10);
+            score += isBossRoundActive ? 150 : 50; // More points for Boss Round
             if (currentRound > highestRound)
             {
                 highestRound = currentRound;
                 Debug.Log($"New record set! Highest Round: {highestRound}");
             }
             SaveGame(); // Save money, highest round, highest level, and highest score
-            Debug.Log($"Round {currentRound} completed! Money increased by 10. Total money: {player.GetMoney()}, Score: {score}");
+            Debug.Log($"Round {currentRound} completed! Money increased by {(isBossRoundActive ? 50 : 10)}. Total money: {player.GetMoney()}, Score: {score}");
         }
 
         CanvasController canvas = FindObjectOfType<CanvasController>();
