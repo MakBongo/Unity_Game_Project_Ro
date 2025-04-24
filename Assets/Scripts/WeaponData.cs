@@ -11,4 +11,8 @@ public class WeaponData : ScriptableObject
     public float ammunitionLifetime = 2f;
     public int magazineSize = 30;
     public float reloadTime = 2f;
+
+    [Header("Weapon Visuals and Audio")]
+    public Sprite weaponSprite; // Sprite for weapon's visual representation
+    public AudioClip fireSound; // Audio clip for firing sound
 }

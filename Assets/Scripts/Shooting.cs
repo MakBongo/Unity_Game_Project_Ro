@@ -42,6 +42,10 @@ public class Shooting : MonoBehaviour
     [Header("Player Reference")]
     public PlayerController player;
 
+    [Header("Visual and Audio Components")]
+    private SpriteRenderer weaponSpriteRenderer;
+    private AudioSource fireAudioSource;
+
     void Start()
     {
         if (weaponData == null)
@@ -76,6 +80,37 @@ public class Shooting : MonoBehaviour
         if (firePoint == null)
         {
             Debug.LogError("Shooting: FirePoint not assigned!");
+        }
+
+        // Initialize SpriteRenderer
+        weaponSpriteRenderer = GetComponent<SpriteRenderer>();
+        if (weaponSpriteRenderer == null)
+        {
+            Debug.LogError("Shooting: SpriteRenderer component not found on this GameObject!");
+        }
+        else if (runtimeData.weaponSprite != null)
+        {
+            weaponSpriteRenderer.sprite = runtimeData.weaponSprite;
+        }
+        else
+        {
+            Debug.LogWarning("Shooting: No weapon sprite assigned in WeaponData!");
+        }
+
+        // Initialize AudioSource
+        fireAudioSource = GetComponent<AudioSource>();
+        if (fireAudioSource == null)
+        {
+            fireAudioSource = gameObject.AddComponent<AudioSource>();
+        }
+        if (runtimeData.fireSound != null)
+        {
+            fireAudioSource.clip = runtimeData.fireSound;
+            fireAudioSource.playOnAwake = false;
+        }
+        else
+        {
+            Debug.LogWarning("Shooting: No fire sound assigned in WeaponData!");
         }
 
         lastRotation = transform.rotation;
@@ -285,6 +320,12 @@ public class Shooting : MonoBehaviour
         else
         {
             Debug.LogWarning("Shooting: Ammunition prefab missing Rigidbody2D!");
+        }
+
+        // Play firing sound
+        if (fireAudioSource != null && runtimeData.fireSound != null)
+        {
+            fireAudioSource.PlayOneShot(runtimeData.fireSound);
         }
 
         currentAmmo--;
