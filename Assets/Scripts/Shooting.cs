@@ -268,7 +268,7 @@ public class Shooting : MonoBehaviour
     {
         faceRight = !faceRight;
         Vector3 scaler = transform.localScale;
-        scaler.x *= -1;
+        scaler.y *= -1; // Flip vertically by inverting the y-scale
         transform.localScale = scaler;
     }
 
