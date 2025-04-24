@@ -501,7 +501,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_FontData:
-    m_Font: {fileID: 12800000, guid: 568d660ea52fbc54d8f489fdaceff550, type: 3}
+    m_Font: {fileID: 12800000, guid: 900f1ef7d5885b842bb23f58eca5d5ff, type: 3}
     m_FontSize: 75
     m_FontStyle: 0
     m_BestFit: 0
@@ -2367,7 +2367,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_FontData:
-    m_Font: {fileID: 12800000, guid: 568d660ea52fbc54d8f489fdaceff550, type: 3}
+    m_Font: {fileID: 12800000, guid: 900f1ef7d5885b842bb23f58eca5d5ff, type: 3}
     m_FontSize: 50
     m_FontStyle: 0
     m_BestFit: 0
@@ -4081,7 +4081,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_FontData:
-    m_Font: {fileID: 12800000, guid: 568d660ea52fbc54d8f489fdaceff550, type: 3}
+    m_Font: {fileID: 12800000, guid: 900f1ef7d5885b842bb23f58eca5d5ff, type: 3}
     m_FontSize: 75
     m_FontStyle: 0
     m_BestFit: 0
@@ -5177,7 +5177,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_FontData:
-    m_Font: {fileID: 12800000, guid: 568d660ea52fbc54d8f489fdaceff550, type: 3}
+    m_Font: {fileID: 12800000, guid: 900f1ef7d5885b842bb23f58eca5d5ff, type: 3}
     m_FontSize: 50
     m_FontStyle: 0
     m_BestFit: 0
@@ -5376,7 +5376,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   firePoint: {fileID: 1013674465}
   firePointRadius: 0.5
-  weaponData: {fileID: 11400000, guid: 67611e0593903e349a8742333ac7b0f7, type: 2}
+  weaponData: {fileID: 11400000, guid: cbbff848f61877542b0d36d2806508a8, type: 2}
   rotationTransitionTime: 0.1
   ammunitionSpeedUpgrade: 0.1
   firesPerMinuteUpgrade: 0.1

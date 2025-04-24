@@ -55,7 +55,7 @@ public class ShopSystem : MonoBehaviour
         foreach (string option in upgradeOptions)
         {
             upgradeLevels[option] = 0;
-            upgradeMultipliers[option] = 1f;
+            upgradeMultipliers[option] = option == "ReloadTime" ? 1f : 1f;
             upgradePrices[option] = basePrice;
         }
 
@@ -69,11 +69,21 @@ public class ShopSystem : MonoBehaviour
         upgradeMultipliers["ExpAmount"] = saveData.expMultiplier;
         upgradeMultipliers["MoneyAmount"] = saveData.moneyMultiplier;
 
-        // Calculate levels and prices based on multipliers (multiplier = 1.25^level)
+        // Calculate levels and prices based on multipliers
         foreach (string option in upgradeOptions)
         {
             float multiplier = upgradeMultipliers[option];
-            int level = Mathf.FloorToInt(Mathf.Log(multiplier, 1.25f));
+            int level;
+            if (option == "ReloadTime")
+            {
+                // For reload time, multiplier = 0.8^level (decreasing)
+                level = multiplier >= 1f ? 0 : Mathf.FloorToInt(Mathf.Log(multiplier, 0.8f));
+            }
+            else
+            {
+                // For others, multiplier = 1.25^level (increasing)
+                level = Mathf.FloorToInt(Mathf.Log(multiplier, 1.25f));
+            }
             upgradeLevels[option] = level;
             upgradePrices[option] = basePrice;
             for (int i = 0; i < level; i++)
@@ -122,12 +132,9 @@ public class ShopSystem : MonoBehaviour
             return;
         }
 
-        // Remove existing listeners to prevent duplicates
         addMoneyButton.onClick.RemoveAllListeners();
-        // Add listener to call AddMoney
         addMoneyButton.onClick.AddListener(AddMoney);
 
-        // Ensure the button has a Text component (optional, for labeling)
         Text buttonText = addMoneyButton.GetComponentInChildren<Text>();
         if (buttonText != null)
         {
@@ -148,7 +155,7 @@ public class ShopSystem : MonoBehaviour
             case "MagazineSize":
                 return $"Magazine Size +25% (Current: x{upgradeMultipliers[option]:F2})";
             case "ReloadTime":
-                return $"Reload Time -25% (Current: x{upgradeMultipliers[option]:F2})";
+                return $"Reload Time -20% (Current: x{upgradeMultipliers[option]:F2})";
             case "HealRate":
                 return $"Heal Rate +25% (Current: x{upgradeMultipliers[option]:F2})";
             case "ExpAmount":
@@ -168,7 +175,14 @@ public class ShopSystem : MonoBehaviour
         {
             SaveGameManager.Instance.SetMoney(currentMoney - price);
             upgradeLevels[option]++;
-            upgradeMultipliers[option] *= 1.25f;
+            if (option == "ReloadTime")
+            {
+                upgradeMultipliers[option] *= 0.8f; // Decrease reload time by 20%
+            }
+            else
+            {
+                upgradeMultipliers[option] *= 1.25f; // Increase other stats by 25%
+            }
             upgradePrices[option] = Mathf.FloorToInt(upgradePrices[option] * 1.5f);
 
             // Update SaveData
