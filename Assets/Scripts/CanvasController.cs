@@ -25,6 +25,9 @@ public class CanvasController : MonoBehaviour
     public GameObject upgradeDataPanel;
     public GameObject enemiesUpgradePanel;
 
+    [Header("Game Over UI")]
+    public GameObject gameOverPanel; // Reference to Game Over panel
+
     [Header("Random Upgrades Button")]
     public Text upgradeOption1Text;
     public Text upgradeOption2Text;
@@ -103,6 +106,7 @@ public class CanvasController : MonoBehaviour
         if (upgradeDataPanel != null) upgradeDataPanel.SetActive(false);
         if (enemiesUpgradePanel != null) enemiesUpgradePanel.SetActive(false);
         if (pausePanel != null) pausePanel.SetActive(false);
+        if (gameOverPanel != null) gameOverPanel.SetActive(false); // Initialize Game Over panel
 
         if (playerController != null && coinText != null)
         {
@@ -219,7 +223,7 @@ public class CanvasController : MonoBehaviour
             {
                 ResumeGame();
             }
-            else
+            else if (gameOverPanel == null || !gameOverPanel.activeSelf) // Prevent pause during Game Over
             {
                 PauseGame();
             }
@@ -257,6 +261,9 @@ public class CanvasController : MonoBehaviour
                 {
                     ShowUpgradeDataPanel(); // Show player upgrades first
                 }
+                break;
+            case "GameOver":
+                ShowGameOverPanel();
                 break;
         }
     }
@@ -308,6 +315,24 @@ public class CanvasController : MonoBehaviour
         }
     }
 
+    // Game Over panel
+    public void ShowGameOverPanel()
+    {
+        if (gameOverPanel != null)
+        {
+            gameOverPanel.SetActive(true);
+            Time.timeScale = 0f;
+            Debug.Log("CanvasController: Game Over panel shown.");
+        }
+    }
+
+    public void RestartGame()
+    {
+        Time.timeScale = 1f;
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        Debug.Log("CanvasController: Game Restarted");
+    }
+
     // Player upgrade panel (for round completion)
     public void ShowUpgradeDataPanel()
     {
@@ -353,8 +378,8 @@ public class CanvasController : MonoBehaviour
     {
         if (reselectButton != null && upgradeSystem != null)
         {
-            bool library = upgradeSystem.CanAffordReselect();
-            reselectButton.interactable = library;
+            bool canAfford = upgradeSystem.CanAffordReselect();
+            reselectButton.interactable = canAfford;
             Text buttonText = reselectButton.GetComponentInChildren<Text>();
             if (buttonText != null)
             {

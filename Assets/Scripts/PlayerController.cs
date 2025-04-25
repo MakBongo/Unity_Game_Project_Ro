@@ -174,6 +174,11 @@ public class PlayerController : MonoBehaviour
     {
         Debug.Log("PlayerController: Player died!");
         gameObject.SetActive(false);
+        CanvasController canvas = FindObjectOfType<CanvasController>();
+        if (canvas != null)
+        {
+            canvas.QueuePanel("GameOver");
+        }
     }
 
     public void AddExp(int exp)
