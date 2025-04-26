@@ -153,8 +153,24 @@ public class RoundManager : MonoBehaviour
         CanvasController canvas = FindObjectOfType<CanvasController>();
         if (canvas != null)
         {
-            canvas.QueuePanel("RoundFinished");
+            if (isBossRoundActive)
+            {
+                canvas.QueuePanel("SceneComplete"); // Show Scene Complete panel for Boss Round
+            }
+            else
+            {
+                canvas.QueuePanel("RoundFinished"); // Standard round completion flow
+            }
         }
+    }
+
+    public void ContinueToNextRound()
+    {
+        // Apply a default upgrade or no upgrade, then proceed to next round
+        currentRound++;
+        isBossRoundActive = false; // Reset Boss Round flag
+        GenerateRound();
+        Debug.Log($"Continuing to Round {currentRound}");
     }
 
     public void ApplyUpgrade(string option)
@@ -176,6 +192,7 @@ public class RoundManager : MonoBehaviour
         }
 
         currentRound++;
+        isBossRoundActive = false; // Ensure Boss Round flag is reset
         GenerateRound();
     }
 

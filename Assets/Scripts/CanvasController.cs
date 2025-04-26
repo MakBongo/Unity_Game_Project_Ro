@@ -28,6 +28,9 @@ public class CanvasController : MonoBehaviour
     [Header("Game Over UI")]
     public GameObject gameOverPanel; // Reference to Game Over panel
 
+    [Header("Scene Complete UI")]
+    public GameObject sceneCompletePanel; // Reference to Scene Complete panel
+
     [Header("Random Upgrades Button")]
     public Text upgradeOption1Text;
     public Text upgradeOption2Text;
@@ -106,7 +109,8 @@ public class CanvasController : MonoBehaviour
         if (upgradeDataPanel != null) upgradeDataPanel.SetActive(false);
         if (enemiesUpgradePanel != null) enemiesUpgradePanel.SetActive(false);
         if (pausePanel != null) pausePanel.SetActive(false);
-        if (gameOverPanel != null) gameOverPanel.SetActive(false); // Initialize Game Over panel
+        if (gameOverPanel != null) gameOverPanel.SetActive(false);
+        if (sceneCompletePanel != null) sceneCompletePanel.SetActive(false); // Initialize Scene Complete panel
 
         if (playerController != null && coinText != null)
         {
@@ -223,7 +227,7 @@ public class CanvasController : MonoBehaviour
             {
                 ResumeGame();
             }
-            else if (gameOverPanel == null || !gameOverPanel.activeSelf) // Prevent pause during Game Over
+            else if ((gameOverPanel == null || !gameOverPanel.activeSelf) && (sceneCompletePanel == null || !sceneCompletePanel.activeSelf)) // Prevent pause during Game Over or Scene Complete
             {
                 PauseGame();
             }
@@ -264,6 +268,9 @@ public class CanvasController : MonoBehaviour
                 break;
             case "GameOver":
                 ShowGameOverPanel();
+                break;
+            case "SceneComplete":
+                ShowSceneCompletePanel();
                 break;
         }
     }
@@ -324,6 +331,39 @@ public class CanvasController : MonoBehaviour
             Time.timeScale = 0f;
             Debug.Log("CanvasController: Game Over panel shown.");
         }
+    }
+
+    // Scene Complete panel
+    public void ShowSceneCompletePanel()
+    {
+        if (sceneCompletePanel != null)
+        {
+            sceneCompletePanel.SetActive(true);
+            Time.timeScale = 0f;
+            Debug.Log("CanvasController: Scene Complete panel shown.");
+        }
+    }
+
+    public void ContinueGame()
+    {
+        if (sceneCompletePanel != null)
+        {
+            sceneCompletePanel.SetActive(false);
+            Time.timeScale = 1f;
+            isShowingPanel = false;
+            if (roundManager != null)
+            {
+                roundManager.ContinueToNextRound();
+            }
+            Debug.Log("CanvasController: Continuing to next round.");
+        }
+    }
+
+    public void ReturnToMainMenu()
+    {
+        Time.timeScale = 1f;
+        SceneManager.LoadScene("MainMenu");
+        Debug.Log("CanvasController: Returning to Main Menu.");
     }
 
     public void RestartGame()
