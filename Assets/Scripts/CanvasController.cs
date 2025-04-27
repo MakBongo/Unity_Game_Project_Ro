@@ -373,6 +373,13 @@ public class CanvasController : MonoBehaviour
         Debug.Log("CanvasController: Game Restarted");
     }
 
+    // Reset Boss Round timer display
+    public void ResetBossTimer()
+    {
+        timerElapsed = 0f;
+        Debug.Log("CanvasController: Boss Round timer reset.");
+    }
+
     // Player upgrade panel (for round completion)
     public void ShowUpgradeDataPanel()
     {

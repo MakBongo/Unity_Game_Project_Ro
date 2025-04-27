@@ -87,7 +87,7 @@ public class RoundManager : MonoBehaviour
             else
             {
                 // Fallback to regular tile map if bossTileMapPrefabs is empty
-                Debug.LogWarning("No boss tile map prefabs assigned! Falling back to regular tile map.");
+                Debug.LogWarning("No boss tile map prefabs assignedÄmFalling back to regular tile map.");
                 tileMapIndex = Random.Range(0, tileMapPrefabs.Length);
                 selectedPrefab = tileMapPrefabs[tileMapIndex];
                 lastTileMapIndex = tileMapIndex; // Update lastTileMapIndex for fallback
@@ -166,11 +166,21 @@ public class RoundManager : MonoBehaviour
 
     public void ContinueToNextRound()
     {
-        // Apply a default upgrade or no upgrade, then proceed to next round
+        // Reset Boss Round timer
+        isBossRoundTriggered = false;
+        isBossRoundActive = false;
+        CanvasController canvas = FindObjectOfType<CanvasController>();
+        if (canvas != null)
+        {
+            canvas.ResetBossTimer();
+        }
+        StopAllCoroutines(); // Stop any existing timer coroutine
+        StartCoroutine(BossRoundTimerCoroutine()); // Restart the timer coroutine
+
+        // Proceed to next round
         currentRound++;
-        isBossRoundActive = false; // Reset Boss Round flag
         GenerateRound();
-        Debug.Log($"Continuing to Round {currentRound}");
+        Debug.Log($"Continuing to Round {currentRound} with Boss Round timer reset.");
     }
 
     public void ApplyUpgrade(string option)
