@@ -32,19 +32,19 @@ public class CanvasController : MonoBehaviour
     public GameObject sceneCompletePanel; // Reference to Scene Complete panel
 
     [Header("Random Upgrades Button")]
-    public Text upgradeOption1Text;
-    public Text upgradeOption2Text;
-    public Text upgradeOption3Text;
-    public Button upgradeOption1Button;
-    public Button upgradeOption2Button;
-    public Button upgradeOption3Button;
-    public Button reselectButton; // Button for reselecting upgrades
+    public Transform playerUpgradeButtonParent; // Parent for dynamic player upgrade buttons
+    public GameObject playerUpgradeButtonPrefab; // Prefab with Button and Text
+    private List<Button> playerUpgradeButtons = new List<Button>(); // Track instantiated buttons
+    private List<Text> playerUpgradeTexts = new List<Text>(); // Track text components
 
     [Header("Enemies Upgrades Button")]
-    public Text enemiesUpgradesOption1Text;
-    public Text enemiesUpgradesOption2Text;
-    public Button enemiesUpgradesOption1Button;
-    public Button enemiesUpgradesOption2Button;
+    public Transform enemyUpgradeButtonParent; // Parent for dynamic enemy upgrade buttons
+    public GameObject enemyUpgradeButtonPrefab; // Prefab with Button and Text
+    private List<Button> enemyUpgradeButtons = new List<Button>(); // Track instantiated buttons
+    private List<Text> enemyUpgradeTexts = new List<Text>(); // Track text components
+
+    [Header("Reselect Button")]
+    public Button reselectButton; // Button for reselecting upgrades
 
     [Header("Pause UI")]
     public GameObject pausePanel;
@@ -151,6 +151,10 @@ public class CanvasController : MonoBehaviour
             reselectButton.onClick.AddListener(ReselectUpgrades);
             UpdateReselectButtonState();
         }
+
+        // Initialize upgrade buttons
+        SetupPlayerUpgradeButtons();
+        SetupEnemyUpgradeButtons();
     }
 
     void Update()
@@ -380,6 +384,90 @@ public class CanvasController : MonoBehaviour
         Debug.Log("CanvasController: Boss Round timer reset.");
     }
 
+    // Setup dynamic player upgrade buttons
+    void SetupPlayerUpgradeButtons()
+    {
+        if (playerUpgradeButtonParent == null || playerUpgradeButtonPrefab == null)
+        {
+            Debug.LogError("CanvasController: PlayerUpgradeButtonParent or PlayerUpgradeButtonPrefab not assigned!");
+            return;
+        }
+
+        // Clear existing buttons
+        foreach (Transform child in playerUpgradeButtonParent)
+        {
+            Destroy(child.gameObject);
+        }
+        playerUpgradeButtons.Clear();
+        playerUpgradeTexts.Clear();
+
+        // Create three buttons for player upgrades
+        for (int i = 0; i < 3; i++)
+        {
+            GameObject buttonObj = Instantiate(playerUpgradeButtonPrefab, playerUpgradeButtonParent);
+            Button button = buttonObj.GetComponent<Button>();
+            Text text = buttonObj.GetComponentInChildren<Text>();
+
+            if (button == null)
+            {
+                Debug.LogWarning($"CanvasController: Player upgrade button prefab {buttonObj.name} missing Button component!");
+                continue;
+            }
+            if (text == null)
+            {
+                Debug.LogWarning($"CanvasController: Player upgrade button {buttonObj.name} missing Text component!");
+                continue;
+            }
+
+            playerUpgradeButtons.Add(button);
+            playerUpgradeTexts.Add(text);
+        }
+
+        Debug.Log("CanvasController: Created 3 player upgrade buttons");
+    }
+
+    // Setup dynamic enemy upgrade buttons
+    void SetupEnemyUpgradeButtons()
+    {
+        if (enemyUpgradeButtonParent == null || enemyUpgradeButtonPrefab == null)
+        {
+            Debug.LogError("CanvasController: EnemyUpgradeButtonParent or EnemyUpgradeButtonPrefab not assigned!");
+            return;
+        }
+
+        // Clear existing buttons
+        foreach (Transform child in enemyUpgradeButtonParent)
+        {
+            Destroy(child.gameObject);
+        }
+        enemyUpgradeButtons.Clear();
+        enemyUpgradeTexts.Clear();
+
+        // Create two buttons for enemy upgrades
+        for (int i = 0; i < 2; i++)
+        {
+            GameObject buttonObj = Instantiate(enemyUpgradeButtonPrefab, enemyUpgradeButtonParent);
+            Button button = buttonObj.GetComponent<Button>();
+            Text text = buttonObj.GetComponentInChildren<Text>();
+
+            if (button == null)
+            {
+                Debug.LogWarning($"CanvasController: Enemy upgrade button prefab {buttonObj.name} missing Button component!");
+                continue;
+            }
+            if (text == null)
+            {
+                Debug.LogWarning($"CanvasController: Enemy upgrade button {buttonObj.name} missing Text component!");
+                continue;
+            }
+
+            enemyUpgradeButtons.Add(button);
+            enemyUpgradeTexts.Add(text);
+        }
+
+        Debug.Log("CanvasController: Created 2 enemy upgrade buttons");
+    }
+
     // Player upgrade panel (for round completion)
     public void ShowUpgradeDataPanel()
     {
@@ -392,23 +480,25 @@ public class CanvasController : MonoBehaviour
             // Reset reselect state
             upgradeSystem.ResetReselectState();
             RefreshUpgradeOptions();
-
-            upgradeOption1Button.onClick.RemoveAllListeners();
-            upgradeOption2Button.onClick.RemoveAllListeners();
-            upgradeOption3Button.onClick.RemoveAllListeners();
-            upgradeOption1Button.onClick.AddListener(() => ApplyPlayerUpgrade(currentPlayerOptions[0]));
-            upgradeOption2Button.onClick.AddListener(() => ApplyPlayerUpgrade(currentPlayerOptions[1]));
-            upgradeOption3Button.onClick.AddListener(() => ApplyPlayerUpgrade(currentPlayerOptions[2]));
         }
     }
 
     void RefreshUpgradeOptions()
     {
+        if (upgradeSystem == null) return;
+
         currentPlayerOptions = upgradeSystem.GetRandomUpgradeOptions(3);
 
-        upgradeOption1Text.text = upgradeSystem.GetPlayerUpgradeText(currentPlayerOptions[0]);
-        upgradeOption2Text.text = upgradeSystem.GetPlayerUpgradeText(currentPlayerOptions[1]);
-        upgradeOption3Text.text = upgradeSystem.GetPlayerUpgradeText(currentPlayerOptions[2]);
+        for (int i = 0; i < playerUpgradeButtons.Count; i++)
+        {
+            if (i < currentPlayerOptions.Length)
+            {
+                playerUpgradeTexts[i].text = upgradeSystem.GetPlayerUpgradeText(currentPlayerOptions[i]);
+                int index = i; // Capture index for listener
+                playerUpgradeButtons[i].onClick.RemoveAllListeners();
+                playerUpgradeButtons[i].onClick.AddListener(() => ApplyPlayerUpgrade(currentPlayerOptions[index]));
+            }
+        }
 
         UpdateReselectButtonState();
     }
@@ -459,13 +549,16 @@ public class CanvasController : MonoBehaviour
                 currentRoundOptions[1] = roundUpgradeOptions[Random.Range(0, roundUpgradeOptions.Length)];
             } while (currentRoundOptions[1] == currentRoundOptions[0]);
 
-            enemiesUpgradesOption1Text.text = GetRoundUpgradeText(currentRoundOptions[0]);
-            enemiesUpgradesOption2Text.text = GetRoundUpgradeText(currentRoundOptions[1]);
-
-            enemiesUpgradesOption1Button.onClick.RemoveAllListeners();
-            enemiesUpgradesOption2Button.onClick.RemoveAllListeners();
-            enemiesUpgradesOption1Button.onClick.AddListener(() => ApplyRoundUpgrade(currentRoundOptions[0]));
-            enemiesUpgradesOption2Button.onClick.AddListener(() => ApplyRoundUpgrade(currentRoundOptions[1]));
+            for (int i = 0; i < enemyUpgradeButtons.Count; i++)
+            {
+                if (i < currentRoundOptions.Length)
+                {
+                    enemyUpgradeTexts[i].text = GetRoundUpgradeText(currentRoundOptions[i]);
+                    int index = i; // Capture index for listener
+                    enemyUpgradeButtons[i].onClick.RemoveAllListeners();
+                    enemyUpgradeButtons[i].onClick.AddListener(() => ApplyRoundUpgrade(currentRoundOptions[index]));
+                }
+            }
         }
     }
 
