@@ -54,11 +54,21 @@ public class PlayerController : MonoBehaviour
     private int playerLayer;
     private int passThroughLayer;
 
+    // SpriteRenderer for flipping (already added previously)
+    private SpriteRenderer spriteRenderer;
+
     void Awake()
     {
         PlayerRB = GetComponent<Rigidbody2D>();
         currentHealth = maxHealth;
         money = SaveGameManager.Instance.GetMoney(); // Initialize money from SaveGameManager
+
+        // Initialize SpriteRenderer (already added previously)
+        spriteRenderer = GetComponent<SpriteRenderer>();
+        if (spriteRenderer == null)
+        {
+            Debug.LogError("PlayerController: SpriteRenderer component not found!");
+        }
 
         if (shooting == null)
         {
@@ -125,12 +135,31 @@ public class PlayerController : MonoBehaviour
         {
             StartCoroutine(DropThroughPlatform());
         }
+
+        // NEW: Flip sprite based on mouse direction
+        if (spriteRenderer != null)
+        {
+            // Get mouse position in world space
+            Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            // Compare mouse X position to player X position
+            if (mousePos.x > transform.position.x)
+            {
+                spriteRenderer.flipX = false; // Face right
+            }
+            else if (mousePos.x < transform.position.x)
+            {
+                spriteRenderer.flipX = true; // Face left
+            }
+        }
     }
 
     void FixedUpdate()
     {
         inputX = Input.GetAxis("Horizontal");
         PlayerRB.velocity = new Vector2(inputX * moveSpeed, PlayerRB.velocity.y);
+
+        // REMOVED: Movement-based flipping logic
+        // (Previously: Flipped sprite based on inputX)
 
         bool wasGrounded = isGrounded;
         Vector2 originLeft = new Vector2(transform.position.x - rayOffset, transform.position.y);
