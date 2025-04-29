@@ -102,7 +102,7 @@ GameObject:
   - component: {fileID: 7780024978011991778}
   - component: {fileID: 3961483655057802478}
   - component: {fileID: 2718835067390761090}
-  - component: {fileID: 6668839965159890454}
+  - component: {fileID: 210025286540504858}
   m_Layer: 6
   m_Name: Player_T
   m_TagString: Player
@@ -261,7 +261,7 @@ Rigidbody2D:
   m_Mass: 1
   m_LinearDrag: 0
   m_AngularDrag: 0.05
-  m_GravityScale: 1
+  m_GravityScale: 2
   m_Material: {fileID: 6200000, guid: 3dfcc8b7b938a474d9564c90eda7d697, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
@@ -272,8 +272,8 @@ Rigidbody2D:
   m_Interpolate: 0
   m_SleepingMode: 1
   m_CollisionDetection: 0
-  m_Constraints: 0
---- !u!114 &6668839965159890454
+  m_Constraints: 4
+--- !u!114 &210025286540504858
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -285,10 +285,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2bb9f73ba8291354eb558260456643ba, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 10
+  moveSpeed: 5
   JumpForce: 10
-  rayLength: 0.7
-  rayOffset: 0.5
+  rayLength: 0.55
+  rayOffset: 0.42
   WhatIsGround:
     serializedVersion: 2
     m_Bits: 520
@@ -315,7 +315,7 @@ GameObject:
   - component: {fileID: 785542190877471957}
   - component: {fileID: 1831668815567224077}
   m_Layer: 6
-  m_Name: Weapon (1)
+  m_Name: Weapon
   m_TagString: Player
   m_Icon: {fileID: -5397416234189338067, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
@@ -669,7 +669,7 @@ GameObject:
   - component: {fileID: 5266735116922039881}
   - component: {fileID: 8936426287392202099}
   m_Layer: 6
-  m_Name: HpCanvas (1)
+  m_Name: HpCanvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -768,7 +768,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7406585377117888713}
   m_Layer: 6
-  m_Name: Fire Point (1)
+  m_Name: Fire Point
   m_TagString: Untagged
   m_Icon: {fileID: 7866945982896999795, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0

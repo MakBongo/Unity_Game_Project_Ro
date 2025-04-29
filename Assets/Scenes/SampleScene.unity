@@ -759,17 +759,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 285508452}
   m_CullTransparentMesh: 1
---- !u!114 &329585379 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 785542190877471957, guid: 6c8acde0681f5fd489e9bfb30354ddfa, type: 3}
-  m_PrefabInstance: {fileID: 357086915}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b3a1f5e388369cc4ab6e1457eb92bf6e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1001 &357086915
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -820,27 +809,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1970929500086645826, guid: 6c8acde0681f5fd489e9bfb30354ddfa, type: 3}
       propertyPath: m_Name
-      value: Player_T
+      value: Player
       objectReference: {fileID: 0}
-    - target: {fileID: 2635493547604278976, guid: 6c8acde0681f5fd489e9bfb30354ddfa, type: 3}
-      propertyPath: m_Name
-      value: Weapon
-      objectReference: {fileID: 0}
-    - target: {fileID: 2718835067390761090, guid: 6c8acde0681f5fd489e9bfb30354ddfa, type: 3}
-      propertyPath: m_Constraints
-      value: 4
-      objectReference: {fileID: 0}
-    - target: {fileID: 2718835067390761090, guid: 6c8acde0681f5fd489e9bfb30354ddfa, type: 3}
-      propertyPath: m_GravityScale
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 7780024978011991778, guid: 6c8acde0681f5fd489e9bfb30354ddfa, type: 3}
-      propertyPath: m_Enabled
+    - target: {fileID: 5311784238403318734, guid: 6c8acde0681f5fd489e9bfb30354ddfa, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: -5307355338712461373, guid: 1a726667045d61346ab130c634ed9d3c, type: 3}
+    - target: {fileID: 5311784238403318734, guid: 6c8acde0681f5fd489e9bfb30354ddfa, type: 3}
+      propertyPath: m_WasSpriteAssigned
       value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 8548543885701392002, guid: 6c8acde0681f5fd489e9bfb30354ddfa, type: 3}
-      propertyPath: m_Name
-      value: HpCanvas
       objectReference: {fileID: 0}
     - target: {fileID: 8825003412356837040, guid: 6c8acde0681f5fd489e9bfb30354ddfa, type: 3}
       propertyPath: m_AnchorMax.x
@@ -850,18 +827,10 @@ PrefabInstance:
       propertyPath: m_AnchorMax.y
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 9223174018892217106, guid: 6c8acde0681f5fd489e9bfb30354ddfa, type: 3}
-      propertyPath: m_Name
-      value: Fire Point
-      objectReference: {fileID: 0}
-    m_RemovedComponents:
-    - {fileID: 6668839965159890454, guid: 6c8acde0681f5fd489e9bfb30354ddfa, type: 3}
+    m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 1970929500086645826, guid: 6c8acde0681f5fd489e9bfb30354ddfa, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1086212369}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 6c8acde0681f5fd489e9bfb30354ddfa, type: 3}
 --- !u!1 &389937327
 GameObject:
@@ -1942,8 +1911,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 13f56652fbe69364f9912d8c92944db6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerController: {fileID: 0}
-  shooting: {fileID: 0}
+  playerController: {fileID: 1306127883}
+  shooting: {fileID: 1017175366}
   displayText: {fileID: 1469829164}
   healthSlider: {fileID: 0}
   expSlider: {fileID: 1295847685}
@@ -3238,6 +3207,17 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1006193779}
   m_CullTransparentMesh: 1
+--- !u!114 &1017175366 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 785542190877471957, guid: 6c8acde0681f5fd489e9bfb30354ddfa, type: 3}
+  m_PrefabInstance: {fileID: 357086915}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b3a1f5e388369cc4ab6e1457eb92bf6e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &1034331591
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -3548,40 +3528,6 @@ Tilemap:
     e31: 0
     e32: 0
     e33: 1
---- !u!1 &1086212368 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 1970929500086645826, guid: 6c8acde0681f5fd489e9bfb30354ddfa, type: 3}
-  m_PrefabInstance: {fileID: 357086915}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &1086212369
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1086212368}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2bb9f73ba8291354eb558260456643ba, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  moveSpeed: 5
-  JumpForce: 10
-  rayLength: 0.55
-  rayOffset: 0.42
-  WhatIsGround:
-    serializedVersion: 2
-    m_Bits: 520
-  maxHealth: 100
-  healRate: 0.001
-  currentExp: 0
-  maxExp: 50
-  level: 1
-  shooting: {fileID: 329585379}
-  money: 0
-  moneyMultiplier: 1
-  expMultiplier: 1
-  dropDelay: 0.5
 --- !u!4 &1086212374 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1637022728479775783, guid: 6c8acde0681f5fd489e9bfb30354ddfa, type: 3}
@@ -4297,6 +4243,17 @@ MonoBehaviour:
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &1306127883 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 210025286540504858, guid: 6c8acde0681f5fd489e9bfb30354ddfa, type: 3}
+  m_PrefabInstance: {fileID: 357086915}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2bb9f73ba8291354eb558260456643ba, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1439350949
 GameObject:
   m_ObjectHideFlags: 0
