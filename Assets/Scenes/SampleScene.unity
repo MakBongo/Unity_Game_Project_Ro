@@ -767,6 +767,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 210025286540504858, guid: 6c8acde0681f5fd489e9bfb30354ddfa, type: 3}
+      propertyPath: rayLength
+      value: 0.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 210025286540504858, guid: 6c8acde0681f5fd489e9bfb30354ddfa, type: 3}
+      propertyPath: rayOffset
+      value: 0.33
+      objectReference: {fileID: 0}
     - target: {fileID: 785542190877471957, guid: 6c8acde0681f5fd489e9bfb30354ddfa, type: 3}
       propertyPath: weaponData
       value: 
@@ -1910,7 +1918,7 @@ MonoBehaviour:
   playerController: {fileID: 1306127883}
   shooting: {fileID: 1017175366}
   displayText: {fileID: 1469829164}
-  healthSlider: {fileID: 0}
+  healthSlider: {fileID: 1110759812}
   expSlider: {fileID: 1295847685}
   coinText: {fileID: 2061546257}
   roundText: {fileID: 610254512}
@@ -3604,6 +3612,17 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1092034346}
   m_CullTransparentMesh: 1
+--- !u!114 &1110759812 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8408387336822593602, guid: 6c8acde0681f5fd489e9bfb30354ddfa, type: 3}
+  m_PrefabInstance: {fileID: 357086915}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 67db9e8f0e2ae9c40bc1e2b64352a6b4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1122114531
 GameObject:
   m_ObjectHideFlags: 0
