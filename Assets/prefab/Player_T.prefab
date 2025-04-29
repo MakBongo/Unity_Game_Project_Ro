@@ -287,8 +287,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   moveSpeed: 5
   JumpForce: 10
-  rayLength: 0.55
-  rayOffset: 0.42
+  rayLength: 0.2
+  rayOffset: 0.33
   WhatIsGround:
     serializedVersion: 2
     m_Bits: 520

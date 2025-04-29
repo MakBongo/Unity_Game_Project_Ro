@@ -767,18 +767,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 210025286540504858, guid: 6c8acde0681f5fd489e9bfb30354ddfa, type: 3}
-      propertyPath: rayLength
-      value: 0.2
-      objectReference: {fileID: 0}
-    - target: {fileID: 210025286540504858, guid: 6c8acde0681f5fd489e9bfb30354ddfa, type: 3}
-      propertyPath: rayOffset
-      value: 0.33
-      objectReference: {fileID: 0}
     - target: {fileID: 785542190877471957, guid: 6c8acde0681f5fd489e9bfb30354ddfa, type: 3}
       propertyPath: weaponData
       value: 
-      objectReference: {fileID: 11400000, guid: cbbff848f61877542b0d36d2806508a8, type: 2}
+      objectReference: {fileID: 0}
     - target: {fileID: 1637022728479775783, guid: 6c8acde0681f5fd489e9bfb30354ddfa, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -823,6 +815,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Player
       objectReference: {fileID: 0}
+    - target: {fileID: 7780024978011991778, guid: 6c8acde0681f5fd489e9bfb30354ddfa, type: 3}
+      propertyPath: m_Controller
+      value: 
+      objectReference: {fileID: 9100000, guid: c11c65572d25cdc4f9cc6aba4ee5a8ad, type: 2}
     - target: {fileID: 8825003412356837040, guid: 6c8acde0681f5fd489e9bfb30354ddfa, type: 3}
       propertyPath: m_AnchorMax.x
       value: 0
