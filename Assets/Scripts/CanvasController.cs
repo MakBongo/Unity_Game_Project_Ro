@@ -46,6 +46,10 @@ public class CanvasController : MonoBehaviour
     [Header("Reselect Button")]
     public Button reselectButton; // Button for reselecting upgrades
 
+    [Header("Audio")]
+    public AudioClip buttonClickSound; // Sound to play when a button is clicked
+    private AudioSource audioSource; // AudioSource for playing button sounds
+
     [Header("Pause UI")]
     public GameObject pausePanel;
 
@@ -62,6 +66,18 @@ public class CanvasController : MonoBehaviour
 
     void Start()
     {
+        // Initialize AudioSource
+        audioSource = gameObject.GetComponent<AudioSource>();
+        if (audioSource == null)
+        {
+            audioSource = gameObject.AddComponent<AudioSource>();
+            audioSource.playOnAwake = false;
+        }
+        if (buttonClickSound != null)
+        {
+            audioSource.clip = buttonClickSound;
+        }
+
         if (playerController != null && healthSlider != null)
         {
             healthSlider.maxValue = playerController.GetMaxHealth();
@@ -148,7 +164,14 @@ public class CanvasController : MonoBehaviour
         // Set up reselect button listener
         if (reselectButton != null)
         {
-            reselectButton.onClick.AddListener(ReselectUpgrades);
+            reselectButton.onClick.AddListener(() =>
+            {
+                if (audioSource != null && audioSource.clip != null)
+                {
+                    audioSource.Play();
+                }
+                ReselectUpgrades();
+            });
             UpdateReselectButtonState();
         }
 
@@ -291,6 +314,10 @@ public class CanvasController : MonoBehaviour
 
     public void OnHealthButtonClicked()
     {
+        if (audioSource != null && audioSource.clip != null)
+        {
+            audioSource.Play();
+        }
         if (playerController != null)
         {
             playerController.UpgradeMaxHealth();
@@ -300,6 +327,10 @@ public class CanvasController : MonoBehaviour
 
     public void OnDamageButtonClicked()
     {
+        if (audioSource != null && audioSource.clip != null)
+        {
+            audioSource.Play();
+        }
         if (shooting != null)
         {
             shooting.UpgradeAmmunitionDamage();
@@ -309,6 +340,10 @@ public class CanvasController : MonoBehaviour
 
     public void OnSpeedButtonClicked()
     {
+        if (audioSource != null && audioSource.clip != null)
+        {
+            audioSource.Play();
+        }
         if (playerController != null)
         {
             playerController.UpgradeMoveSpeed();
@@ -350,6 +385,10 @@ public class CanvasController : MonoBehaviour
 
     public void ContinueGame()
     {
+        if (audioSource != null && audioSource.clip != null)
+        {
+            audioSource.Play();
+        }
         if (sceneCompletePanel != null)
         {
             sceneCompletePanel.SetActive(false);
@@ -365,6 +404,10 @@ public class CanvasController : MonoBehaviour
 
     public void ReturnToMainMenu()
     {
+        if (audioSource != null && audioSource.clip != null)
+        {
+            audioSource.Play();
+        }
         Time.timeScale = 1f;
         SceneManager.LoadScene("MainMenu");
         Debug.Log("CanvasController: Returning to Main Menu.");
@@ -372,6 +415,10 @@ public class CanvasController : MonoBehaviour
 
     public void RestartGame()
     {
+        if (audioSource != null && audioSource.clip != null)
+        {
+            audioSource.Play();
+        }
         Time.timeScale = 1f;
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
         Debug.Log("CanvasController: Game Restarted");
@@ -496,7 +543,14 @@ public class CanvasController : MonoBehaviour
                 playerUpgradeTexts[i].text = upgradeSystem.GetPlayerUpgradeText(currentPlayerOptions[i]);
                 int index = i; // Capture index for listener
                 playerUpgradeButtons[i].onClick.RemoveAllListeners();
-                playerUpgradeButtons[i].onClick.AddListener(() => ApplyPlayerUpgrade(currentPlayerOptions[index]));
+                playerUpgradeButtons[i].onClick.AddListener(() =>
+                {
+                    if (audioSource != null && audioSource.clip != null)
+                    {
+                        audioSource.Play();
+                    }
+                    ApplyPlayerUpgrade(currentPlayerOptions[index]);
+                });
             }
         }
 
@@ -556,7 +610,14 @@ public class CanvasController : MonoBehaviour
                     enemyUpgradeTexts[i].text = GetRoundUpgradeText(currentRoundOptions[i]);
                     int index = i; // Capture index for listener
                     enemyUpgradeButtons[i].onClick.RemoveAllListeners();
-                    enemyUpgradeButtons[i].onClick.AddListener(() => ApplyRoundUpgrade(currentRoundOptions[index]));
+                    enemyUpgradeButtons[i].onClick.AddListener(() =>
+                    {
+                        if (audioSource != null && audioSource.clip != null)
+                        {
+                            audioSource.Play();
+                        }
+                        ApplyRoundUpgrade(currentRoundOptions[index]);
+                    });
                 }
             }
         }
@@ -597,6 +658,10 @@ public class CanvasController : MonoBehaviour
 
     public void ResumeGame()
     {
+        if (audioSource != null && audioSource.clip != null)
+        {
+            audioSource.Play();
+        }
         if (pausePanel != null)
         {
             pausePanel.SetActive(false);
@@ -607,6 +672,10 @@ public class CanvasController : MonoBehaviour
 
     public void QuitGame()
     {
+        if (audioSource != null && audioSource.clip != null)
+        {
+            audioSource.Play();
+        }
         Time.timeScale = 1f;
         Application.Quit();
         Debug.Log("Game Quit");
