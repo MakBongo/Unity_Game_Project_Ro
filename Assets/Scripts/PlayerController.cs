@@ -54,10 +54,10 @@ public class PlayerController : MonoBehaviour
     private int playerLayer;
     private int passThroughLayer;
 
-    // Existing: SpriteRenderer for flipping
+    // SpriteRenderer for flipping
     private SpriteRenderer spriteRenderer;
 
-    // NEW: Animator for controlling animations
+    // Animator for controlling animations
     private Animator animator;
 
     void Awake()
@@ -73,7 +73,7 @@ public class PlayerController : MonoBehaviour
             Debug.LogError("PlayerController: SpriteRenderer component not found!");
         }
 
-        // NEW: Initialize Animator
+        // Initialize Animator
         animator = GetComponent<Animator>();
         if (animator == null)
         {
@@ -138,6 +138,10 @@ public class PlayerController : MonoBehaviour
             canJump = false;
             isJumpingThrough = true;
             gameObject.layer = passThroughLayer; // Instantly switch to PassThrough layer
+            if (animator != null)
+            {
+                animator.SetTrigger("Jump"); // Trigger Jump animation
+            }
             Debug.Log("PlayerController: Jumping, set to PassThrough layer.");
         }
 
@@ -165,10 +169,13 @@ public class PlayerController : MonoBehaviour
             }
         }
 
-        // NEW: Update Animator with movement speed
+        // Update Animator with movement speed and grounded state
         if (animator != null)
         {
             animator.SetFloat("Speed", Mathf.Abs(inputX));
+            animator.SetBool("IsGrounded", isGrounded);
+            // Set IsFalling based on vertical velocity
+            animator.SetBool("IsFalling", PlayerRB.velocity.y < -0.1f);
         }
 
         bool wasGrounded = isGrounded;
