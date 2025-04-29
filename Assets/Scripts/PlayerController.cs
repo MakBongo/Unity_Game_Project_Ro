@@ -54,8 +54,11 @@ public class PlayerController : MonoBehaviour
     private int playerLayer;
     private int passThroughLayer;
 
-    // SpriteRenderer for flipping (already added previously)
+    // Existing: SpriteRenderer for flipping
     private SpriteRenderer spriteRenderer;
+
+    // NEW: Animator for controlling animations
+    private Animator animator;
 
     void Awake()
     {
@@ -63,11 +66,18 @@ public class PlayerController : MonoBehaviour
         currentHealth = maxHealth;
         money = SaveGameManager.Instance.GetMoney(); // Initialize money from SaveGameManager
 
-        // Initialize SpriteRenderer (already added previously)
+        // Initialize SpriteRenderer
         spriteRenderer = GetComponent<SpriteRenderer>();
         if (spriteRenderer == null)
         {
             Debug.LogError("PlayerController: SpriteRenderer component not found!");
+        }
+
+        // NEW: Initialize Animator
+        animator = GetComponent<Animator>();
+        if (animator == null)
+        {
+            Debug.LogError("PlayerController: Animator component not found!");
         }
 
         if (shooting == null)
@@ -135,22 +145,6 @@ public class PlayerController : MonoBehaviour
         {
             StartCoroutine(DropThroughPlatform());
         }
-
-        // NEW: Flip sprite based on mouse direction
-        if (spriteRenderer != null)
-        {
-            // Get mouse position in world space
-            Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            // Compare mouse X position to player X position
-            if (mousePos.x > transform.position.x)
-            {
-                spriteRenderer.flipX = false; // Face right
-            }
-            else if (mousePos.x < transform.position.x)
-            {
-                spriteRenderer.flipX = true; // Face left
-            }
-        }
     }
 
     void FixedUpdate()
@@ -158,8 +152,24 @@ public class PlayerController : MonoBehaviour
         inputX = Input.GetAxis("Horizontal");
         PlayerRB.velocity = new Vector2(inputX * moveSpeed, PlayerRB.velocity.y);
 
-        // REMOVED: Movement-based flipping logic
-        // (Previously: Flipped sprite based on inputX)
+        // Flip sprite based on movement direction
+        if (spriteRenderer != null)
+        {
+            if (inputX > 0)
+            {
+                spriteRenderer.flipX = false; // Face right
+            }
+            else if (inputX < 0)
+            {
+                spriteRenderer.flipX = true; // Face left
+            }
+        }
+
+        // NEW: Update Animator with movement speed
+        if (animator != null)
+        {
+            animator.SetFloat("Speed", Mathf.Abs(inputX));
+        }
 
         bool wasGrounded = isGrounded;
         Vector2 originLeft = new Vector2(transform.position.x - rayOffset, transform.position.y);
