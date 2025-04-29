@@ -335,7 +335,7 @@ public class Shooting : MonoBehaviour
     IEnumerator ReturnAmmunitionToPool(GameObject ammunition)
     {
         float elapsed = 0f;
-        while (elapsed < runtimeData.ammunitionLifetime)
+        while (elapsed < runtimeData.ammunitionLifetime && ammunition.activeSelf)
         {
             if (Time.timeScale > 0f)
             {
@@ -343,7 +343,7 @@ public class Shooting : MonoBehaviour
             }
             yield return null;
         }
-        if (ammunition != null && ammunition.activeSelf)
+        if (ammunition != null)
         {
             ammunition.SetActive(false);
             ammunitionPool.Enqueue(ammunition);
