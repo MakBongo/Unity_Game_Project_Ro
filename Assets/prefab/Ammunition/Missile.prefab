@@ -103,7 +103,7 @@ MonoBehaviour:
   player: {fileID: 0}
   explosionRadius: 2
   explosionEffectPrefab: {fileID: 0}
-  trackingStrength: 1
+  trackingStrength: 3
   detectionRadius: 7
 --- !u!61 &2482631027370065659
 BoxCollider2D:

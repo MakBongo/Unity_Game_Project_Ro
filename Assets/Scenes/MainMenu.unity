@@ -239,14 +239,14 @@ MonoBehaviour:
   sceneSelectionPanel: {fileID: 712246892}
   shopPanel: {fileID: 2006594241}
   weaponButtonParent: {fileID: 2078547041}
-  weaponButtonPrefab: {fileID: 7693439945807980153, guid: f01994bd9d91c7d44bf88d40ca542f7a, type: 3}
+  weaponButtonPrefab: {fileID: 8763009405544597223, guid: eefbc22f49c07b547a371f3262427944, type: 3}
   availableWeapons:
   - {fileID: 11400000, guid: cbbff848f61877542b0d36d2806508a8, type: 2}
   - {fileID: 11400000, guid: 97385ee87fa92e741b9225650b84e43e, type: 2}
   - {fileID: 11400000, guid: 67611e0593903e349a8742333ac7b0f7, type: 2}
   - {fileID: 11400000, guid: 11841db15364cca4cb39c967d287b477, type: 2}
   sceneButtonParent: {fileID: 1748916806}
-  sceneButtonPrefab: {fileID: 7693439945807980153, guid: f01994bd9d91c7d44bf88d40ca542f7a, type: 3}
+  sceneButtonPrefab: {fileID: 8303151533902184119, guid: c29544ada7f44134ba5dd1c4c89283c9, type: 3}
   availableScenes:
   - SampleScene
 --- !u!114 &412150489
