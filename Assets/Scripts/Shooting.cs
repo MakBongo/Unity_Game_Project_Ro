@@ -46,6 +46,11 @@ public class Shooting : MonoBehaviour
     private SpriteRenderer weaponSpriteRenderer;
     private AudioSource fireAudioSource;
 
+    [Header("Weapon Visibility")]
+    public float weaponVisibleDuration = 0.2f; // Duration the weapon is visible after shooting
+    private bool isMousePressed = false; // Track mouse button state
+    private bool isWeaponVisibleFromShot = false; // Track if weapon is visible due to recent shot
+
     void Start()
     {
         if (weaponData == null)
@@ -91,6 +96,7 @@ public class Shooting : MonoBehaviour
         else if (runtimeData.weaponSprite != null)
         {
             weaponSpriteRenderer.sprite = runtimeData.weaponSprite;
+            weaponSpriteRenderer.enabled = false; // Disable weapon sprite by default
         }
         else
         {
@@ -187,6 +193,14 @@ public class Shooting : MonoBehaviour
             UpdateGunRotation();
         }
 
+        // Update weapon visibility based on mouse input
+        bool currentMouseState = Input.GetKey(KeyCode.Mouse0);
+        if (currentMouseState != isMousePressed)
+        {
+            isMousePressed = currentMouseState;
+            UpdateWeaponVisibility();
+        }
+
         if (!isReloading)
         {
             if (Input.GetKey(KeyCode.Mouse0) && Time.time >= nextFireTime && currentAmmo > 0)
@@ -207,6 +221,14 @@ public class Shooting : MonoBehaviour
         }
 
         UpdateFirePoint();
+    }
+
+    void UpdateWeaponVisibility()
+    {
+        if (weaponSpriteRenderer == null) return;
+
+        // Weapon is visible if mouse is pressed or if it's visible due to a recent shot
+        weaponSpriteRenderer.enabled = isMousePressed || isWeaponVisibleFromShot;
     }
 
     void CalculatePoolSize()
@@ -328,8 +350,31 @@ public class Shooting : MonoBehaviour
             fireAudioSource.PlayOneShot(runtimeData.fireSound);
         }
 
+        // Mark weapon as visible due to shot and start coroutine to hide it
+        if (weaponSpriteRenderer != null)
+        {
+            isWeaponVisibleFromShot = true;
+            weaponSpriteRenderer.enabled = true; // Ensure visibility during shot
+            StartCoroutine(HideWeaponAfterDelay());
+        }
+
         currentAmmo--;
         StartCoroutine(ReturnAmmunitionToPool(ammunition));
+    }
+
+    IEnumerator HideWeaponAfterDelay()
+    {
+        float elapsed = 0f;
+        while (elapsed < weaponVisibleDuration)
+        {
+            if (Time.timeScale > 0f)
+            {
+                elapsed += Time.deltaTime;
+            }
+            yield return null;
+        }
+        isWeaponVisibleFromShot = false;
+        UpdateWeaponVisibility(); // Update visibility based on mouse state
     }
 
     IEnumerator ReturnAmmunitionToPool(GameObject ammunition)
