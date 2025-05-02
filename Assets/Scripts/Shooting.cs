@@ -227,8 +227,8 @@ public class Shooting : MonoBehaviour
     {
         if (weaponSpriteRenderer == null) return;
 
-        // Weapon is visible if mouse is pressed or if it's visible due to a recent shot
-        weaponSpriteRenderer.enabled = isMousePressed || isWeaponVisibleFromShot;
+        // Weapon is hidden during reload, otherwise visible if mouse is pressed or recent shot
+        weaponSpriteRenderer.enabled = !isReloading && (isMousePressed || isWeaponVisibleFromShot);
     }
 
     void CalculatePoolSize()
@@ -374,7 +374,7 @@ public class Shooting : MonoBehaviour
             yield return null;
         }
         isWeaponVisibleFromShot = false;
-        UpdateWeaponVisibility(); // Update visibility based on mouse state
+        UpdateWeaponVisibility(); // Update visibility based on mouse state and reload
     }
 
     IEnumerator ReturnAmmunitionToPool(GameObject ammunition)
@@ -398,6 +398,7 @@ public class Shooting : MonoBehaviour
     IEnumerator Reload()
     {
         isReloading = true;
+        UpdateWeaponVisibility(); // Ensure weapon is hidden at start of reload
         Debug.Log("Shooting: Reloading...");
         float elapsed = 0f;
         while (elapsed < runtimeData.reloadTime)
@@ -412,6 +413,7 @@ public class Shooting : MonoBehaviour
         AdjustPoolSize();
         currentAmmo = runtimeData.magazineSize;
         isReloading = false;
+        UpdateWeaponVisibility(); // Re-evaluate visibility after reload
         Debug.Log("Shooting: Reload complete!");
     }
 
