@@ -418,7 +418,21 @@ public class CanvasController : MonoBehaviour
         if (audioSource != null && audioSource.clip != null)
         {
             audioSource.Play();
+            // Delay scene reload to allow sound to play
+            StartCoroutine(DelayedRestart(audioSource.clip.length));
         }
+        else
+        {
+            // If no sound, restart immediately
+            Time.timeScale = 1f;
+            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+            Debug.Log("CanvasController: Game Restarted");
+        }
+    }
+
+    private System.Collections.IEnumerator DelayedRestart(float delay)
+    {
+        yield return new WaitForSecondsRealtime(delay); // Use real-time to ignore time scale
         Time.timeScale = 1f;
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
         Debug.Log("CanvasController: Game Restarted");
