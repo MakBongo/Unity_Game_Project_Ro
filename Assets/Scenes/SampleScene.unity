@@ -768,6 +768,10 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 210025286540504858, guid: 6c8acde0681f5fd489e9bfb30354ddfa, type: 3}
+      propertyPath: jumpSound
+      value: 
+      objectReference: {fileID: 8300000, guid: 29fa66d1160780944941de4cae37b647, type: 3}
+    - target: {fileID: 210025286540504858, guid: 6c8acde0681f5fd489e9bfb30354ddfa, type: 3}
       propertyPath: rayOffset
       value: 0.375
       objectReference: {fileID: 0}

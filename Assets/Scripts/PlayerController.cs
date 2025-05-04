@@ -14,6 +14,10 @@ public class PlayerController : MonoBehaviour
     private bool canJump = true;
     private bool isJumpingThrough = false; // Track if jumping through platform
 
+    [Header("Set Jump Sound")]
+    public AudioClip jumpSound;
+    private AudioSource audioSource;
+
     [Header("Set GroundCheck")]
     public float rayLength = 0.7f;
     public float rayOffset = 0.5f;
@@ -80,6 +84,14 @@ public class PlayerController : MonoBehaviour
             Debug.LogError("PlayerController: Animator component not found!");
         }
 
+        // Initialize AudioSource
+        audioSource = GetComponent<AudioSource>();
+        if (audioSource == null)
+        {
+            Debug.LogError("PlayerController: AudioSource component not found! Adding one...");
+            audioSource = gameObject.AddComponent<AudioSource>();
+        }
+
         if (shooting == null)
         {
             Debug.LogWarning("PlayerController: Shooting script not assigned! Attempting to find it...");
@@ -141,6 +153,15 @@ public class PlayerController : MonoBehaviour
             if (animator != null)
             {
                 animator.SetTrigger("Jump"); // Trigger Jump animation
+            }
+            // Play jump sound
+            if (audioSource != null && jumpSound != null)
+            {
+                audioSource.PlayOneShot(jumpSound);
+            }
+            else
+            {
+                Debug.LogWarning("PlayerController: Jump sound or AudioSource is missing!");
             }
             Debug.Log("PlayerController: Jumping, set to PassThrough layer.");
         }
