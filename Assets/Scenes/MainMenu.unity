@@ -239,7 +239,7 @@ MonoBehaviour:
   sceneSelectionPanel: {fileID: 712246892}
   shopPanel: {fileID: 2006594241}
   weaponButtonParent: {fileID: 2078547041}
-  weaponButtonPrefab: {fileID: 8763009405544597223, guid: eefbc22f49c07b547a371f3262427944, type: 3}
+  weaponButtonPrefab: {fileID: 289664338635991978, guid: 859695d62f61fe64a842a84773b4e855, type: 3}
   availableWeapons:
   - {fileID: 11400000, guid: cbbff848f61877542b0d36d2806508a8, type: 2}
   - {fileID: 11400000, guid: 97385ee87fa92e741b9225650b84e43e, type: 2}
@@ -349,7 +349,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   coinText: {fileID: 1593907737}
   upgradeButtonParent: {fileID: 1108240583}
-  upgradeButtonPrefab: {fileID: 7693439945807980153, guid: f01994bd9d91c7d44bf88d40ca542f7a, type: 3}
+  upgradeButtonPrefab: {fileID: 8303151533902184119, guid: c29544ada7f44134ba5dd1c4c89283c9, type: 3}
   addMoneyButton: {fileID: 345518873415969387}
   basePrice: 100
 --- !u!1 &447999652
@@ -1481,10 +1481,10 @@ MonoBehaviour:
     m_Right: 0
     m_Top: 0
     m_Bottom: 0
-  m_ChildAlignment: 0
+  m_ChildAlignment: 1
   m_StartCorner: 0
-  m_StartAxis: 0
-  m_CellSize: {x: 100, y: 100}
+  m_StartAxis: 1
+  m_CellSize: {x: 750, y: 100}
   m_Spacing: {x: 0, y: 0}
   m_Constraint: 0
   m_ConstraintCount: 2
@@ -1834,7 +1834,7 @@ MonoBehaviour:
   m_ChildAlignment: 0
   m_StartCorner: 0
   m_StartAxis: 0
-  m_CellSize: {x: 100, y: 100}
+  m_CellSize: {x: 200, y: 200}
   m_Spacing: {x: 0, y: 0}
   m_Constraint: 0
   m_ConstraintCount: 2
@@ -1855,7 +1855,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &2140983850
 MonoBehaviour:
   m_ObjectHideFlags: 0
