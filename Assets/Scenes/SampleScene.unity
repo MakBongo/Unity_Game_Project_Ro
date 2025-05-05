@@ -4838,7 +4838,7 @@ MonoBehaviour:
   - {fileID: 4332902301604754245, guid: 19ff81888c97466428e194db61fcf83d, type: 3}
   bossTileMapPrefabs:
   - {fileID: 4332902301604754245, guid: 8125cb6831d22224b80ee897f4747f3e, type: 3}
-  bossRoundTimer: 900
+  bossRoundTimer: 10
   isBossRoundTriggered: 0
 --- !u!4 &1808312576
 Transform:
