@@ -21,8 +21,24 @@ public class MainMenu : MonoBehaviour
     public GameObject sceneButtonPrefab; // Prefab with Button and Text
     public List<string> availableScenes; // List of scene names in Build Settings
 
+    [Header("Audio")]
+    public AudioClip buttonClickSound; // Sound to play when a button is clicked
+    private AudioSource audioSource; // AudioSource for playing button sounds
+
     void Start()
     {
+        // Initialize AudioSource
+        audioSource = gameObject.GetComponent<AudioSource>();
+        if (audioSource == null)
+        {
+            audioSource = gameObject.AddComponent<AudioSource>();
+            audioSource.playOnAwake = false;
+        }
+        if (buttonClickSound != null)
+        {
+            audioSource.clip = buttonClickSound;
+        }
+
         // Initialize UI state
         if (mainMenuPanel != null) mainMenuPanel.SetActive(true);
         else Debug.LogError("MainMenu: MainMenuPanel not assigned!");
@@ -48,6 +64,10 @@ public class MainMenu : MonoBehaviour
 
     public void StartGame()
     {
+        if (audioSource != null && audioSource.clip != null)
+        {
+            audioSource.Play();
+        }
         if (mainMenuPanel != null) mainMenuPanel.SetActive(false);
         if (weaponSelectionPanel != null) weaponSelectionPanel.SetActive(true);
         Debug.Log("MainMenu: Start Game initiated, showing weapon selection");
@@ -55,6 +75,10 @@ public class MainMenu : MonoBehaviour
 
     public void OpenShop()
     {
+        if (audioSource != null && audioSource.clip != null)
+        {
+            audioSource.Play();
+        }
         if (mainMenuPanel != null) mainMenuPanel.SetActive(false);
         if (shopPanel != null) shopPanel.SetActive(true);
         Debug.Log("MainMenu: Opened shop panel");
@@ -62,9 +86,24 @@ public class MainMenu : MonoBehaviour
 
     public void CloseShop()
     {
+        if (audioSource != null && audioSource.clip != null)
+        {
+            audioSource.Play();
+        }
         if (shopPanel != null) shopPanel.SetActive(false);
         if (mainMenuPanel != null) mainMenuPanel.SetActive(true);
         Debug.Log("MainMenu: Closed shop panel, returned to main menu");
+    }
+
+    public void QuitGame()
+    {
+        if (audioSource != null && audioSource.clip != null)
+        {
+            audioSource.Play();
+        }
+        Time.timeScale = 1f;
+        Application.Quit();
+        Debug.Log("MainMenu: Game Quit");
     }
 
     void SetupWeaponButtons()
@@ -106,7 +145,14 @@ public class MainMenu : MonoBehaviour
                 Debug.LogWarning($"MainMenu: Weapon button {buttonObj.name} missing Text!");
             }
 
-            button.onClick.AddListener(() => OnWeaponSelected(weapon));
+            button.onClick.AddListener(() =>
+            {
+                if (audioSource != null && audioSource.clip != null)
+                {
+                    audioSource.Play();
+                }
+                OnWeaponSelected(weapon);
+            });
         }
 
         Debug.Log($"MainMenu: Created {availableWeapons.Count} weapon buttons");
@@ -159,7 +205,14 @@ public class MainMenu : MonoBehaviour
                 Debug.LogWarning($"MainMenu: Scene button {buttonObj.name} missing Text!");
             }
 
-            button.onClick.AddListener(() => OnSceneSelected(sceneName));
+            button.onClick.AddListener(() =>
+            {
+                if (audioSource != null && audioSource.clip != null)
+                {
+                    audioSource.Play();
+                }
+                OnSceneSelected(sceneName);
+            });
         }
 
         Debug.Log($"MainMenu: Created {availableScenes.Count} scene buttons");
