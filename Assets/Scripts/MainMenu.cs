@@ -95,6 +95,30 @@ public class MainMenu : MonoBehaviour
         Debug.Log("MainMenu: Closed shop panel, returned to main menu");
     }
 
+    // New method to return from weapon selection to main menu
+    public void BackToMainMenu()
+    {
+        if (audioSource != null && audioSource.clip != null)
+        {
+            audioSource.Play();
+        }
+        if (weaponSelectionPanel != null) weaponSelectionPanel.SetActive(false);
+        if (mainMenuPanel != null) mainMenuPanel.SetActive(true);
+        Debug.Log("MainMenu: Returned to main menu from weapon selection");
+    }
+
+    // New method to return from scene selection to weapon selection
+    public void BackToWeaponSelection()
+    {
+        if (audioSource != null && audioSource.clip != null)
+        {
+            audioSource.Play();
+        }
+        if (sceneSelectionPanel != null) sceneSelectionPanel.SetActive(false);
+        if (weaponSelectionPanel != null) weaponSelectionPanel.SetActive(true);
+        Debug.Log("MainMenu: Returned to weapon selection from scene selection");
+    }
+
     public void QuitGame()
     {
         if (audioSource != null && audioSource.clip != null)
