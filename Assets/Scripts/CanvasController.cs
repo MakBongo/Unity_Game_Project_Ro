@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
 using UnityEngine.SceneManagement;
@@ -32,6 +32,8 @@ public class CanvasController : MonoBehaviour
 
     [Header("Scene Complete UI")]
     public GameObject sceneCompletePanel; // Reference to Scene Complete panel
+    public Text sceneCompleteScoreText; // Text field for displaying current score in Scene Complete panel
+    public Text sceneCompleteHighestScoreText; // Text field for displaying highest score in Scene Complete panel
 
     [Header("Random Upgrades Button")]
     public Transform playerUpgradeButtonParent; // Parent for dynamic player upgrade buttons
@@ -167,6 +169,16 @@ public class CanvasController : MonoBehaviour
         if (gameOverHighestScoreText == null)
         {
             Debug.LogWarning("CanvasController: GameOverHighestScoreText reference not set in Inspector!");
+        }
+
+        // Initialize Scene Complete score texts
+        if (sceneCompleteScoreText == null)
+        {
+            Debug.LogWarning("CanvasController: SceneCompleteScoreText reference not set in Inspector!");
+        }
+        if (sceneCompleteHighestScoreText == null)
+        {
+            Debug.LogWarning("CanvasController: SceneCompleteHighestScoreText reference not set in Inspector!");
         }
 
         // Set up reselect button listener
@@ -399,6 +411,18 @@ public class CanvasController : MonoBehaviour
         {
             sceneCompletePanel.SetActive(true);
             Time.timeScale = 0f;
+
+            // Update score texts
+            if (roundManager != null && sceneCompleteScoreText != null)
+            {
+                sceneCompleteScoreText.text = $"Score: {roundManager.GetScore()}";
+            }
+            if (sceneCompleteHighestScoreText != null)
+            {
+                int highestScore = SaveGameManager.Instance != null ? SaveGameManager.Instance.GetHighestScore() : 0;
+                sceneCompleteHighestScoreText.text = $"Highest Score: {highestScore}";
+            }
+
             Debug.Log("CanvasController: Scene Complete panel shown.");
         }
     }

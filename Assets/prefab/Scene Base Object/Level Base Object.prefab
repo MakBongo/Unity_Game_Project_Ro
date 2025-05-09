@@ -829,7 +829,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Restart
+  m_Text: Continue
 --- !u!1 &673651974802102334
 GameObject:
   m_ObjectHideFlags: 0
@@ -1836,6 +1836,8 @@ MonoBehaviour:
   gameOverScoreText: {fileID: 5820480727162975528}
   gameOverHighestScoreText: {fileID: 6989668752522836408}
   sceneCompletePanel: {fileID: 7684353893872431539}
+  sceneCompleteScoreText: {fileID: 763893088307647917}
+  sceneCompleteHighestScoreText: {fileID: 1554180635207227343}
   playerUpgradeButtonParent: {fileID: 7668093471805438257}
   playerUpgradeButtonPrefab: {fileID: 8763009405544597223, guid: eefbc22f49c07b547a371f3262427944, type: 3}
   enemyUpgradeButtonParent: {fileID: 1638610231915534010}
