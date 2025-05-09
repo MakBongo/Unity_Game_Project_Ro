@@ -27,6 +27,8 @@ public class CanvasController : MonoBehaviour
 
     [Header("Game Over UI")]
     public GameObject gameOverPanel; // Reference to Game Over panel
+    public Text gameOverScoreText; // Text field for displaying current score in Game Over panel
+    public Text gameOverHighestScoreText; // Text field for displaying highest score in Game Over panel
 
     [Header("Scene Complete UI")]
     public GameObject sceneCompletePanel; // Reference to Scene Complete panel
@@ -115,10 +117,6 @@ public class CanvasController : MonoBehaviour
         if (roundManager == null)
         {
             roundManager = FindObjectOfType<RoundManager>();
-            if (roundManager == null)
-            {
-                Debug.LogError("CanvasController: RoundManager not found!");
-            }
         }
 
         if (upgradePanel != null) upgradePanel.SetActive(false);
@@ -159,6 +157,16 @@ public class CanvasController : MonoBehaviour
         if (bossTimerText == null)
         {
             Debug.LogWarning("CanvasController: BossTimerText reference not set in Inspector!");
+        }
+
+        // Initialize Game Over score texts
+        if (gameOverScoreText == null)
+        {
+            Debug.LogWarning("CanvasController: GameOverScoreText reference not set in Inspector!");
+        }
+        if (gameOverHighestScoreText == null)
+        {
+            Debug.LogWarning("CanvasController: GameOverHighestScoreText reference not set in Inspector!");
         }
 
         // Set up reselect button listener
@@ -368,6 +376,18 @@ public class CanvasController : MonoBehaviour
         {
             gameOverPanel.SetActive(true);
             Time.timeScale = 0f;
+
+            // Update score texts
+            if (roundManager != null && gameOverScoreText != null)
+            {
+                gameOverScoreText.text = $"Score: {roundManager.GetScore()}";
+            }
+            if (gameOverHighestScoreText != null)
+            {
+                int highestScore = SaveGameManager.Instance != null ? SaveGameManager.Instance.GetHighestScore() : 0;
+                gameOverHighestScoreText.text = $"Highest Score: {highestScore}";
+            }
+
             Debug.Log("CanvasController: Game Over panel shown.");
         }
     }
