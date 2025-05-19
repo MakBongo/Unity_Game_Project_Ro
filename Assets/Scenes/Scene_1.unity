@@ -233,7 +233,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8933527057942514877, guid: ae126ffc689bab845834cc32e5cb0126, type: 3}
       propertyPath: bossRoundTimer
-      value: 900
+      value: 600
       objectReference: {fileID: 0}
     - target: {fileID: 8933527057942514877, guid: ae126ffc689bab845834cc32e5cb0126, type: 3}
       propertyPath: tileMapPrefabs.Array.size

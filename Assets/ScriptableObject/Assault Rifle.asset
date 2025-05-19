@@ -19,5 +19,5 @@ MonoBehaviour:
   ammunitionLifetime: 0.3
   magazineSize: 30
   reloadTime: 1.6
-  weaponSprite: {fileID: 21300000, guid: cdf380b4cb0ba3f44bc1063c709d2ab4, type: 3}
+  weaponSprite: {fileID: 21300000, guid: dcc324f42563be644b37e2aab9b5d39e, type: 3}
   fireSound: {fileID: 8300000, guid: fd448c5837cbae948b84e5d96542646c, type: 3}
