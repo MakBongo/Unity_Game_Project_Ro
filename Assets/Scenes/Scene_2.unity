@@ -233,7 +233,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8933527057942514877, guid: ae126ffc689bab845834cc32e5cb0126, type: 3}
       propertyPath: bossRoundTimer
-      value: 900
+      value: 600
       objectReference: {fileID: 0}
     - target: {fileID: 8933527057942514877, guid: ae126ffc689bab845834cc32e5cb0126, type: 3}
       propertyPath: tileMapPrefabs.Array.size
@@ -242,15 +242,19 @@ PrefabInstance:
     - target: {fileID: 8933527057942514877, guid: ae126ffc689bab845834cc32e5cb0126, type: 3}
       propertyPath: tileMapPrefabs.Array.data[0]
       value: 
-      objectReference: {fileID: 4332902301604754245, guid: fb0a6a7e4c249c64e8867efbbf0e93b2, type: 3}
+      objectReference: {fileID: 4332902301604754245, guid: f4fa927b880e7864f821388d589e94c1, type: 3}
     - target: {fileID: 8933527057942514877, guid: ae126ffc689bab845834cc32e5cb0126, type: 3}
       propertyPath: tileMapPrefabs.Array.data[1]
       value: 
-      objectReference: {fileID: 4332902301604754245, guid: 440f56bc86f2359409d27a39d4763336, type: 3}
+      objectReference: {fileID: 4332902301604754245, guid: 48d0170a5e168084dbdd894369d21c3f, type: 3}
     - target: {fileID: 8933527057942514877, guid: ae126ffc689bab845834cc32e5cb0126, type: 3}
       propertyPath: tileMapPrefabs.Array.data[2]
       value: 
-      objectReference: {fileID: 4332902301604754245, guid: 19ff81888c97466428e194db61fcf83d, type: 3}
+      objectReference: {fileID: 4332902301604754245, guid: 9d00cdeb74c95934fa4241b886f468c6, type: 3}
+    - target: {fileID: 8933527057942514877, guid: ae126ffc689bab845834cc32e5cb0126, type: 3}
+      propertyPath: bossTileMapPrefabs.Array.data[0]
+      value: 
+      objectReference: {fileID: 4332902301604754245, guid: 5f18c61836f217548b3937674f2166fc, type: 3}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

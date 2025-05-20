@@ -587,6 +587,7 @@ MonoBehaviour:
   availableScenes:
   - SampleScene
   - Scene_1
+  - Scene_2
   buttonClickSound: {fileID: 8300000, guid: a2c0a5132a810f144a32a96a10febed7, type: 3}
 --- !u!114 &412150489
 MonoBehaviour:
