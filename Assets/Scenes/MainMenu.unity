@@ -420,7 +420,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Title
+  m_Text: Project Ro
 --- !u!222 &146104525
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -585,7 +585,6 @@ MonoBehaviour:
   sceneButtonParent: {fileID: 1748916806}
   sceneButtonPrefab: {fileID: 8303151533902184119, guid: c29544ada7f44134ba5dd1c4c89283c9, type: 3}
   availableScenes:
-  - SampleScene
   - Scene_1
   - Scene_2
   buttonClickSound: {fileID: 8300000, guid: a2c0a5132a810f144a32a96a10febed7, type: 3}
